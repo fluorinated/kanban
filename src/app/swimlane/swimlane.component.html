@@ -1,0 +1,18 @@
+<div class="top-row" *ngIf="!isCollapsed">
+  <h2 class="title">{{ title }}</h2>
+  <div class="top-row-buttons">
+    <app-button class="plus-btn">+</app-button>
+    <app-button (buttonClicked)="toggleCollapseLane()"> <</app-button>
+  </div>
+</div>
+
+<ng-container *ngIf="isCollapsed">
+  <div class="collapsed-lane">
+    <app-button (buttonClicked)="toggleCollapseLane()">></app-button>
+    <h2 class="title collapsed">{{ title }}</h2>
+  </div>
+</ng-container>
+
+<div class="lane">
+  <ng-content></ng-content>
+</div>

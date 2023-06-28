@@ -1,0 +1,3 @@
+<div cdkDropList id="list-one" [cdkDropListConnectedTo]="'list-two'" *ngFor="let ticket of tickets" [cdkDropListData]="tickets" (cdkDropListDropped)="drop($event)">
+    <app-mini-card [ticket]="ticket" [cdkDragData]="ticket" cdkDrag></app-mini-card>
+</div>

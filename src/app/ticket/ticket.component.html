@@ -1,0 +1,12 @@
+<div class="card">
+  <div class="close-btn" (click)="closeTicket()">
+    <app-button>x</app-button>
+  </div>
+
+  <p class="ticket-number">{{ ticket?.ticketNumber }}</p>
+  <h2 class="title">{{ ticket?.title }}</h2>
+  <p>{{ ticket?.description }}</p>
+  <app-tags [tags]="ticket?.tags"></app-tags>
+  <p>{{ ticket?.dueDate }}</p>
+  <p>{{ ticket?.createdDate }}</p>
+</div>

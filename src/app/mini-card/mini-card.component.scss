@@ -1,0 +1,22 @@
+.mini-card {
+  width: 18rem;
+  height: 8rem;
+  background-color: var(--neutral-4);
+  box-shadow: 2px 2px 5px 0 var(--neutral-1), -2px -2px 5px 0 var(--neutral-5);
+  border-radius: 0.25rem;
+  border-color: transparent;
+  padding: 0 0.25rem;
+  cursor: grab;
+}
+
+.title {
+  color: var(--neutral-2);
+}
+
+.ticket-number {
+  background-color: var(--neutral-3-50);
+  color: var(--neutral-2);
+  width: fit-content;
+  border-radius: 0.25rem;
+  padding: 0.125rem;
+}
