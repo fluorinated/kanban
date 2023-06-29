@@ -19,9 +19,17 @@ import { BoardService } from './board/board.service';
 import { InProgressLaneComponent } from './in-progress-lane/in-progress-lane.component';
 import { BlockedLaneComponent } from './blocked-lane/blocked-lane.component';
 import { DoneLaneComponent } from './done-lane/done-lane.component';
+import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
+import { IconComponent } from './icon/icon.component';
 
 @NgModule({
-  imports: [CommonModule, BrowserModule, AppRoutingModule, DragDropModule],
+  imports: [
+    CommonModule,
+    BrowserModule,
+    AppRoutingModule,
+    DragDropModule,
+    FontAwesomeModule,
+  ],
   declarations: [
     AppComponent,
     BoardComponent,
@@ -37,6 +45,7 @@ import { DoneLaneComponent } from './done-lane/done-lane.component';
     InProgressLaneComponent,
     BlockedLaneComponent,
     DoneLaneComponent,
+    IconComponent,
   ],
   providers: [BoardService],
   bootstrap: [AppComponent],

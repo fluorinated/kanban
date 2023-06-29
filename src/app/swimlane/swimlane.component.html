@@ -1,18 +1,24 @@
 <div class="top-row" *ngIf="!isCollapsed">
   <h2 class="title">{{ title }}</h2>
   <div class="top-row-buttons">
-    <app-button class="plus-btn">+</app-button>
-    <app-button (buttonClicked)="toggleCollapseLane()"> <</app-button>
+    <app-button class="plus-btn">
+      <app-icon icon="faPlus" color="pink-1"></app-icon>
+    </app-button>
+    <app-button (buttonClicked)="toggleCollapseLane()">
+      <app-icon icon="faAngleLeft" color="pink-1"></app-icon>
+    </app-button>
   </div>
 </div>
 
 <ng-container *ngIf="isCollapsed">
   <div class="collapsed-lane">
-    <app-button (buttonClicked)="toggleCollapseLane()">></app-button>
+    <app-button (buttonClicked)="toggleCollapseLane()">
+      <app-icon icon="faAngleRight" color="pink-1"></app-icon>
+    </app-button>
     <h2 class="title collapsed">{{ title }}</h2>
   </div>
 </ng-container>
 
-<div class="lane">
+<div class="lane" *ngIf="!isCollapsed">
   <ng-content></ng-content>
 </div>

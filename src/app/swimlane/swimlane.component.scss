@@ -4,6 +4,8 @@
 
 .title.collapsed {
   color: var(--neutral-1);
+  writing-mode: vertical-lr;
+  padding-top: 1rem;
 }
 
 .top-row {
@@ -28,6 +30,7 @@
   border-radius: 0.25rem;
   border-color: transparent;
   padding-top: 1rem;
+  margin-right: 2rem;
 }
 
 .lane {

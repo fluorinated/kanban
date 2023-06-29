@@ -1,15 +1,21 @@
 <div class="container">
   <div class="top-row">
     <div class="collapse-search-filters">
-      <app-button> <</app-button>
-      <app-search [placeholder]="'search'"></app-search>
-      <app-button>filters</app-button>
+      <app-button>
+        <app-icon icon="faAngleLeft" color="neutral-2"></app-icon>
+      </app-button>
+      <app-search placeholder="search"></app-search>
+      <app-button>
+        <app-icon icon="faFilter" color="neutral-2"></app-icon>
+      </app-button>
     </div>
 
     <div class="board-title-new-board-btn">
       <!-- board title editable -->
       <h1 class="board-title">board title</h1>
-      <app-button>+</app-button>
+      <app-button>
+        <app-icon icon="faPlus" color="neutral-2"></app-icon>
+      </app-button>
     </div>
   </div>
 
@@ -25,7 +31,7 @@
 
   <div class="swimlanes-container" cdkDropListGroup>
     <app-swimlane
-      [title]="'backlog'"
+      title="backlog"
       [tickets]="getTicketsForSwimlane('backlog')"
       (ticketClicked)="openTicket($event)"
     >
@@ -33,7 +39,7 @@
     </app-swimlane>
 
     <app-swimlane
-      [title]="'rdy 2 start'"
+      title="rdy 2 start"
       [tickets]="getTicketsForSwimlane('rdy 2 start')"
       (ticketClicked)="openTicket($event)"
     >
@@ -43,7 +49,7 @@
     </app-swimlane>
 
     <app-swimlane
-      [title]="'blocked'"
+      title="blocked"
       [tickets]="getTicketsForSwimlane('blocked')"
       (ticketClicked)="openTicket($event)"
     >
@@ -51,7 +57,7 @@
     </app-swimlane>
 
     <app-swimlane
-      [title]="'in progress'"
+      title="in progress"
       [tickets]="getTicketsForSwimlane('in progress')"
       (ticketClicked)="openTicket($event)"
     >
@@ -61,7 +67,7 @@
     </app-swimlane>
 
     <app-swimlane
-      [title]="'done'"
+      title="done"
       [tickets]="getTicketsForSwimlane('done')"
       (ticketClicked)="openTicket($event)"
     >

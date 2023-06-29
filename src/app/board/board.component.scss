@@ -8,7 +8,6 @@
 .swimlanes-container {
   display: flex;
   flex-direction: row;
-  width: calc(100vw - 2rem);
 }
 
 .top-row {
@@ -27,8 +26,9 @@
 .board-title-new-board-btn {
   display: flex;
   flex-direction: row;
-  width: 13rem;
+  width: 14rem;
   justify-content: space-between;
+  align-items: center;
 }
 
 .board-title {

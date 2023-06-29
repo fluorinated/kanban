@@ -17,9 +17,7 @@ export class SwimlaneComponent implements OnInit {
 
   constructor() {}
 
-  ngOnInit(): void {
-    console.log('isCollapsed', this.isCollapsed);
-  }
+  ngOnInit(): void {}
 
   toggleCollapseLane() {
     this.isCollapsed = !this.isCollapsed;
