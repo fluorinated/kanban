@@ -3,9 +3,10 @@ import {
   moveItemInArray,
   transferArrayItem,
 } from '@angular/cdk/drag-drop';
-import { Component } from '@angular/core';
+import { Component, Input } from '@angular/core';
 
 import { Ticket } from '../models/ticket.model';
+import { BoardService } from '../board/board.service';
 
 @Component({
   selector: 'app-ready-to-start-lane',
@@ -37,23 +38,9 @@ export class ReadyToStartLaneComponent {
     },
   ];
 
-  drop(event: CdkDragDrop<Ticket[]>) {
-    if (event.container.id === event.previousContainer.id) {
-      // move inside same list
-      console.log('event id same', event);
+  constructor(private boardService: BoardService) {}
 
-      moveItemInArray(this.tickets, event.previousIndex, event.currentIndex);
-      // event.item.data.index = event.currentIndex;
-      console.log('event currentIndex', event.currentIndex);
-      console.log('event previousIndex', event.previousIndex);
-    } else {
-      // move between lists
-      transferArrayItem(
-        event.previousContainer.data,
-        event.container.data,
-        event.previousIndex,
-        event.currentIndex
-      );
-    }
+  drop(event: CdkDragDrop<string[]>) {
+    this.boardService.drop(event);
   }
 }

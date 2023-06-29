@@ -15,6 +15,10 @@ import { SearchComponent } from './search/search.component';
 import { SwimlaneComponent } from './swimlane/swimlane.component';
 import { TagsComponent } from './tags/tags.component';
 import { TicketComponent } from './ticket/ticket.component';
+import { BoardService } from './board/board.service';
+import { InProgressLaneComponent } from './in-progress-lane/in-progress-lane.component';
+import { BlockedLaneComponent } from './blocked-lane/blocked-lane.component';
+import { DoneLaneComponent } from './done-lane/done-lane.component';
 
 @NgModule({
   imports: [CommonModule, BrowserModule, AppRoutingModule, DragDropModule],
@@ -30,8 +34,11 @@ import { TicketComponent } from './ticket/ticket.component';
     SwimlaneComponent,
     BacklogLaneComponent,
     ReadyToStartLaneComponent,
+    InProgressLaneComponent,
+    BlockedLaneComponent,
+    DoneLaneComponent,
   ],
-  providers: [],
+  providers: [BoardService],
   bootstrap: [AppComponent],
 })
 export class AppModule {}

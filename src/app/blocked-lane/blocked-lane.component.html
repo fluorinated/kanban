@@ -1,10 +1,10 @@
 <div
-  #backlogLane
+  #blockedLane
   cdkDropList
   [cdkDropListConnectedTo]="[
+    'backlogLane',
     'rdy2startLane',
     'inProgressLane',
-    'blockedLane',
     'doneLane'
   ]"
   [cdkDropListData]="tickets"

@@ -24,74 +24,46 @@
   </div>
 
   <div class="swimlanes-container">
-    <!-- <div *ngFor="let swimlaneTitle of swimlaneTitles"> -->
-    <!-- <app-swimlane [title]="swimlaneTitle" [tickets]="getTicketsForSwimlane(swimlaneTitle)" (ticketClicked)="openTicket($event)"> -->
-    <!-- <div cdkDropListGroup> -->
-    <!-- <app-backlog-lane *ngIf="swimlaneTitle === 'backlog'"></app-backlog-lane> -->
-    <!-- <app-ready-to-start-lane *ngIf="swimlaneTitle === 'rdy 2 start'"></app-ready-to-start-lane> -->
-    <!-- </div> -->
-    <!-- </app-swimlane> -->
     <div class="example-container" cdkDropListGroup>
       <app-swimlane
         [title]="'backlog'"
         [tickets]="getTicketsForSwimlane('backlog')"
         (ticketClicked)="openTicket($event)"
       >
-        <div
-          #backlogLane
-          cdkDropList
-          [cdkDropListConnectedTo]="['rdy2startLane']"
-          [cdkDropListData]="backlogTickets"
-          class="example-list"
-          (cdkDropListDropped)="drop($event)"
-        >
-          <div class="example-box" *ngFor="let ticket of backlogTickets">
-            <app-mini-card
-              [ticket]="ticket"
-              [cdkDragData]="ticket"
-              cdkDrag
-            ></app-mini-card>
-          </div>
-        </div>
+        <app-backlog-lane></app-backlog-lane>
       </app-swimlane>
 
-      <!-- I want to be able to drop the items here -->
-      <!-- [cdkDropListConnectedTo]="[todoList]" -->
       <app-swimlane
         [title]="'rdy 2 start'"
         [tickets]="getTicketsForSwimlane('rdy 2 start')"
         (ticketClicked)="openTicket($event)"
       >
-        <!-- <div
-          cdkDrop
-          cdkDropList
-          [cdkDropListData]="rdy2StartTickets"
-          class="example-list drop-zone"
-          (cdkDropListDropped)="drop($event)"
-        > -->
-        <!-- <div class="" *ngFor="let item of done" style="visible: false"></div> -->
-        <!-- DROP ZONE -->
-        <!-- </div> -->
-
-        <!-- [cdkDropListConnectedTo]="[todoList]" -->
-        <div
-          #rdy2startLane
-          cdkDropList
-          [cdkDropListData]="rdy2StartTickets"
-          [cdkDropListConnectedTo]="['backlogLane']"
-          class="example-list"
-          (cdkDropListDropped)="drop($event)"
-        >
-          <div class="example-box" *ngFor="let ticket of rdy2StartTickets">
-            <app-mini-card
-              [ticket]="ticket"
-              [cdkDragData]="ticket"
-              cdkDrag
-            ></app-mini-card>
-          </div>
-        </div>
+        <app-ready-to-start-lane></app-ready-to-start-lane>
       </app-swimlane>
-      <!-- </div> -->
+
+      <app-swimlane
+        [title]="'blocked'"
+        [tickets]="getTicketsForSwimlane('blocked')"
+        (ticketClicked)="openTicket($event)"
+      >
+        <app-blocked-lane></app-blocked-lane>
+      </app-swimlane>
+
+      <app-swimlane
+        [title]="'in progress'"
+        [tickets]="getTicketsForSwimlane('in progress')"
+        (ticketClicked)="openTicket($event)"
+      >
+        <app-in-progress-lane></app-in-progress-lane>
+      </app-swimlane>
+
+      <app-swimlane
+        [title]="'done'"
+        [tickets]="getTicketsForSwimlane('done')"
+        (ticketClicked)="openTicket($event)"
+      >
+        <app-done-lane></app-done-lane>
+      </app-swimlane>
     </div>
   </div>
 </div>

@@ -1,3 +1,21 @@
-<div cdkDropList id="list-two" [cdkDropListConnectedTo]="'list-one'" *ngFor="let ticket of tickets" [cdkDropListData]="tickets" (cdkDropListDropped)="drop($event)">
-    <app-mini-card [ticket]="ticket" [cdkDragData]="ticket" cdkDrag></app-mini-card>
+<div
+  #rdy2startLane
+  cdkDropList
+  [cdkDropListData]="tickets"
+  [cdkDropListConnectedTo]="[
+    'backlogLane',
+    'inProgressLane',
+    'blockedLane',
+    'doneLane'
+  ]"
+  class="list"
+  (cdkDropListDropped)="drop($event)"
+>
+  <div class="card-container" *ngFor="let ticket of tickets">
+    <app-mini-card
+      [ticket]="ticket"
+      [cdkDragData]="ticket"
+      cdkDrag
+    ></app-mini-card>
+  </div>
 </div>

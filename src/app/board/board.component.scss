@@ -42,8 +42,6 @@
   top: 0.5rem;
 }
 
-/* drag and drop styles */
-
 .example-container {
   width: 400px;
   max-width: 100%;
@@ -51,34 +49,3 @@
   flex-direction: row;
   vertical-align: top;
 }
-
-.example-list {
-  min-height: 60px;
-  border-radius: 4px;
-  display: block;
-}
-
-.example-box {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: space-between;
-  box-sizing: border-box;
-  cursor: move;
-}
-
-.cdk-drag-placeholder {
-  opacity: 0;
-}
-
-.cdk-drag-animating {
-  transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
-}
-
-.example-box:last-child {
-  border: none;
-}
-
-// .example-list.cdk-drop-list-dragging .example-box:not(.cdk-drag-placeholder) {
-//   transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
-// }
