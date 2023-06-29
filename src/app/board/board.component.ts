@@ -1,10 +1,4 @@
-import {
-  CdkDragDrop,
-  moveItemInArray,
-  transferArrayItem,
-} from '@angular/cdk/drag-drop';
 import { Component, OnInit } from '@angular/core';
-
 import { Ticket } from '../models/ticket.model';
 
 @Component({
@@ -56,7 +50,7 @@ export class BoardComponent implements OnInit {
       index: 0,
     },
     {
-      title: 'pack clothes for travel to indianapolis',
+      title: 'work on recipmes',
       ticketNumber: 'MD-623',
       description: '* pack away clothes',
       tags: ['chore', 'fun'],
@@ -72,8 +66,8 @@ export class BoardComponent implements OnInit {
       tags: ['chore', 'fun'],
       dueDate: 'friday, may 26, 2023',
       createdDate: 'tuesday, may 16, 2023',
-      swimlaneTitle: 'rdy 2 start',
-      index: 1,
+      swimlaneTitle: 'done',
+      index: 0,
     },
   ];
   isTicketOpen: boolean = false;
@@ -83,6 +77,15 @@ export class BoardComponent implements OnInit {
   );
   rdy2StartTickets = this.tickets.filter(
     (ticket) => ticket.swimlaneTitle === 'rdy 2 start'
+  );
+  blockedTickets = this.tickets.filter(
+    (ticket) => ticket.swimlaneTitle === 'blocked'
+  );
+  inProgressTickets = this.tickets.filter(
+    (ticket) => ticket.swimlaneTitle === 'in progress'
+  );
+  doneTickets = this.tickets.filter(
+    (ticket) => ticket.swimlaneTitle === 'done'
   );
 
   constructor() {}

@@ -23,47 +23,49 @@
     ></app-ticket>
   </div>
 
-  <div class="swimlanes-container">
-    <div class="example-container" cdkDropListGroup>
-      <app-swimlane
-        [title]="'backlog'"
-        [tickets]="getTicketsForSwimlane('backlog')"
-        (ticketClicked)="openTicket($event)"
-      >
-        <app-backlog-lane></app-backlog-lane>
-      </app-swimlane>
+  <div class="swimlanes-container" cdkDropListGroup>
+    <app-swimlane
+      [title]="'backlog'"
+      [tickets]="getTicketsForSwimlane('backlog')"
+      (ticketClicked)="openTicket($event)"
+    >
+      <app-backlog-lane [tickets]="backlogTickets"></app-backlog-lane>
+    </app-swimlane>
 
-      <app-swimlane
-        [title]="'rdy 2 start'"
-        [tickets]="getTicketsForSwimlane('rdy 2 start')"
-        (ticketClicked)="openTicket($event)"
-      >
-        <app-ready-to-start-lane></app-ready-to-start-lane>
-      </app-swimlane>
+    <app-swimlane
+      [title]="'rdy 2 start'"
+      [tickets]="getTicketsForSwimlane('rdy 2 start')"
+      (ticketClicked)="openTicket($event)"
+    >
+      <app-ready-to-start-lane
+        [tickets]="rdy2StartTickets"
+      ></app-ready-to-start-lane>
+    </app-swimlane>
 
-      <app-swimlane
-        [title]="'blocked'"
-        [tickets]="getTicketsForSwimlane('blocked')"
-        (ticketClicked)="openTicket($event)"
-      >
-        <app-blocked-lane></app-blocked-lane>
-      </app-swimlane>
+    <app-swimlane
+      [title]="'blocked'"
+      [tickets]="getTicketsForSwimlane('blocked')"
+      (ticketClicked)="openTicket($event)"
+    >
+      <app-blocked-lane [tickets]="blockedTickets"></app-blocked-lane>
+    </app-swimlane>
 
-      <app-swimlane
-        [title]="'in progress'"
-        [tickets]="getTicketsForSwimlane('in progress')"
-        (ticketClicked)="openTicket($event)"
-      >
-        <app-in-progress-lane></app-in-progress-lane>
-      </app-swimlane>
+    <app-swimlane
+      [title]="'in progress'"
+      [tickets]="getTicketsForSwimlane('in progress')"
+      (ticketClicked)="openTicket($event)"
+    >
+      <app-in-progress-lane
+        [tickets]="inProgressTickets"
+      ></app-in-progress-lane>
+    </app-swimlane>
 
-      <app-swimlane
-        [title]="'done'"
-        [tickets]="getTicketsForSwimlane('done')"
-        (ticketClicked)="openTicket($event)"
-      >
-        <app-done-lane></app-done-lane>
-      </app-swimlane>
-    </div>
+    <app-swimlane
+      [title]="'done'"
+      [tickets]="getTicketsForSwimlane('done')"
+      (ticketClicked)="openTicket($event)"
+    >
+      <app-done-lane [tickets]="doneTickets"> </app-done-lane>
+    </app-swimlane>
   </div>
 </div>
