@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 
 import { Ticket } from '../models/ticket.model';
 
@@ -11,8 +11,6 @@ export class SwimlaneComponent implements OnInit {
   @Input() title: string;
   @Input() tickets: Ticket[];
 
-  @Output() ticketClicked: EventEmitter<Ticket> = new EventEmitter<Ticket>();
-
   isCollapsed: boolean = false;
 
   constructor() {}
@@ -21,9 +19,5 @@ export class SwimlaneComponent implements OnInit {
 
   toggleCollapseLane() {
     this.isCollapsed = !this.isCollapsed;
-  }
-
-  openTicket(ticket: Ticket) {
-    this.ticketClicked.emit(ticket);
   }
 }
