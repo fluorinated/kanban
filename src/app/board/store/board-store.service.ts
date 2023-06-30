@@ -17,7 +17,7 @@ export interface BoardStoreState {
 export class BoardStore extends ComponentStore<BoardStoreState> {
   constructor() {
     super({
-      currentBoard: null,
+      currentBoard: mockBoard,
       boards: [mockBoard, mockBoardTwo],
       isTicketOpen: false,
       isBoardsListOpen: false,
