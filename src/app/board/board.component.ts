@@ -1,5 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { Ticket } from '../models/ticket.model';
+import { Board } from '../models/board.model';
+import { BoardStore } from './store/board-store.service';
+import { Observable } from 'rxjs';
 
 @Component({
   selector: 'app-board',
@@ -8,103 +11,51 @@ import { Ticket } from '../models/ticket.model';
 })
 export class BoardComponent implements OnInit {
   swimlaneTitles = ['backlog', 'rdy 2 start', 'blocked', 'in progress', 'done'];
-  tickets: Ticket[] = [
-    {
-      title: 'craft crochet pouches',
-      ticketNumber: 'MD-619',
-      description: '* watch youtube videos * practice basic crocheting methods',
-      tags: ['buy', 'dress-up', 'fun'],
-      dueDate: 'friday, may 26, 2023',
-      createdDate: 'tuesday, may 16, 2023',
-      swimlaneTitle: 'backlog',
-      index: 0,
-    },
-    {
-      title: 'learn how to crochet',
-      ticketNumber: 'MD-620',
-      description: "* practice every single day and don't stop",
-      tags: ['buy', 'dress-up', 'fun'],
-      dueDate: 'friday, may 26, 2023',
-      createdDate: 'tuesday, may 16, 2023',
-      swimlaneTitle: 'backlog',
-      index: 1,
-    },
-    {
-      title: 'mop the entire house',
-      ticketNumber: 'MD-621',
-      description: '* fill bucket with hot water and go to town',
-      tags: ['buy', 'chore', 'home-improvement'],
-      dueDate: 'friday, may 26, 2023',
-      createdDate: 'tuesday, may 16, 2023',
-      swimlaneTitle: 'in progress',
-      index: 0,
-    },
-    {
-      title: 'pack clothes for travel to indianapolis',
-      ticketNumber: 'MD-622',
-      description: '* pack away clothes',
-      tags: ['chore', 'fun'],
-      dueDate: 'friday, may 26, 2023',
-      createdDate: 'tuesday, may 16, 2023',
-      swimlaneTitle: 'rdy 2 start',
-      index: 0,
-    },
-    {
-      title: 'work on recipmes',
-      ticketNumber: 'MD-623',
-      description: '* pack away clothes',
-      tags: ['chore', 'fun'],
-      dueDate: 'friday, may 26, 2023',
-      createdDate: 'tuesday, may 16, 2023',
-      swimlaneTitle: 'blocked',
-      index: 0,
-    },
-    {
-      title: 'pick out outfits for the upcoming show',
-      ticketNumber: 'MD-624',
-      description: '* pack away clothes',
-      tags: ['chore', 'fun'],
-      dueDate: 'friday, may 26, 2023',
-      createdDate: 'tuesday, may 16, 2023',
-      swimlaneTitle: 'done',
-      index: 0,
-    },
-  ];
-  isTicketOpen: boolean = false;
-  currentTicket: Ticket;
-  backlogTickets = this.tickets.filter(
-    (ticket) => ticket.swimlaneTitle === 'backlog'
-  );
-  rdy2StartTickets = this.tickets.filter(
-    (ticket) => ticket.swimlaneTitle === 'rdy 2 start'
-  );
-  blockedTickets = this.tickets.filter(
-    (ticket) => ticket.swimlaneTitle === 'blocked'
-  );
-  inProgressTickets = this.tickets.filter(
-    (ticket) => ticket.swimlaneTitle === 'in progress'
-  );
-  doneTickets = this.tickets.filter(
-    (ticket) => ticket.swimlaneTitle === 'done'
-  );
 
-  constructor() {}
+  currentBoard$: Observable<Board>;
+  boards$: Observable<Board[]>;
+  backlogTickets$: Observable<Ticket[]>;
+  rdy2StartTickets$: Observable<Ticket[]>;
+  blockedTickets$: Observable<Ticket[]>;
+  inProgressTickets$: Observable<Ticket[]>;
+  doneTickets$: Observable<Ticket[]>;
+  isTicketOpen$: Observable<boolean>;
+  isBoardsListOpen$: Observable<boolean>;
+  currentTicket$: Observable<Ticket>;
+
+  constructor(private boardStore: BoardStore) {
+    this.currentBoard$ = this.boardStore.currentBoard$;
+    this.boards$ = this.boardStore.boards$;
+    this.backlogTickets$ = this.boardStore.backlogTickets$;
+    this.rdy2StartTickets$ = this.boardStore.rdy2StartTickets$;
+    this.blockedTickets$ = this.boardStore.blockedTickets$;
+    this.inProgressTickets$ = this.boardStore.inProgressTickets$;
+    this.doneTickets$ = this.boardStore.doneTickets$;
+    this.isTicketOpen$ = this.boardStore.isTicketOpen$;
+    this.isBoardsListOpen$ = this.boardStore.isBoardsListOpen$;
+    this.currentTicket$ = this.boardStore.currentTicket$;
+  }
+
+  changeCurrentBoard(board: Board) {
+    this.boardStore.setCurrentBoard(board);
+  }
 
   ngOnInit(): void {}
 
-  getTicketsForSwimlane(swimlaneTitle: string) {
-    let newTickets = this.tickets.filter(
-      (ticket) => ticket.swimlaneTitle === swimlaneTitle
-    );
-    return newTickets;
-  }
-
   openTicket($event): void {
-    this.isTicketOpen = true;
-    this.currentTicket = $event;
+    this.boardStore.setIsTicketOpen(true);
+    this.boardStore.setCurrentTicket($event);
   }
 
   closeTicket(): void {
-    this.isTicketOpen = false;
+    this.boardStore.setIsTicketOpen(false);
+  }
+
+  openBoards(): void {
+    this.boardStore.setIsBoardsListOpen(true);
+  }
+
+  closeBoards(): void {
+    this.boardStore.setIsBoardsListOpen(false);
   }
 }

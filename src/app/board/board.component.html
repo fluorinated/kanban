@@ -1,8 +1,8 @@
 <div class="container">
   <div class="top-row">
     <div class="collapse-search-filters">
-      <app-button>
-        <app-icon icon="faAngleLeft" color="neutral-2"></app-icon>
+      <app-button (click)="openBoards()">
+        <app-icon icon="faAngleRight" color="neutral-2"></app-icon>
       </app-button>
       <app-search placeholder="search"></app-search>
       <app-button>
@@ -12,7 +12,7 @@
 
     <div class="board-title-new-board-btn">
       <!-- board title editable -->
-      <h1 class="board-title">board title</h1>
+      <h1 class="board-title">{{ (currentBoard$ | async)?.title }}</h1>
       <app-button>
         <app-icon icon="faPlus" color="neutral-2"></app-icon>
       </app-button>
@@ -21,53 +21,56 @@
 
   <p>due today due this week due this month</p>
 
-  <div class="open-ticket">
+  <div class="open ticket">
     <app-ticket
-      *ngIf="isTicketOpen"
-      [ticket]="currentTicket"
+      *ngIf="isTicketOpen$ | async"
+      [ticket]="currentTicket$ | async"
       (closeButtonClicked)="closeTicket()"
     ></app-ticket>
   </div>
 
+  <div class="open">
+    <app-boards-list
+      *ngIf="isBoardsListOpen$ | async"
+      [boards]="boards$ | async"
+      (boardClicked)="changeCurrentBoard($event)"
+      (closeButtonClicked)="closeBoards()"
+    ></app-boards-list>
+  </div>
+
   <div class="swimlanes-container" cdkDropListGroup>
-    <app-swimlane title="backlog" [tickets]="getTicketsForSwimlane('backlog')">
+    <app-swimlane title="backlog" [tickets]="backlogTickets$ | async">
       <app-backlog-lane
-        [tickets]="backlogTickets"
+        [tickets]="backlogTickets$ | async"
         (ticketClicked)="openTicket($event)"
       >
       </app-backlog-lane>
     </app-swimlane>
 
-    <app-swimlane
-      title="rdy 2 start"
-      [tickets]="getTicketsForSwimlane('rdy 2 start')"
-    >
+    <app-swimlane title="rdy 2 start" [tickets]="rdy2StartTickets$ | async">
       <app-ready-to-start-lane
-        [tickets]="rdy2StartTickets"
+        [tickets]="rdy2StartTickets$ | async"
         (ticketClicked)="openTicket($event)"
       ></app-ready-to-start-lane>
     </app-swimlane>
 
-    <app-swimlane title="blocked" [tickets]="getTicketsForSwimlane('blocked')">
+    <app-swimlane title="blocked" [tickets]="blockedTickets$ | async">
       <app-blocked-lane
-        [tickets]="blockedTickets"
+        [tickets]="blockedTickets$ | async"
         (ticketClicked)="openTicket($event)"
       ></app-blocked-lane>
     </app-swimlane>
 
-    <app-swimlane
-      title="in progress"
-      [tickets]="getTicketsForSwimlane('in progress')"
-    >
+    <app-swimlane title="in progress" [tickets]="inProgressTickets$ | async">
       <app-in-progress-lane
-        [tickets]="inProgressTickets"
+        [tickets]="inProgressTickets$ | async"
         (ticketClicked)="openTicket($event)"
       ></app-in-progress-lane>
     </app-swimlane>
 
-    <app-swimlane title="done" [tickets]="getTicketsForSwimlane('done')">
+    <app-swimlane title="done" [tickets]="doneTickets$ | async">
       <app-done-lane
-        [tickets]="doneTickets"
+        [tickets]="doneTickets$ | async"
         (ticketClicked)="openTicket($event)"
       >
       </app-done-lane>

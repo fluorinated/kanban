@@ -3,6 +3,8 @@ import { faPlus } from '@fortawesome/free-solid-svg-icons';
 import { faAngleLeft } from '@fortawesome/free-solid-svg-icons';
 import { faAngleRight } from '@fortawesome/free-solid-svg-icons';
 import { faFilter } from '@fortawesome/free-solid-svg-icons';
+import { faClose } from '@fortawesome/free-solid-svg-icons';
+import { faPencil } from '@fortawesome/free-solid-svg-icons';
 
 @Component({
   selector: 'app-icon',
@@ -14,6 +16,8 @@ export class IconComponent {
   faAngleLeft = faAngleLeft;
   faAngleRight = faAngleRight;
   faFilter = faFilter;
+  faClose = faClose;
+  faPencil = faPencil;
   @Input() set icon(icon: string) {
     this.faIcon = this.iconMap.get(icon);
   }
@@ -27,6 +31,8 @@ export class IconComponent {
     ['faAngleLeft', faAngleLeft],
     ['faAngleRight', faAngleRight],
     ['faFilter', faFilter],
+    ['faClose', faClose],
+    ['faPencil', faPencil],
   ]);
   colorMap = new Map([
     ['pink-1', 'var(--pink-1)'],

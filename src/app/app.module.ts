@@ -21,6 +21,8 @@ import { BlockedLaneComponent } from './blocked-lane/blocked-lane.component';
 import { DoneLaneComponent } from './done-lane/done-lane.component';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { IconComponent } from './icon/icon.component';
+import { BoardsListComponent } from './boards-list/boards-list.component';
+import { BoardStore } from './board/store/board-store.service';
 
 @NgModule({
   imports: [
@@ -46,8 +48,9 @@ import { IconComponent } from './icon/icon.component';
     BlockedLaneComponent,
     DoneLaneComponent,
     IconComponent,
+    BoardsListComponent,
   ],
-  providers: [BoardService],
+  providers: [BoardService, BoardStore],
   bootstrap: [AppComponent],
 })
 export class AppModule {}

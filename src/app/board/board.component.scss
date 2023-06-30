@@ -35,8 +35,11 @@
   color: var(--pink-1);
 }
 
-.open-ticket {
+.open {
   position: absolute;
-  right: 0.5rem;
   top: 0.5rem;
+}
+
+.ticket.open {
+  right: 0.5rem;
 }
