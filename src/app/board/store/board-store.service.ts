@@ -61,9 +61,13 @@ export class BoardStore extends ComponentStore<BoardStoreState> {
       (currentBoardTickets = currentBoardTickets.filter((ticket) => {
         if (searchTerm !== '') {
           return (
-            (ticket?.title).toLowerCase().includes(searchTerm) ||
-            (ticket?.description).toLowerCase().includes(searchTerm) ||
-            (ticket?.ticketNumber).toLowerCase().includes(searchTerm)
+            (ticket?.title).toLowerCase().includes(searchTerm.toLowerCase()) ||
+            (ticket?.description)
+              .toLowerCase()
+              .includes(searchTerm.toLowerCase()) ||
+            (ticket?.ticketNumber)
+              .toLowerCase()
+              .includes(searchTerm.toLowerCase())
           );
         } else {
           return ticket;
