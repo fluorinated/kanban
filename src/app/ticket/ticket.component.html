@@ -6,7 +6,11 @@
   </div>
 
   <div class="container">
-    <p class="ticket-number">{{ ticket?.ticketNumber }}</p>
+    <div class="ticket-number-container">
+      <p class="ticket-number">
+        <span class="ticket-number-span">{{ ticket?.ticketNumber }}</span>
+      </p>
+    </div>
     <h2 class="title">{{ ticket?.title }}</h2>
     <p>{{ ticket?.description }}</p>
     <app-tags [tags]="ticket?.tags"></app-tags>
