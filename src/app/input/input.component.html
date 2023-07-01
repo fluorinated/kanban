@@ -1,1 +1,8 @@
-<input class="input" type="text" [placeholder]="placeholder" />
+<input
+  #input
+  class="input"
+  type="text"
+  [placeholder]="placeholder"
+  [value]="value"
+  (keyup)="keyUp()"
+/>

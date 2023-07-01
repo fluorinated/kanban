@@ -1,1 +1,6 @@
-<app-input [placeholder]="placeholder"> </app-input>
+<app-input
+  [placeholder]="placeholder"
+  [value]="searchTerm$ | async"
+  (keyup)="onKeyUp($event)"
+>
+</app-input>
