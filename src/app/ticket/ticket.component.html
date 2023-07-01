@@ -12,9 +12,11 @@
       </p>
     </div>
     <h2 class="title">{{ ticket?.title }}</h2>
-    <p>{{ ticket?.description }}</p>
-    <app-tags [tags]="ticket?.tags"></app-tags>
-    <p>{{ ticket?.dueDate }}</p>
-    <p>{{ ticket?.createdDate }}</p>
+    <p class="description">{{ ticket?.description }}</p>
+    <div class="tags">
+      <app-tags [tags]="ticket?.tags"></app-tags>
+    </div>
+    <p class="due-date">due {{ ticket?.dueDate }}</p>
+    <p class="created-date">created {{ ticket?.createdDate }}</p>
   </div>
 </div>
