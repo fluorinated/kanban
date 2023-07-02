@@ -1,7 +1,7 @@
 <div class="top-row" *ngIf="!isCollapsed">
   <h2 class="title">{{ title }}</h2>
   <div class="top-row-buttons">
-    <app-button class="plus-btn">
+    <app-button class="plus-btn" (buttonClicked)="addNewTicket()">
       <app-icon icon="faPlus" color="pink-1"></app-icon>
     </app-button>
     <app-button (buttonClicked)="toggleCollapseLane()">

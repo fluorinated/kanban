@@ -1,6 +1,7 @@
 import { Component, Input, OnInit } from '@angular/core';
 
 import { Ticket } from '../models/ticket.model';
+import { BoardStore } from '../board/store/board-store.service';
 
 @Component({
   selector: 'app-swimlane',
@@ -13,11 +14,15 @@ export class SwimlaneComponent implements OnInit {
 
   isCollapsed: boolean = false;
 
-  constructor() {}
+  constructor(private boardStore: BoardStore) {}
 
   ngOnInit(): void {}
 
   toggleCollapseLane() {
     this.isCollapsed = !this.isCollapsed;
+  }
+
+  addNewTicket() {
+    this.boardStore.addNewTicketToBoard(this.title);
   }
 }

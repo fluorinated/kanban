@@ -180,4 +180,26 @@ export class BoardStore extends ComponentStore<BoardStoreState> {
       },
     })
   );
+
+  readonly addNewTicketToBoard = this.updater(
+    (state: BoardStoreState, swimlaneTitle: string) => ({
+      ...state,
+      currentBoard: {
+        ...state.currentBoard,
+        tickets: [
+          {
+            title: 'title',
+            ticketNumber: 'MD-619',
+            description: 'description',
+            tags: [],
+            dueDate: 'sunday, july 2, 2023',
+            createdDate: 'saturday, july 1, 2023',
+            swimlaneTitle,
+            index: 0,
+          },
+          ...state.currentBoard.tickets,
+        ],
+      },
+    })
+  );
 }
