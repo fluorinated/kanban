@@ -3,7 +3,7 @@ import { Injectable } from '@angular/core';
 import { ComponentStore } from '@ngrx/component-store';
 import { Observable } from 'rxjs';
 import { Board } from 'src/app/models/board.model';
-import { mockBoard, mockBoardTwo } from 'src/mock-data/mock-data';
+import { mockBoard, mockBoardTwo, mockTickets } from 'src/mock-data/mock-data';
 
 export interface BoardStoreState {
   currentBoard: Board;
@@ -202,4 +202,21 @@ export class BoardStore extends ComponentStore<BoardStoreState> {
       },
     })
   );
+
+  readonly addNewBoardToBoards = this.updater((state: BoardStoreState) => ({
+    ...state,
+    boards: [
+      ...state.boards,
+      {
+        title: 'title',
+        tickets: mockTickets,
+        index: 2,
+      },
+    ],
+    currentBoard: {
+      title: 'title',
+      tickets: mockTickets,
+      index: 2,
+    },
+  }));
 }

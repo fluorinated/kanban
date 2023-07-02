@@ -71,4 +71,8 @@ export class BoardComponent implements OnInit {
   editBoardTitle() {
     this.boardStore.setIsEditingCurrentBoardTitle(true);
   }
+
+  addNewBoardToBoards() {
+    this.boardStore.addNewBoardToBoards();
+  }
 }
