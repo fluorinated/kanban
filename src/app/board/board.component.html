@@ -25,6 +25,7 @@
     <app-ticket
       *ngIf="isTicketOpen$ | async"
       [ticket]="currentTicket$ | async"
+      [tags]="tags"
       (closeButtonClicked)="closeTicket()"
     ></app-ticket>
   </div>

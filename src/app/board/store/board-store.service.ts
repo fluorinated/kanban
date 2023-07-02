@@ -137,10 +137,27 @@ export class BoardStore extends ComponentStore<BoardStoreState> {
     })
   );
 
+  readonly updateCurrentTicketField = this.updater(
+    (state: BoardStoreState, pair: { field: string; value: any }) => ({
+      ...state,
+      currentTicket: { ...state.currentTicket, [pair?.field]: pair?.value },
+    })
+  );
+
   readonly setSearchTerm = this.updater(
     (state: BoardStoreState, searchTerm: string) => ({
       ...state,
       searchTerm,
+    })
+  );
+
+  readonly addTagToCurrentTicket = this.updater(
+    (state: BoardStoreState, tag: string) => ({
+      ...state,
+      currentTicket: {
+        ...state.currentTicket,
+        tags: [...state.currentTicket.tags, tag],
+      },
     })
   );
 }

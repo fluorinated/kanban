@@ -1,8 +1,32 @@
-<input
-  #input
-  class="input"
-  type="text"
+<ng-container *ngIf="!isTextarea">
+  <input
+    #input
+    class="input"
+    type="text"
+    [placeholder]="placeholder"
+    [value]="value"
+    [formControl]="formControl"
+    (keyup)="keyUp()"
+    (blur)="blurInput()"
+  />
+
+  <div class="auto-complete" *ngIf="options">
+    <div
+      class="option"
+      *ngFor="let option of filteredOptions | async"
+      (click)="onOptionClick(option)"
+    >
+      {{ option }}
+    </div>
+  </div>
+</ng-container>
+
+<textarea
+  *ngIf="isTextarea"
+  #textarea
+  [ngClass]="h2 ? 'h2' : 'regular'"
+  class="textarea"
   [placeholder]="placeholder"
   [value]="value"
-  (keyup)="keyUp()"
-/>
+  (blur)="blurTextarea()"
+></textarea>

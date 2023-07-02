@@ -11,6 +11,7 @@ import { Observable } from 'rxjs';
 })
 export class BoardComponent implements OnInit {
   swimlaneTitles = ['backlog', 'rdy 2 start', 'blocked', 'in progress', 'done'];
+  tags = ['buy', 'dress up', 'fun', 'home improvement', 'chore'];
 
   currentBoard$: Observable<Board>;
   boards$: Observable<Board[]>;

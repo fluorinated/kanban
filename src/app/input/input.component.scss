@@ -8,3 +8,43 @@
   padding: 0 0.5rem;
   font-size: 16px;
 }
+
+.textarea {
+  background-color: var(--neutral-3-50);
+  padding: 1rem;
+  border: none;
+  width: 92%;
+  font-family: 'Inter', sans-serif;
+}
+
+.h2 {
+  font-size: 20px;
+  color: var(--pink-1);
+  font-weight: bold;
+}
+
+.regular {
+  font-size: 16px;
+  color: var(--neutral-1);
+}
+
+.auto-complete {
+  color: var(--neutral-1);
+  background-color: var(--neutral-4);
+  box-shadow: 2px 2px 5px 0 var(--neutral-3), -2px -2px 5px 0 var(--neutral-5);
+  width: 10rem;
+  height: 8rem;
+  overflow: scroll;
+  border-radius: 0.25rem;
+  border-color: transparent;
+  padding: 0 0.5rem;
+  font-size: 16px;
+  font-family: 'Inter', sans-serif;
+  margin-top: 1rem;
+}
+
+.option {
+  padding: 1rem 0;
+  border-bottom: 1px solid var(--neutral-3);
+  margin-bottom: 0.5rem;
+}

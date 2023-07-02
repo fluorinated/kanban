@@ -23,7 +23,10 @@ import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { IconComponent } from './icon/icon.component';
 import { BoardsListComponent } from './boards-list/boards-list.component';
 import { BoardStore } from './board/store/board-store.service';
-
+import { TicketStore } from './ticket/store/ticket-store.service';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
 @NgModule({
   imports: [
     CommonModule,
@@ -31,6 +34,10 @@ import { BoardStore } from './board/store/board-store.service';
     AppRoutingModule,
     DragDropModule,
     FontAwesomeModule,
+    FormsModule,
+    ReactiveFormsModule,
+    MatFormFieldModule,
+    MatInputModule,
   ],
   declarations: [
     AppComponent,
@@ -50,7 +57,7 @@ import { BoardStore } from './board/store/board-store.service';
     IconComponent,
     BoardsListComponent,
   ],
-  providers: [BoardService, BoardStore],
+  providers: [BoardService, BoardStore, TicketStore],
   bootstrap: [AppComponent],
 })
 export class AppModule {}
