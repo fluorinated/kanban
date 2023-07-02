@@ -12,6 +12,7 @@ export interface BoardStoreState {
   isBoardsListOpen: boolean;
   currentTicket: Ticket;
   searchTerm: string;
+  isEditingCurrentBoardTitle: boolean;
 }
 
 @Injectable()
@@ -24,6 +25,7 @@ export class BoardStore extends ComponentStore<BoardStoreState> {
       isBoardsListOpen: false,
       currentTicket: null,
       searchTerm: '',
+      isEditingCurrentBoardTitle: false,
     });
   }
 
@@ -52,6 +54,10 @@ export class BoardStore extends ComponentStore<BoardStoreState> {
 
   readonly searchTerm$: Observable<string> = this.select(
     (state) => state.searchTerm
+  );
+
+  readonly isEditingCurrentBoardTitle$: Observable<boolean> = this.select(
+    (state) => state.isEditingCurrentBoardTitle
   );
 
   readonly filteredTickets$: Observable<Ticket[]> = this.select(
@@ -144,10 +150,24 @@ export class BoardStore extends ComponentStore<BoardStoreState> {
     })
   );
 
+  readonly updateCurrentBoardField = this.updater(
+    (state: BoardStoreState, pair: { field: string; value: any }) => ({
+      ...state,
+      currentBoard: { ...state.currentBoard, [pair?.field]: pair?.value },
+    })
+  );
+
   readonly setSearchTerm = this.updater(
     (state: BoardStoreState, searchTerm: string) => ({
       ...state,
       searchTerm,
+    })
+  );
+
+  readonly setIsEditingCurrentBoardTitle = this.updater(
+    (state: BoardStoreState, isEditingCurrentBoardTitle: boolean) => ({
+      ...state,
+      isEditingCurrentBoardTitle,
     })
   );
 

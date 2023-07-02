@@ -23,6 +23,7 @@ export class BoardComponent implements OnInit {
   isTicketOpen$: Observable<boolean>;
   isBoardsListOpen$: Observable<boolean>;
   currentTicket$: Observable<Ticket>;
+  isEditingCurrentBoardTitle$: Observable<boolean>;
 
   constructor(private boardStore: BoardStore) {
     this.currentBoard$ = this.boardStore.currentBoard$;
@@ -35,6 +36,8 @@ export class BoardComponent implements OnInit {
     this.isTicketOpen$ = this.boardStore.isTicketOpen$;
     this.isBoardsListOpen$ = this.boardStore.isBoardsListOpen$;
     this.currentTicket$ = this.boardStore.currentTicket$;
+    this.isEditingCurrentBoardTitle$ =
+      this.boardStore.isEditingCurrentBoardTitle$;
   }
 
   changeCurrentBoard(board: Board) {
@@ -58,5 +61,14 @@ export class BoardComponent implements OnInit {
 
   closeBoards(): void {
     this.boardStore.setIsBoardsListOpen(false);
+  }
+
+  saveCurrentBoardTitle($event) {
+    this.boardStore.setIsEditingCurrentBoardTitle(false);
+    this.boardStore.updateCurrentBoardField({ field: 'title', value: $event });
+  }
+
+  editBoardTitle() {
+    this.boardStore.setIsEditingCurrentBoardTitle(true);
   }
 }

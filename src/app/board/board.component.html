@@ -11,10 +11,30 @@
     </div>
 
     <div class="board-title-new-board-btn">
-      <!-- board title editable -->
-      <h1 class="board-title">{{ (currentBoard$ | async)?.title }}</h1>
+      <div class="current-board-title">
+        <h1
+          class="board-title"
+          *ngIf="(isEditingCurrentBoardTitle$ | async) === false"
+          (click)="editBoardTitle()"
+        >
+          {{ (currentBoard$ | async)?.title }}
+        </h1>
+        <app-input
+          *ngIf="isEditingCurrentBoardTitle$ | async"
+          [h2]="true"
+          class="textarea"
+          placeholder="board title"
+          [value]="(currentBoard$ | async)?.title"
+          [isTextarea]="true"
+          (onBlur)="saveCurrentBoardTitle($event)"
+        ></app-input>
+      </div>
       <app-button>
-        <app-icon icon="faPlus" color="neutral-2"></app-icon>
+        <app-icon
+          *ngIf="(isEditingCurrentBoardTitle$ | async) === false"
+          icon="faPlus"
+          color="neutral-2"
+        ></app-icon>
       </app-button>
     </div>
   </div>

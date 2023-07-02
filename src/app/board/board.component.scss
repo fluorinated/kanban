@@ -25,7 +25,6 @@
 .board-title-new-board-btn {
   display: flex;
   flex-direction: row;
-  width: 14rem;
   justify-content: space-between;
   align-items: center;
 }
@@ -41,4 +40,12 @@
 
 .ticket.open {
   right: 0.5rem;
+}
+
+.current-board-title {
+  margin-right: 2rem;
+  width: 100%;
+  display: flex;
+  align-items: flex-end;
+  justify-content: flex-end;
 }
