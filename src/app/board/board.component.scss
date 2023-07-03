@@ -49,3 +49,12 @@
   align-items: flex-end;
   justify-content: flex-end;
 }
+
+.due-date-button-filters {
+  display: flex;
+  width: 22rem;
+  justify-content: space-between;
+  padding-bottom: 1rem;
+  color: var(--neutral-2);
+  cursor: pointer;
+}

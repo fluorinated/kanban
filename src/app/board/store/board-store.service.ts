@@ -2,9 +2,15 @@ import { Ticket } from './../../models/ticket.model';
 import { Injectable } from '@angular/core';
 import { ComponentStore } from '@ngrx/component-store';
 import { Observable } from 'rxjs';
+import { tap, withLatestFrom } from 'rxjs/operators';
 import { Board } from 'src/app/models/board.model';
+import {
+  dueTodayTickets,
+  filterTickets,
+  dueThisWeekTickets,
+  dueThisMonthTickets,
+} from 'src/app/utils/board.utils';
 import { mockBoard, mockBoardTwo, mockTickets } from 'src/mock-data/mock-data';
-
 export interface BoardStoreState {
   currentBoard: Board;
   boards: Board[];
@@ -13,6 +19,9 @@ export interface BoardStoreState {
   currentTicket: Ticket;
   searchTerm: string;
   isEditingCurrentBoardTitle: boolean;
+  isDueTodayFilterOn: boolean;
+  isDueThisWeekFilterOn: boolean;
+  isDueThisMonthFilterOn: boolean;
 }
 
 @Injectable()
@@ -26,6 +35,9 @@ export class BoardStore extends ComponentStore<BoardStoreState> {
       currentTicket: null,
       searchTerm: '',
       isEditingCurrentBoardTitle: false,
+      isDueTodayFilterOn: false,
+      isDueThisWeekFilterOn: false,
+      isDueThisMonthFilterOn: false,
     });
   }
 
@@ -60,25 +72,45 @@ export class BoardStore extends ComponentStore<BoardStoreState> {
     (state) => state.isEditingCurrentBoardTitle
   );
 
+  readonly isDueTodayFilterOn$: Observable<boolean> = this.select(
+    (state) => state.isDueTodayFilterOn
+  );
+
+  readonly isDueThisWeekFilterOn$: Observable<boolean> = this.select(
+    (state) => state.isDueThisWeekFilterOn
+  );
+
+  readonly isDueThisMonthFilterOn$: Observable<boolean> = this.select(
+    (state) => state.isDueThisMonthFilterOn
+  );
+
+  // want to do filtertickets with dueTodayTickets to include search
+  // include other filters might have to rethink this soltn
   readonly filteredTickets$: Observable<Ticket[]> = this.select(
     this.searchTerm$,
     this.currentBoardTickets$,
-    (searchTerm, currentBoardTickets) =>
-      (currentBoardTickets = currentBoardTickets.filter((ticket) => {
-        if (searchTerm !== '') {
-          return (
-            (ticket?.title).toLowerCase().includes(searchTerm.toLowerCase()) ||
-            (ticket?.description)
-              .toLowerCase()
-              .includes(searchTerm.toLowerCase()) ||
-            (ticket?.ticketNumber)
-              .toLowerCase()
-              .includes(searchTerm.toLowerCase())
-          );
-        } else {
-          return ticket;
-        }
-      }))
+    this.isDueTodayFilterOn$,
+    this.isDueThisWeekFilterOn$,
+    this.isDueThisMonthFilterOn$,
+    (
+      searchTerm,
+      currentBoardTickets,
+      isDueTodayFilterOn,
+      isDueThisWeekFilterOn,
+      isDueThisMonthFilterOn
+    ) => {
+      let newTickets = currentBoardTickets;
+      if (isDueTodayFilterOn) {
+        newTickets = dueTodayTickets(newTickets);
+      } else if (isDueThisWeekFilterOn) {
+        newTickets = dueThisWeekTickets(newTickets);
+      } else if (isDueThisMonthFilterOn) {
+        newTickets = dueThisMonthTickets(newTickets);
+      }
+      newTickets = filterTickets(searchTerm, newTickets);
+
+      return newTickets;
+    }
   );
 
   readonly backlogTickets$: Observable<Ticket[]> = this.select(
@@ -171,6 +203,27 @@ export class BoardStore extends ComponentStore<BoardStoreState> {
     })
   );
 
+  readonly setIsDueTodayFilterOn = this.updater(
+    (state: BoardStoreState, isDueTodayFilterOn: boolean) => ({
+      ...state,
+      isDueTodayFilterOn,
+    })
+  );
+
+  readonly setIsDueThisWeekFilterOn = this.updater(
+    (state: BoardStoreState, isDueThisWeekFilterOn: boolean) => ({
+      ...state,
+      isDueThisWeekFilterOn,
+    })
+  );
+
+  readonly setIsDueThisMonthFilterOn = this.updater(
+    (state: BoardStoreState, isDueThisMonthFilterOn: boolean) => ({
+      ...state,
+      isDueThisMonthFilterOn,
+    })
+  );
+
   readonly addTagToCurrentTicket = this.updater(
     (state: BoardStoreState, tag: string) => ({
       ...state,
@@ -192,7 +245,7 @@ export class BoardStore extends ComponentStore<BoardStoreState> {
             ticketNumber: 'MD-619',
             description: 'description',
             tags: [],
-            dueDate: 'sunday, july 2, 2023',
+            dueDate: 'monday, july 3, 2023',
             createdDate: 'saturday, july 1, 2023',
             swimlaneTitle,
             index: 0,
@@ -219,4 +272,50 @@ export class BoardStore extends ComponentStore<BoardStoreState> {
       index: 2,
     },
   }));
+
+  readonly turnOffMainFilters = this.updater((state: BoardStoreState) => ({
+    ...state,
+    isDueTodayFilterOn: false,
+    isDueThisWeekFilterOn: false,
+    isDueThisMonthFilterOn: false,
+  }));
+
+  readonly setIsDueTodayFilter = this.effect(
+    (setIsDueTodayFilter$: Observable<void>) =>
+      setIsDueTodayFilter$.pipe(
+        withLatestFrom(this.isDueTodayFilterOn$),
+        tap(() => this.turnOffMainFilters()),
+        tap(([, isDueTodayFilterOn]) => {
+          if (!isDueTodayFilterOn) {
+            this.setIsDueTodayFilterOn(true);
+          }
+        })
+      )
+  );
+
+  readonly setIsDueThisWeekFilter = this.effect(
+    (setIsDueThisWeekFilter$: Observable<void>) =>
+      setIsDueThisWeekFilter$.pipe(
+        withLatestFrom(this.isDueThisWeekFilterOn$),
+        tap(() => this.turnOffMainFilters()),
+        tap(([, isDueThisWeekFilterOn]) => {
+          if (!isDueThisWeekFilterOn) {
+            this.setIsDueThisWeekFilterOn(true);
+          }
+        })
+      )
+  );
+
+  readonly setIsDueThisMonthFilter = this.effect(
+    (setIsDueThisMonthFilter$: Observable<void>) =>
+      setIsDueThisMonthFilter$.pipe(
+        withLatestFrom(this.isDueThisMonthFilterOn$),
+        tap(() => this.turnOffMainFilters()),
+        tap(([, isDueThisMonthFilterOn]) => {
+          if (!isDueThisMonthFilterOn) {
+            this.setIsDueThisMonthFilterOn(true);
+          }
+        })
+      )
+  );
 }

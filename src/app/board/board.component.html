@@ -39,7 +39,11 @@
     </div>
   </div>
 
-  <p>due today due this week due this month</p>
+  <div class="due-date-button-filters">
+    <p (click)="setIsDueTodayFilterOn()">due today</p>
+    <p (click)="setIsDueTodayFilterOn()">due this week</p>
+    <p (click)="setIsDueTodayFilterOn()">due this month</p>
+  </div>
 
   <div class="open ticket">
     <app-ticket

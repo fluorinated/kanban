@@ -75,4 +75,16 @@ export class BoardComponent implements OnInit {
   addNewBoardToBoards() {
     this.boardStore.addNewBoardToBoards();
   }
+
+  setIsDueTodayFilterOn() {
+    this.boardStore.setIsDueTodayFilter();
+  }
+
+  setIsDueThisWeekFilterOn() {
+    this.boardStore.setIsDueThisWeekFilter();
+  }
+
+  setIsDueThisMonthFilterOn() {
+    this.boardStore.setIsDueThisMonthFilter();
+  }
 }
