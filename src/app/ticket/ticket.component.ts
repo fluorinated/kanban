@@ -42,6 +42,11 @@ export class TicketComponent implements OnInit {
   closeTicket() {
     this.closeButtonClicked.emit();
   }
+
+  removeTag(tag: string) {
+    this.boardStore.removeTagFromCurrentTicket(tag);
+  }
+
   startEditing(field: string) {
     switch (field) {
       case 'title':

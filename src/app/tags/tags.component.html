@@ -1,1 +1,22 @@
-<span *ngFor="let tag of tags" class="tag">{{ tag }}</span>
+<div
+  class="tags"
+  [style]="{ width }"
+  [ngClass]="{ 'tags-scroll': !noScroll, 'tags-wrap': noScroll }"
+>
+  <div *ngFor="let tag of tags" class="tag">
+    <div
+      *ngIf="showCloseButton"
+      class="close-circle"
+      [style]="{ left: (this.tagsMap$ | async).get(tag) }"
+    >
+      <app-icon
+        class="close-btn"
+        icon="faClose"
+        color="neutral-5"
+        size="small"
+        (click)="close(tag)"
+      ></app-icon>
+    </div>
+    <span #tagsList>{{ tag }}</span>
+  </div>
+</div>

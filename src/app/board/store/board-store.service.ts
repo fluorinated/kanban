@@ -84,8 +84,6 @@ export class BoardStore extends ComponentStore<BoardStoreState> {
     (state) => state.isDueThisMonthFilterOn
   );
 
-  // want to do filtertickets with dueTodayTickets to include search
-  // include other filters might have to rethink this soltn
   readonly filteredTickets$: Observable<Ticket[]> = this.select(
     this.searchTerm$,
     this.currentBoardTickets$,
@@ -229,7 +227,7 @@ export class BoardStore extends ComponentStore<BoardStoreState> {
       ...state,
       currentTicket: {
         ...state.currentTicket,
-        tags: [...state.currentTicket.tags, tag],
+        tags: [...new Set([...state.currentTicket.tags, tag])],
       },
     })
   );
@@ -279,6 +277,18 @@ export class BoardStore extends ComponentStore<BoardStoreState> {
     isDueThisWeekFilterOn: false,
     isDueThisMonthFilterOn: false,
   }));
+
+  readonly removeTagFromCurrentTicket = this.updater(
+    (state: BoardStoreState, tag: string) => ({
+      ...state,
+      currentTicket: {
+        ...state.currentTicket,
+        tags: [...state.currentTicket.tags].filter(
+          (currentTag) => currentTag !== tag
+        ),
+      },
+    })
+  );
 
   readonly setIsDueTodayFilter = this.effect(
     (setIsDueTodayFilter$: Observable<void>) =>

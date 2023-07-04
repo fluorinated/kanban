@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 import { faPlus } from '@fortawesome/free-solid-svg-icons';
 import { faAngleLeft } from '@fortawesome/free-solid-svg-icons';
 import { faAngleRight } from '@fortawesome/free-solid-svg-icons';
@@ -11,13 +11,18 @@ import { faPencil } from '@fortawesome/free-solid-svg-icons';
   templateUrl: './icon.component.html',
   styleUrls: ['./icon.component.scss'],
 })
-export class IconComponent {
+export class IconComponent implements OnInit {
   faPlus = faPlus;
   faAngleLeft = faAngleLeft;
   faAngleRight = faAngleRight;
   faFilter = faFilter;
   faClose = faClose;
   faPencil = faPencil;
+  @Input() set size(size: string) {
+    if (this.sizeMap.has(size)) {
+      this.iconSize = this.sizeMap.get(size);
+    }
+  }
   @Input() set icon(icon: string) {
     this.faIcon = this.iconMap.get(icon);
   }
@@ -26,6 +31,7 @@ export class IconComponent {
   }
   faIcon;
   iconColor;
+  iconSize;
   iconMap = new Map([
     ['faPlus', faPlus],
     ['faAngleLeft', faAngleLeft],
@@ -37,5 +43,16 @@ export class IconComponent {
   colorMap = new Map([
     ['pink-1', 'var(--pink-1)'],
     ['neutral-2', 'var(--neutral-2)'],
+    ['neutral-5', 'var(--neutral-5)'],
   ]);
+  sizeMap = new Map([
+    ['small', 'fa-sm'],
+    ['default', 'fa-2x'],
+  ]);
+
+  ngOnInit() {
+    if (!this.iconSize) {
+      this.iconSize = this.sizeMap.get('default');
+    }
+  }
 }

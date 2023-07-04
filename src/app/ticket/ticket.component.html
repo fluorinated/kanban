@@ -48,7 +48,12 @@
     ></app-input>
 
     <div class="tags" (click)="startEditing('tags')">
-      <app-tags [tags]="ticket?.tags"></app-tags>
+      <app-tags
+        [tags]="ticket?.tags"
+        [showCloseButton]="isEditingTags$ | async"
+        (closeClicked)="removeTag($event)"
+        [noScroll]="true"
+      ></app-tags>
     </div>
 
     <div class="tags-input-container" *ngIf="isEditingTags$ | async">

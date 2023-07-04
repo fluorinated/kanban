@@ -7,6 +7,7 @@ export interface TicketStoreState {
   isEditingDescription: boolean;
   isEditingDueDate: boolean;
   isEditingTags: boolean;
+  tagsMap: Map<string, string>;
 }
 
 @Injectable()
@@ -17,6 +18,7 @@ export class TicketStore extends ComponentStore<TicketStoreState> {
       isEditingDescription: false,
       isEditingDueDate: false,
       isEditingTags: false,
+      tagsMap: new Map(),
     });
   }
 
@@ -34,6 +36,10 @@ export class TicketStore extends ComponentStore<TicketStoreState> {
 
   readonly isEditingTags$: Observable<boolean> = this.select(
     (state) => state.isEditingTags
+  );
+
+  readonly getTagsMap$: Observable<Map<string, string>> = this.select(
+    (state) => state.tagsMap
   );
 
   readonly setIsEditingTitle = this.updater(
@@ -61,6 +67,13 @@ export class TicketStore extends ComponentStore<TicketStoreState> {
     (state: TicketStoreState, isEditingTags: boolean) => ({
       ...state,
       isEditingTags,
+    })
+  );
+
+  readonly setTagsMap = this.updater(
+    (state: TicketStoreState, tagsMap: Map<string, string>) => ({
+      ...state,
+      tagsMap,
     })
   );
 }
