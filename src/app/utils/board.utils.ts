@@ -1,7 +1,7 @@
 import { Ticket } from '../models/ticket.model';
 import * as moment from 'moment';
 
-export const filterTickets = (
+export const filterTicketsBySearch = (
   searchTerm: string,
   currentBoardTickets: Ticket[]
 ) => {
@@ -17,6 +17,16 @@ export const filterTickets = (
     } else {
       return ticket;
     }
+  });
+  return currentBoardTickets;
+};
+
+export const filterTicketsByMatchingActiveTags = (
+  activeTags: string[],
+  currentBoardTickets: Ticket[]
+) => {
+  currentBoardTickets = currentBoardTickets.filter((ticket) => {
+    return ticket?.tags.some((tag) => activeTags.includes(tag));
   });
   return currentBoardTickets;
 };

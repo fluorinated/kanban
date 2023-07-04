@@ -80,11 +80,39 @@ export const mockTicketsTwo: Ticket[] = [
 export const mockBoard: Board = {
   title: 'kanban 1',
   tickets: mockTickets,
+  tags: [
+    'buy',
+    'dress up',
+    'fun',
+    'home improvement',
+    'chore',
+    'health',
+    'finance',
+    'errands',
+    'fitness',
+    'creative',
+    'self-care',
+    'important',
+    'urgent',
+  ],
+  activeTags: [
+    'buy',
+    'dress up',
+    'fun',
+    'home improvement',
+    'chore',
+    'health',
+    'finance',
+    'errands',
+    'fitness',
+  ],
   index: 0,
 };
 
 export const mockBoardTwo: Board = {
   title: 'kb 2',
   tickets: mockTicketsTwo,
+  tags: ['rittenhouse', 'whole foods', 'acme', 'aldi'],
+  activeTags: ['rittenhouse', 'acme', 'aldi'],
   index: 1,
 };

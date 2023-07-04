@@ -7,7 +7,7 @@ import {
   Output,
   ViewChild,
 } from '@angular/core';
-import { FormControl } from '@angular/forms';
+import { FormControl, FormGroup } from '@angular/forms';
 import { Observable } from 'rxjs';
 import { map, startWith } from 'rxjs/operators';
 
@@ -18,9 +18,8 @@ import { map, startWith } from 'rxjs/operators';
 })
 export class InputComponent implements OnInit {
   @Input() placeholder: string;
-  @Input() value;
+  @Input() value: string;
   @Input() options: string[];
-  @Input() formControl: FormControl;
   @Input() isTextarea: boolean;
   @Input() h2: boolean = false;
   @Output() onKeyUp: EventEmitter<any> = new EventEmitter();
@@ -33,11 +32,16 @@ export class InputComponent implements OnInit {
 
   filteredOptions: Observable<string[]>;
 
+  form: FormGroup;
+
   constructor() {}
 
   ngOnInit() {
+    this.form = new FormGroup({
+      control: new FormControl(''),
+    });
     if (this.options) {
-      this.filteredOptions = this.formControl?.valueChanges.pipe(
+      this.filteredOptions = this.form?.controls?.control?.valueChanges?.pipe(
         startWith(''),
         map((value) => this._filter(value || ''))
       );
@@ -45,9 +49,9 @@ export class InputComponent implements OnInit {
   }
 
   private _filter(value: string): string[] {
-    const filterValue = value.toLowerCase();
+    const filterValue = value?.toLowerCase();
 
-    return this.options.filter((option) =>
+    return this.options?.filter((option) =>
       option.toLowerCase().includes(filterValue)
     );
   }

@@ -11,21 +11,6 @@ import { Observable } from 'rxjs';
 })
 export class BoardComponent implements OnInit {
   swimlaneTitles = ['backlog', 'rdy 2 start', 'blocked', 'in progress', 'done'];
-  tags = [
-    'buy',
-    'dress up',
-    'fun',
-    'home improvement',
-    'chore',
-    'health',
-    'finance',
-    'errands',
-    'fitness',
-    'creative',
-    'self-care',
-    'important',
-    'urgent',
-  ];
 
   currentBoard$: Observable<Board>;
   boards$: Observable<Board[]>;
@@ -36,8 +21,10 @@ export class BoardComponent implements OnInit {
   doneTickets$: Observable<Ticket[]>;
   isTicketOpen$: Observable<boolean>;
   isBoardsListOpen$: Observable<boolean>;
+  isFiltersListOpen$: Observable<boolean>;
   currentTicket$: Observable<Ticket>;
   isEditingCurrentBoardTitle$: Observable<boolean>;
+  currentBoardTags$: Observable<string[]>;
 
   constructor(private boardStore: BoardStore) {
     this.currentBoard$ = this.boardStore.currentBoard$;
@@ -49,9 +36,11 @@ export class BoardComponent implements OnInit {
     this.doneTickets$ = this.boardStore.doneTickets$;
     this.isTicketOpen$ = this.boardStore.isTicketOpen$;
     this.isBoardsListOpen$ = this.boardStore.isBoardsListOpen$;
+    this.isFiltersListOpen$ = this.boardStore.isFiltersListOpen$;
     this.currentTicket$ = this.boardStore.currentTicket$;
     this.isEditingCurrentBoardTitle$ =
       this.boardStore.isEditingCurrentBoardTitle$;
+    this.currentBoardTags$ = this.boardStore.currentBoardTags$;
   }
 
   changeCurrentBoard(board: Board) {
@@ -75,6 +64,14 @@ export class BoardComponent implements OnInit {
 
   closeBoards(): void {
     this.boardStore.setIsBoardsListOpen(false);
+  }
+
+  openFilters(): void {
+    this.boardStore.setIsFiltersListOpen(true);
+  }
+
+  closeFilters(): void {
+    this.boardStore.setIsFiltersListOpen(false);
   }
 
   saveCurrentBoardTitle($event) {

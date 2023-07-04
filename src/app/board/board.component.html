@@ -1,11 +1,11 @@
 <div class="container">
   <div class="top-row">
     <div class="collapse-search-filters">
-      <app-button (click)="openBoards()">
+      <app-button (buttonClicked)="openBoards()">
         <app-icon icon="faAngleRight" color="neutral-2"></app-icon>
       </app-button>
       <app-search placeholder="search"></app-search>
-      <app-button>
+      <app-button (buttonClicked)="openFilters()">
         <app-icon icon="faFilter" color="neutral-2"></app-icon>
       </app-button>
     </div>
@@ -45,13 +45,17 @@
     <p (click)="setIsDueTodayFilterOn()">due this month</p>
   </div>
 
-  <div class="open ticket">
+  <div class="open right">
     <app-ticket
       *ngIf="isTicketOpen$ | async"
       [ticket]="currentTicket$ | async"
-      [tags]="tags"
+      [tags]="currentBoardTags$ | async"
       (closeButtonClicked)="closeTicket()"
     ></app-ticket>
+    <app-filters-list
+      *ngIf="isFiltersListOpen$ | async"
+      (closeButtonClicked)="closeFilters()"
+    ></app-filters-list>
   </div>
 
   <div class="open">

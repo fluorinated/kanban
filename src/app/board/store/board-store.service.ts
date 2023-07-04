@@ -6,9 +6,10 @@ import { tap, withLatestFrom } from 'rxjs/operators';
 import { Board } from 'src/app/models/board.model';
 import {
   dueTodayTickets,
-  filterTickets,
   dueThisWeekTickets,
   dueThisMonthTickets,
+  filterTicketsBySearch,
+  filterTicketsByMatchingActiveTags,
 } from 'src/app/utils/board.utils';
 import { mockBoard, mockBoardTwo, mockTickets } from 'src/mock-data/mock-data';
 export interface BoardStoreState {
@@ -16,6 +17,7 @@ export interface BoardStoreState {
   boards: Board[];
   isTicketOpen: boolean;
   isBoardsListOpen: boolean;
+  isFiltersListOpen: boolean;
   currentTicket: Ticket;
   searchTerm: string;
   isEditingCurrentBoardTitle: boolean;
@@ -32,6 +34,7 @@ export class BoardStore extends ComponentStore<BoardStoreState> {
       boards: [mockBoard, mockBoardTwo],
       isTicketOpen: false,
       isBoardsListOpen: false,
+      isFiltersListOpen: false,
       currentTicket: null,
       searchTerm: '',
       isEditingCurrentBoardTitle: false,
@@ -50,6 +53,16 @@ export class BoardStore extends ComponentStore<BoardStoreState> {
     (currentBoard) => currentBoard?.tickets
   );
 
+  readonly currentBoardTags$: Observable<string[]> = this.select(
+    this.currentBoard$,
+    (currentBoard) => currentBoard?.tags
+  );
+
+  readonly currentBoardActiveTags$: Observable<string[]> = this.select(
+    this.currentBoard$,
+    (currentBoard) => currentBoard?.activeTags
+  );
+
   readonly boards$: Observable<Board[]> = this.select((state) => state.boards);
 
   readonly isTicketOpen$: Observable<boolean> = this.select(
@@ -58,6 +71,10 @@ export class BoardStore extends ComponentStore<BoardStoreState> {
 
   readonly isBoardsListOpen$: Observable<boolean> = this.select(
     (state) => state.isBoardsListOpen
+  );
+
+  readonly isFiltersListOpen$: Observable<boolean> = this.select(
+    (state) => state.isFiltersListOpen
   );
 
   readonly currentTicket$: Observable<Ticket> = this.select(
@@ -85,12 +102,14 @@ export class BoardStore extends ComponentStore<BoardStoreState> {
   );
 
   readonly filteredTickets$: Observable<Ticket[]> = this.select(
+    this.currentBoardActiveTags$,
     this.searchTerm$,
     this.currentBoardTickets$,
     this.isDueTodayFilterOn$,
     this.isDueThisWeekFilterOn$,
     this.isDueThisMonthFilterOn$,
     (
+      activeTags,
       searchTerm,
       currentBoardTickets,
       isDueTodayFilterOn,
@@ -105,7 +124,8 @@ export class BoardStore extends ComponentStore<BoardStoreState> {
       } else if (isDueThisMonthFilterOn) {
         newTickets = dueThisMonthTickets(newTickets);
       }
-      newTickets = filterTickets(searchTerm, newTickets);
+      newTickets = filterTicketsBySearch(searchTerm, newTickets);
+      newTickets = filterTicketsByMatchingActiveTags(activeTags, newTickets);
 
       return newTickets;
     }
@@ -166,6 +186,13 @@ export class BoardStore extends ComponentStore<BoardStoreState> {
     })
   );
 
+  readonly setIsFiltersListOpen = this.updater(
+    (state: BoardStoreState, isFiltersListOpen: boolean) => ({
+      ...state,
+      isFiltersListOpen,
+    })
+  );
+
   readonly setCurrentTicket = this.updater(
     (state: BoardStoreState, currentTicket: Ticket) => ({
       ...state,
@@ -222,6 +249,35 @@ export class BoardStore extends ComponentStore<BoardStoreState> {
     })
   );
 
+  readonly setCurrentBoardActiveTags = this.updater(
+    (state: BoardStoreState, currentBoardActiveTags: Board) => ({
+      ...state,
+      currentBoardActiveTags,
+    })
+  );
+
+  readonly addTagToCurrentBoardActiveTags = this.updater(
+    (state: BoardStoreState, tag: string) => ({
+      ...state,
+      currentBoard: {
+        ...state.currentBoard,
+        activeTags: [...new Set([...state.currentBoard.activeTags, tag])],
+      },
+    })
+  );
+
+  readonly removeTagFromCurrentBoardActiveTags = this.updater(
+    (state: BoardStoreState, tag: string) => ({
+      ...state,
+      currentBoard: {
+        ...state.currentBoard,
+        activeTags: [...state.currentBoard.activeTags].filter(
+          (currentTag) => currentTag !== tag
+        ),
+      },
+    })
+  );
+
   readonly addTagToCurrentTicket = this.updater(
     (state: BoardStoreState, tag: string) => ({
       ...state,
@@ -261,12 +317,16 @@ export class BoardStore extends ComponentStore<BoardStoreState> {
       {
         title: 'title',
         tickets: mockTickets,
+        tags: [],
+        activeTags: [],
         index: 2,
       },
     ],
     currentBoard: {
       title: 'title',
       tickets: mockTickets,
+      tags: [],
+      activeTags: [],
       index: 2,
     },
   }));

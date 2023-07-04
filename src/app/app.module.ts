@@ -27,6 +27,7 @@ import { TicketStore } from './ticket/store/ticket-store.service';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
+import { FiltersListComponent } from './filters-list/filters-list.component';
 @NgModule({
   imports: [
     CommonModule,
@@ -56,6 +57,7 @@ import { MatInputModule } from '@angular/material/input';
     DoneLaneComponent,
     IconComponent,
     BoardsListComponent,
+    FiltersListComponent,
   ],
   providers: [BoardService, BoardStore, TicketStore],
   bootstrap: [AppComponent],

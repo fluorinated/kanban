@@ -1,0 +1,31 @@
+.card {
+  width: 40rem;
+  height: 55rem;
+  background-color: var(--neutral-4);
+  box-shadow: 2px 2px 5px 0 var(--neutral-3), -2px -2px 5px 0 var(--neutral-5);
+  border-radius: 0.25rem;
+  border-color: transparent;
+  right: 0.5rem;
+  top: 0.5rem;
+}
+
+.close-btn {
+  padding: 0.5rem;
+  position: absolute;
+  right: 0;
+}
+
+.title {
+  color: var(--pink-1);
+  padding-top: 1rem;
+  padding-left: 1rem;
+}
+
+.tags {
+  padding-left: 1rem;
+}
+
+.tags-input-container {
+  padding-left: 1rem;
+  padding-top: 1rem;
+}

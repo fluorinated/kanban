@@ -4,7 +4,6 @@ import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { Ticket } from '../models/ticket.model';
 import { BoardStore } from '../board/store/board-store.service';
 import { TicketStore } from './store/ticket-store.service';
-import { FormControl } from '@angular/forms';
 
 @Component({
   selector: 'app-ticket',
@@ -20,8 +19,6 @@ export class TicketComponent implements OnInit {
   isEditingDescription$: Observable<boolean>;
   isEditingDueDate$: Observable<boolean>;
   isEditingTags$: Observable<boolean>;
-
-  form = new FormControl('');
 
   constructor(
     private boardStore: BoardStore,

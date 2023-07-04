@@ -1,11 +1,11 @@
-<ng-container *ngIf="!isTextarea">
+<ng-container [formGroup]="form" *ngIf="!isTextarea">
   <input
     #input
     class="input"
     type="text"
     [placeholder]="placeholder"
     [value]="value"
-    [formControl]="formControl"
+    formControlName="control"
     (keyup)="keyUp()"
     (blur)="blurInput()"
   />
@@ -28,5 +28,6 @@
   class="textarea"
   [placeholder]="placeholder"
   [value]="value"
+  formControlName="control"
   (blur)="blurTextarea()"
 ></textarea>
