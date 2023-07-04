@@ -50,6 +50,7 @@ export class BoardComponent implements OnInit {
   ngOnInit(): void {}
 
   openTicket($event): void {
+    this.boardStore.setIsFiltersListOpen(false);
     this.boardStore.setIsTicketOpen(true);
     this.boardStore.setCurrentTicket($event);
   }
@@ -67,6 +68,7 @@ export class BoardComponent implements OnInit {
   }
 
   openFilters(): void {
+    this.boardStore.setIsTicketOpen(false);
     this.boardStore.setIsFiltersListOpen(true);
   }
 
