@@ -6,4 +6,5 @@ export interface Board {
   tags: string[];
   activeTags: string[];
   index: number;
+  collapsedLanes: string[];
 }

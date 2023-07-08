@@ -25,6 +25,7 @@ export class BoardComponent implements OnInit {
   currentTicket$: Observable<Ticket>;
   isEditingCurrentBoardTitle$: Observable<boolean>;
   currentBoardTags$: Observable<string[]>;
+  currentBoardCollapsedLanes$: Observable<string[]>;
 
   constructor(private boardStore: BoardStore) {
     this.currentBoard$ = this.boardStore.currentBoard$;
@@ -41,6 +42,8 @@ export class BoardComponent implements OnInit {
     this.isEditingCurrentBoardTitle$ =
       this.boardStore.isEditingCurrentBoardTitle$;
     this.currentBoardTags$ = this.boardStore.currentBoardTags$;
+    this.currentBoardCollapsedLanes$ =
+      this.boardStore.currentBoardCollapsedLanes$;
   }
 
   changeCurrentBoard(board: Board) {

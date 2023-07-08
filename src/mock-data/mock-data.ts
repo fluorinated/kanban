@@ -116,6 +116,7 @@ export const mockBoard: Board = {
     'fitness',
   ],
   index: 0,
+  collapsedLanes: ['blocked'],
 };
 
 export const mockBoardTwo: Board = {
@@ -124,4 +125,5 @@ export const mockBoardTwo: Board = {
   tags: ['rittenhouse', 'whole foods', 'acme', 'aldi'],
   activeTags: ['rittenhouse', 'acme', 'aldi'],
   index: 1,
+  collapsedLanes: ['rdy 2 start'],
 };

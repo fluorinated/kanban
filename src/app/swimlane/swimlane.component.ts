@@ -11,15 +11,18 @@ import { BoardStore } from '../board/store/board-store.service';
 export class SwimlaneComponent implements OnInit {
   @Input() title: string;
   @Input() tickets: Ticket[];
-
-  isCollapsed: boolean = false;
+  @Input() currentBoardCollapsedLanes: string[];
 
   constructor(private boardStore: BoardStore) {}
 
   ngOnInit(): void {}
 
-  toggleCollapseLane() {
-    this.isCollapsed = !this.isCollapsed;
+  addCollapsedLaneToCurrentBoard(lane: string) {
+    this.boardStore.addCollapsedLaneToCurrentBoard(lane);
+  }
+
+  removeCollapsedLaneToCurrentBoard(lane: string) {
+    this.boardStore.removeCollapsedLaneToCurrentBoard(lane);
   }
 
   addNewTicket() {

@@ -64,6 +64,11 @@ export class BoardStore extends ComponentStore<BoardStoreState> {
     (currentBoard) => currentBoard?.activeTags
   );
 
+  readonly currentBoardCollapsedLanes$: Observable<string[]> = this.select(
+    this.currentBoard$,
+    (currentBoard) => currentBoard?.collapsedLanes
+  );
+
   readonly boards$: Observable<Board[]> = this.select((state) => state.boards);
 
   readonly isTicketOpen$: Observable<boolean> = this.select(
@@ -215,6 +220,28 @@ export class BoardStore extends ComponentStore<BoardStoreState> {
     })
   );
 
+  readonly addCollapsedLaneToCurrentBoard = this.updater(
+    (state: BoardStoreState, lane: string) => ({
+      ...state,
+      currentBoard: {
+        ...state.currentBoard,
+        collapsedLanes: [...state.currentBoard.collapsedLanes, lane],
+      },
+    })
+  );
+
+  readonly removeCollapsedLaneToCurrentBoard = this.updater(
+    (state: BoardStoreState, lane: string) => ({
+      ...state,
+      currentBoard: {
+        ...state.currentBoard,
+        collapsedLanes: state.currentBoard.collapsedLanes.filter(
+          (collapsedLane) => collapsedLane !== lane
+        ),
+      },
+    })
+  );
+
   readonly setSearchTerm = this.updater(
     (state: BoardStoreState, searchTerm: string) => ({
       ...state,
@@ -331,6 +358,7 @@ export class BoardStore extends ComponentStore<BoardStoreState> {
         tags: [],
         activeTags: [],
         index: 2,
+        collapsedLanes: [],
       },
     ],
     currentBoard: {
@@ -339,6 +367,7 @@ export class BoardStore extends ComponentStore<BoardStoreState> {
       tags: [],
       activeTags: [],
       index: 2,
+      collapsedLanes: [],
     },
   }));
 

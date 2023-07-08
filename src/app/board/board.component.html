@@ -68,7 +68,11 @@
   </div>
 
   <div class="swimlanes-container" cdkDropListGroup>
-    <app-swimlane title="backlog" [tickets]="backlogTickets$ | async">
+    <app-swimlane
+      title="backlog"
+      [tickets]="backlogTickets$ | async"
+      [currentBoardCollapsedLanes]="currentBoardCollapsedLanes$ | async"
+    >
       <app-backlog-lane
         [tickets]="backlogTickets$ | async"
         (ticketClicked)="openTicket($event)"
@@ -76,28 +80,44 @@
       </app-backlog-lane>
     </app-swimlane>
 
-    <app-swimlane title="rdy 2 start" [tickets]="rdy2StartTickets$ | async">
+    <app-swimlane
+      title="rdy 2 start"
+      [tickets]="rdy2StartTickets$ | async"
+      [currentBoardCollapsedLanes]="currentBoardCollapsedLanes$ | async"
+    >
       <app-ready-to-start-lane
         [tickets]="rdy2StartTickets$ | async"
         (ticketClicked)="openTicket($event)"
       ></app-ready-to-start-lane>
     </app-swimlane>
 
-    <app-swimlane title="blocked" [tickets]="blockedTickets$ | async">
+    <app-swimlane
+      title="blocked"
+      [tickets]="blockedTickets$ | async"
+      [currentBoardCollapsedLanes]="currentBoardCollapsedLanes$ | async"
+    >
       <app-blocked-lane
         [tickets]="blockedTickets$ | async"
         (ticketClicked)="openTicket($event)"
       ></app-blocked-lane>
     </app-swimlane>
 
-    <app-swimlane title="in progress" [tickets]="inProgressTickets$ | async">
+    <app-swimlane
+      title="in progress"
+      [tickets]="inProgressTickets$ | async"
+      [currentBoardCollapsedLanes]="currentBoardCollapsedLanes$ | async"
+    >
       <app-in-progress-lane
         [tickets]="inProgressTickets$ | async"
         (ticketClicked)="openTicket($event)"
       ></app-in-progress-lane>
     </app-swimlane>
 
-    <app-swimlane title="done" [tickets]="doneTickets$ | async">
+    <app-swimlane
+      title="done"
+      [tickets]="doneTickets$ | async"
+      [currentBoardCollapsedLanes]="currentBoardCollapsedLanes$ | async"
+    >
       <app-done-lane
         [tickets]="doneTickets$ | async"
         (ticketClicked)="openTicket($event)"
