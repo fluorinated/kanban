@@ -22,12 +22,12 @@ export class InputComponent implements OnInit {
   @Input() options: string[];
   @Input() isTextarea: boolean;
   @Input() h2: boolean = false;
-  @Output() onKeyUp: EventEmitter<any> = new EventEmitter();
-  @Output() onBlur: EventEmitter<any> = new EventEmitter();
+  @Output() onKeyUp: EventEmitter<string> = new EventEmitter();
+  @Output() onBlur: EventEmitter<string> = new EventEmitter();
   @Output() optionClicked: EventEmitter<string> = new EventEmitter();
-  @ViewChild('input')
+  @ViewChild('input', { static: false })
   input: ElementRef;
-  @ViewChild('textarea')
+  @ViewChild('textarea', { static: false })
   textarea: ElementRef;
 
   filteredOptions: Observable<string[]>;

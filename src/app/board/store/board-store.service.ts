@@ -4,6 +4,7 @@ import { ComponentStore } from '@ngrx/component-store';
 import { Observable } from 'rxjs';
 import { tap, withLatestFrom } from 'rxjs/operators';
 import { Board } from 'src/app/models/board.model';
+import { TicketStore } from 'src/app/ticket/store/ticket-store.service';
 import {
   dueTodayTickets,
   dueThisWeekTickets,
@@ -28,7 +29,7 @@ export interface BoardStoreState {
 
 @Injectable()
 export class BoardStore extends ComponentStore<BoardStoreState> {
-  constructor() {
+  constructor(private ticketStore: TicketStore) {
     super({
       currentBoard: mockBoard,
       boards: [mockBoard, mockBoardTwo],
@@ -288,6 +289,16 @@ export class BoardStore extends ComponentStore<BoardStoreState> {
     })
   );
 
+  readonly addTagToCurrentBoard = this.updater(
+    (state: BoardStoreState, tag: string) => ({
+      ...state,
+      currentBoard: {
+        ...state.currentBoard,
+        tags: [...new Set([...state.currentBoard.tags, tag])],
+      },
+    })
+  );
+
   readonly addNewTicketToBoard = this.updater(
     (state: BoardStoreState, swimlaneTitle: string) => ({
       ...state,
@@ -386,6 +397,17 @@ export class BoardStore extends ComponentStore<BoardStoreState> {
             this.setIsDueThisMonthFilterOn(true);
           }
         })
+      )
+  );
+
+  readonly addNewTagToCurrentBoardTags = this.effect(
+    (addNewTagToCurrentBoardTags$: Observable<void>) =>
+      addNewTagToCurrentBoardTags$.pipe(
+        withLatestFrom(this.ticketStore.newTagName$),
+        tap(([, newTagName]: [any, string]) =>
+          this.addTagToCurrentBoard(newTagName)
+        ),
+        tap(() => this.ticketStore.setIsEditingNewTag(false))
       )
   );
 }

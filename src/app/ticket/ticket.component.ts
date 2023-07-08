@@ -19,6 +19,7 @@ export class TicketComponent implements OnInit {
   isEditingDescription$: Observable<boolean>;
   isEditingDueDate$: Observable<boolean>;
   isEditingTags$: Observable<boolean>;
+  isEditingNewTag$: Observable<boolean>;
 
   constructor(
     private boardStore: BoardStore,
@@ -28,6 +29,7 @@ export class TicketComponent implements OnInit {
     this.isEditingDescription$ = this.ticketStore.isEditingDescription$;
     this.isEditingDueDate$ = this.ticketStore.isEditingDueDate$;
     this.isEditingTags$ = this.ticketStore.isEditingTags$;
+    this.isEditingNewTag$ = this.ticketStore.isEditingNewTag$;
   }
 
   ngOnInit() {}
@@ -44,6 +46,10 @@ export class TicketComponent implements OnInit {
     this.boardStore.removeTagFromCurrentTicket(tag);
   }
 
+  toggleSaveStartEditingTags() {
+    this.ticketStore.toggleSaveStartEditingTags();
+  }
+
   startEditing(field: string) {
     switch (field) {
       case 'title':
@@ -55,14 +61,16 @@ export class TicketComponent implements OnInit {
       case 'dueDate':
         this.ticketStore.setIsEditingDueDate(true);
         break;
-      case 'tags':
-        this.ticketStore.setIsEditingTags(true);
+      case 'newTag':
+        this.ticketStore.setIsEditingNewTag(true);
         break;
     }
   }
 
   saveEditField(field: string, $event: string) {
-    this.boardStore.updateCurrentTicketField({ field, value: $event });
+    if (field !== 'newTag') {
+      this.boardStore.updateCurrentTicketField({ field, value: $event });
+    }
     switch (field) {
       case 'title':
         this.ticketStore.setIsEditingTitle(false);
@@ -73,9 +81,14 @@ export class TicketComponent implements OnInit {
       case 'dueDate':
         this.ticketStore.setIsEditingDueDate(false);
         break;
-      case 'tags':
-        this.ticketStore.setIsEditingTags(false);
+      case 'newTag':
+        this.ticketStore.setNewTagName($event);
+        this.boardStore.addNewTagToCurrentBoardTags();
         break;
     }
+  }
+
+  cancelNewTag() {
+    this.ticketStore.setIsEditingNewTag(false);
   }
 }

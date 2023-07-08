@@ -49,7 +49,7 @@ export class BoardComponent implements OnInit {
 
   ngOnInit(): void {}
 
-  openTicket($event): void {
+  openTicket($event: Ticket): void {
     this.boardStore.setIsFiltersListOpen(false);
     this.boardStore.setIsTicketOpen(true);
     this.boardStore.setCurrentTicket($event);
@@ -76,7 +76,7 @@ export class BoardComponent implements OnInit {
     this.boardStore.setIsFiltersListOpen(false);
   }
 
-  saveCurrentBoardTitle($event) {
+  saveCurrentBoardTitle($event: string) {
     this.boardStore.setIsEditingCurrentBoardTitle(false);
     this.boardStore.updateCurrentBoardField({ field: 'title', value: $event });
   }

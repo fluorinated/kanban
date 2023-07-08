@@ -47,7 +47,7 @@
       (onBlur)="saveEditField('description', $event)"
     ></app-input>
 
-    <div class="tags" (click)="startEditing('tags')">
+    <div class="tags" (click)="toggleSaveStartEditingTags()">
       <app-tags
         [tags]="ticket?.tags"
         [showCloseButton]="isEditingTags$ | async"
@@ -57,15 +57,43 @@
     </div>
 
     <div class="tags-input-container" *ngIf="isEditingTags$ | async">
-      <app-input
-        [h2]="false"
-        class="input"
-        placeholder="ticket tags"
-        [isTextarea]="false"
-        [options]="tags"
-        (onBlur)="saveEditField('tags', $event)"
-        (optionClicked)="tagClicked($event)"
-      ></app-input>
+      <div class="tags-input-plus-btn">
+        <app-input
+          [h2]="false"
+          class="input"
+          placeholder="ticket tags"
+          [isTextarea]="false"
+          [options]="tags"
+          (optionClicked)="tagClicked($event)"
+        ></app-input>
+
+        <app-button
+          class="new-tag-plus-btn"
+          (buttonClicked)="startEditing('newTag')"
+        >
+          <app-icon class="icon" icon="faPlus" color="pink-1"></app-icon>
+        </app-button>
+      </div>
+
+      <div *ngIf="isEditingNewTag$ | async" class="new-tag-input-btns">
+        <app-input
+          [h2]="false"
+          class="input new-tag-input"
+          placeholder="new tag name"
+          [isTextarea]="false"
+          (onBlur)="saveEditField('newTag', $event)"
+        ></app-input>
+
+        <app-button
+          class="check-btn"
+          (buttonClicked)="saveEditField('newTag', $event)"
+        >
+          <app-icon class="icon" icon="faCheck" color="pink-1"></app-icon>
+        </app-button>
+        <app-button (buttonClicked)="cancelNewTag()">
+          <app-icon class="icon" icon="faClose" color="pink-1"></app-icon>
+        </app-button>
+      </div>
     </div>
 
     <p

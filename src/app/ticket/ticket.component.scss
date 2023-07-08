@@ -70,12 +70,23 @@
   margin-top: 0.5rem;
 }
 
-.example-form {
-  min-width: 150px;
-  max-width: 500px;
-  width: 100%;
+.tags-input-plus-btn {
+  display: flex;
 }
 
-.example-full-width {
-  width: 100%;
+.new-tag-plus-btn {
+  padding-left: 1rem;
+}
+
+.new-tag-input {
+  margin-right: 1rem;
+}
+
+.check-btn {
+  margin-right: 0.75rem;
+}
+
+.new-tag-input-btns {
+  display: flex;
+  margin-top: 1rem;
 }
