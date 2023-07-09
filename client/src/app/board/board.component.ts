@@ -3,6 +3,7 @@ import { Ticket } from '../models/ticket.model';
 import { Board } from '../models/board.model';
 import { BoardStore } from './store/board-store.service';
 import { Observable } from 'rxjs';
+import { BoardService } from './board.service';
 
 @Component({
   selector: 'app-board',
@@ -27,7 +28,10 @@ export class BoardComponent implements OnInit {
   currentBoardTags$: Observable<string[]>;
   currentBoardCollapsedLanes$: Observable<string[]>;
 
-  constructor(private boardStore: BoardStore) {
+  constructor(
+    private boardStore: BoardStore,
+    private boardService: BoardService
+  ) {
     this.currentBoard$ = this.boardStore.currentBoard$;
     this.boards$ = this.boardStore.boards$;
     this.backlogTickets$ = this.boardStore.backlogTickets$;
@@ -50,7 +54,14 @@ export class BoardComponent implements OnInit {
     this.boardStore.setCurrentBoard(board);
   }
 
-  ngOnInit(): void {}
+  ngOnInit(): void {
+    const data = {
+      title: 'test',
+      description: 'desc test',
+      published: false,
+    };
+    this.boardService.create(data);
+  }
 
   openTicket($event: Ticket): void {
     this.boardStore.setIsFiltersListOpen(false);

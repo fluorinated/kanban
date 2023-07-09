@@ -1,8 +1,8 @@
-import { Ticket } from './../../models/ticket.model';
+import { Ticket } from '../../models/ticket.model';
 import { Injectable } from '@angular/core';
-import { ComponentStore } from '@ngrx/component-store';
+import { ComponentStore, tapResponse } from '@ngrx/component-store';
 import { Observable } from 'rxjs';
-import { tap, withLatestFrom } from 'rxjs/operators';
+import { finalize, tap, withLatestFrom } from 'rxjs/operators';
 import { Board } from 'src/app/models/board.model';
 import { TicketStore } from 'src/app/ticket/store/ticket-store.service';
 import {
@@ -13,6 +13,7 @@ import {
   filterTicketsByMatchingActiveTags,
 } from 'src/app/utils/board.utils';
 import { mockBoard, mockBoardTwo, mockTickets } from 'src/mock-data/mock-data';
+import { BoardService } from '../board.service';
 export interface BoardStoreState {
   currentBoard: Board;
   boards: Board[];
@@ -29,7 +30,10 @@ export interface BoardStoreState {
 
 @Injectable()
 export class BoardStore extends ComponentStore<BoardStoreState> {
-  constructor(private ticketStore: TicketStore) {
+  constructor(
+    private ticketStore: TicketStore,
+    private boardService: BoardService
+  ) {
     super({
       currentBoard: mockBoard,
       boards: [mockBoard, mockBoardTwo],
@@ -391,16 +395,34 @@ export class BoardStore extends ComponentStore<BoardStoreState> {
   );
 
   readonly setIsDueTodayFilter = this.effect(
-    (setIsDueTodayFilter$: Observable<void>) =>
-      setIsDueTodayFilter$.pipe(
+    (setIsDueTodayFilter$: Observable<void>) => {
+      return setIsDueTodayFilter$.pipe(
         withLatestFrom(this.isDueTodayFilterOn$),
         tap(() => this.turnOffMainFilters()),
         tap(([, isDueTodayFilterOn]) => {
           if (!isDueTodayFilterOn) {
             this.setIsDueTodayFilterOn(true);
           }
+        }),
+        tap(() => {
+          return this.boardService
+            .create({
+              title: 'test',
+              description: 'desc test',
+              published: false,
+            })
+            .pipe(
+              tapResponse(
+                () => {
+                  console.log('res');
+                },
+                (error: string) => console.log('err')
+              ),
+              finalize(() => console.log('finalize'))
+            );
         })
-      )
+      );
+    }
   );
 
   readonly setIsDueThisWeekFilter = this.effect(

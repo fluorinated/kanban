@@ -1,4 +1,4 @@
-import { BoardService } from './../board/board.service';
+import { BoardService } from '../board/board.service';
 import { CdkDragDrop } from '@angular/cdk/drag-drop';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 
