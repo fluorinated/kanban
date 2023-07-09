@@ -340,7 +340,7 @@ export class BoardStore extends ComponentStore<BoardStoreState> {
             title: 'title',
             ticketNumber: 'MD-619',
             description: 'description',
-            tags: [],
+            tags: ['buy'],
             dueDate: 'monday, july 3, 2023',
             createdDate: 'saturday, july 1, 2023',
             swimlaneTitle,
