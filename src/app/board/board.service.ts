@@ -7,9 +7,8 @@ import { Injectable } from '@angular/core';
 
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { Tutorial } from '../../../../node-server/models/tutorial.model';
 
-const baseUrl = 'http://localhost:8080/api/tutorials';
+const baseUrl = 'http://localhost:8080/getBalance';
 
 @Injectable({
   providedIn: 'root',
@@ -17,12 +16,16 @@ const baseUrl = 'http://localhost:8080/api/tutorials';
 export class BoardService {
   constructor(private http: HttpClient) {}
 
-  getAll(): Observable<Tutorial[]> {
-    return this.http.get<Tutorial[]>(baseUrl);
+  getAll(): Observable<any[]> {
+    return this.http.get<any[]>(baseUrl);
   }
 
-  get(id: any): Observable<Tutorial> {
-    return this.http.get<Tutorial>(`${baseUrl}/${id}`);
+  getBalance() {
+    return this.http.get(baseUrl);
+  }
+
+  get(id: any): Observable<any> {
+    return this.http.get<any>(`${baseUrl}/${id}`);
   }
 
   create(data: any): Observable<any> {
@@ -42,8 +45,8 @@ export class BoardService {
     return this.http.delete(baseUrl);
   }
 
-  findByTitle(title: any): Observable<Tutorial[]> {
-    return this.http.get<Tutorial[]>(`${baseUrl}?title=${title}`);
+  findByTitle(title: any): Observable<any[]> {
+    return this.http.get<any[]>(`${baseUrl}?title=${title}`);
   }
 
   public drop(event: CdkDragDrop<string[]>) {

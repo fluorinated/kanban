@@ -2,7 +2,7 @@ import { Ticket } from '../../models/ticket.model';
 import { Injectable } from '@angular/core';
 import { ComponentStore, tapResponse } from '@ngrx/component-store';
 import { Observable } from 'rxjs';
-import { finalize, tap, withLatestFrom } from 'rxjs/operators';
+import { finalize, switchMap, tap, withLatestFrom } from 'rxjs/operators';
 import { Board } from 'src/app/models/board.model';
 import { TicketStore } from 'src/app/ticket/store/ticket-store.service';
 import {
@@ -404,22 +404,16 @@ export class BoardStore extends ComponentStore<BoardStoreState> {
             this.setIsDueTodayFilterOn(true);
           }
         }),
-        tap(() => {
-          return this.boardService
-            .create({
-              title: 'test',
-              description: 'desc test',
-              published: false,
-            })
-            .pipe(
-              tapResponse(
-                () => {
-                  console.log('res');
-                },
-                (error: string) => console.log('err')
-              ),
-              finalize(() => console.log('finalize'))
-            );
+        switchMap(() => {
+          return this.boardService.getBalance().pipe(
+            tapResponse(
+              (res) => {
+                console.log('res', res);
+              },
+              (error: string) => console.log('err')
+            ),
+            finalize(() => console.log('finalize'))
+          );
         })
       );
     }
