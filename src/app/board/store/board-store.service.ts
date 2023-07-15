@@ -36,7 +36,7 @@ export class BoardStore extends ComponentStore<BoardStoreState> {
   ) {
     super({
       currentBoard: mockBoard,
-      boards: [mockBoard, mockBoardTwo],
+      boards: [],
       isTicketOpen: false,
       isBoardsListOpen: false,
       isFiltersListOpen: false,
@@ -135,7 +135,7 @@ export class BoardStore extends ComponentStore<BoardStoreState> {
         newTickets = dueThisMonthTickets(newTickets);
       }
       newTickets = filterTicketsBySearch(searchTerm, newTickets);
-      newTickets = filterTicketsByMatchingActiveTags(activeTags, newTickets);
+      // newTickets = filterTicketsByMatchingActiveTags(activeTags, newTickets);
 
       return newTickets;
     }
@@ -173,6 +173,13 @@ export class BoardStore extends ComponentStore<BoardStoreState> {
     this.filteredTickets$,
     (filteredTickets) =>
       filteredTickets.filter((ticket) => ticket?.swimlaneTitle === 'done')
+  );
+
+  readonly setBoards = this.updater(
+    (state: BoardStoreState, boards: Board[]) => ({
+      ...state,
+      boards,
+    })
   );
 
   readonly setCurrentBoard = this.updater(
@@ -364,15 +371,7 @@ export class BoardStore extends ComponentStore<BoardStoreState> {
         index: 2,
         collapsedLanes: [],
       },
-    ],
-    currentBoard: {
-      title: 'title',
-      tickets: mockTickets,
-      tags: [],
-      activeTags: [],
-      index: 2,
-      collapsedLanes: [],
-    },
+    ]
   }));
 
   readonly turnOffMainFilters = this.updater((state: BoardStoreState) => ({
@@ -403,17 +402,6 @@ export class BoardStore extends ComponentStore<BoardStoreState> {
           if (!isDueTodayFilterOn) {
             this.setIsDueTodayFilterOn(true);
           }
-        }),
-        switchMap(() => {
-          return this.boardService.getBalance().pipe(
-            tapResponse(
-              (res) => {
-                console.log('res', res);
-              },
-              (error: string) => console.log('err')
-            ),
-            finalize(() => console.log('finalize'))
-          );
         })
       );
     }
@@ -454,5 +442,41 @@ export class BoardStore extends ComponentStore<BoardStoreState> {
         ),
         tap(() => this.ticketStore.setIsEditingNewTag(false))
       )
+  );
+
+  readonly addNewBoardToBoardsE = this.effect(
+    (addNewBoardToBoards$: Observable<void>) =>
+      addNewBoardToBoards$.pipe(
+        tap(() => this.addNewBoardToBoards()),
+        withLatestFrom(this.boards$),
+        switchMap(([, boards]) => {
+          return this.boardService.addNewBoardToBoards(boards).pipe(
+            tapResponse(
+              (res) => {
+                this.updateBoards(res);
+              },
+              (error: string) => console.log('err addNewBoardToBoardsE', error)
+            )
+          );
+        })
+      )
+  );
+
+  readonly updateBoards = this.effect((updateBoards$: Observable<void>) =>
+    updateBoards$.pipe(
+      switchMap(() => {
+        return this.boardService.getBoards().pipe(
+          tapResponse(
+            (res) => {
+              if (res.length > 0) {
+                this.setBoards(res[0]?.boards);
+                this.setCurrentBoard(res[0].boards[0]);
+              }
+            },
+            (error: string) => console.log('err updateBoards', error)
+          )
+        );
+      })
+    )
   );
 }

@@ -60,7 +60,7 @@ export class BoardComponent implements OnInit {
       description: 'desc test',
       published: false,
     };
-    this.boardService.create(data);
+    this.boardStore.updateBoards();
   }
 
   openTicket($event: Ticket): void {
@@ -100,7 +100,8 @@ export class BoardComponent implements OnInit {
   }
 
   addNewBoardToBoards() {
-    this.boardStore.addNewBoardToBoards();
+    // to do
+    this.boardStore.addNewBoardToBoardsE();
   }
 
   setIsDueTodayFilterOn() {
