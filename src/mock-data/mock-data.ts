@@ -117,6 +117,8 @@ export const mockBoard: Board = {
   ],
   index: 0,
   collapsedLanes: ['blocked'],
+  isCurrentBoard: false,
+  _id: '1'
 };
 
 export const mockBoardTwo: Board = {
@@ -126,4 +128,6 @@ export const mockBoardTwo: Board = {
   activeTags: ['rittenhouse', 'acme', 'aldi'],
   index: 1,
   collapsedLanes: ['rdy 2 start'],
+  isCurrentBoard: true,
+  _id: '2'
 };

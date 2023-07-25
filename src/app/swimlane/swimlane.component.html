@@ -1,4 +1,4 @@
-<div class="top-row" *ngIf="!currentBoardCollapsedLanes.includes(title)">
+<div class="top-row" *ngIf="!currentBoardCollapsedLanes?.includes(title)">
   <h2 class="title">{{ title }}</h2>
   <div class="top-row-buttons">
     <app-button class="plus-btn" (buttonClicked)="addNewTicket()">
@@ -10,7 +10,7 @@
   </div>
 </div>
 
-<ng-container *ngIf="currentBoardCollapsedLanes.includes(title)">
+<ng-container *ngIf="currentBoardCollapsedLanes?.includes(title)">
   <div class="collapsed-lane">
     <app-button (buttonClicked)="removeCollapsedLaneToCurrentBoard(title)">
       <app-icon icon="faAngleRight" color="pink-1"></app-icon>
@@ -19,6 +19,6 @@
   </div>
 </ng-container>
 
-<div class="lane" *ngIf="!currentBoardCollapsedLanes.includes(title)">
+<div class="lane" *ngIf="!currentBoardCollapsedLanes?.includes(title)">
   <ng-content></ng-content>
 </div>

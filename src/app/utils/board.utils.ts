@@ -5,7 +5,7 @@ export const filterTicketsBySearch = (
   searchTerm: string,
   currentBoardTickets: Ticket[]
 ) => {
-  currentBoardTickets = currentBoardTickets.filter((ticket) => {
+  currentBoardTickets = currentBoardTickets?.filter((ticket) => {
     if (searchTerm !== '') {
       return (
         (ticket?.title).toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -25,7 +25,7 @@ export const filterTicketsByMatchingActiveTags = (
   activeTags: string[],
   currentBoardTickets: Ticket[]
 ) => {
-  currentBoardTickets = currentBoardTickets.filter((ticket) => {
+  currentBoardTickets = currentBoardTickets?.filter((ticket) => {
     return ticket?.tags.some((tag) => activeTags.includes(tag));
   });
   return currentBoardTickets;

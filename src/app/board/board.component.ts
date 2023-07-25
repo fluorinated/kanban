@@ -51,7 +51,7 @@ export class BoardComponent implements OnInit {
   }
 
   changeCurrentBoard(board: Board) {
-    this.boardStore.setCurrentBoard(board);
+    this.boardStore.changeCurrentBoard(board);
   }
 
   ngOnInit(): void {
@@ -91,8 +91,7 @@ export class BoardComponent implements OnInit {
   }
 
   saveCurrentBoardTitle($event: string) {
-    this.boardStore.setIsEditingCurrentBoardTitle(false);
-    this.boardStore.updateCurrentBoardField({ field: 'title', value: $event });
+    this.boardStore.updateCurrentBoardTitle($event);
   }
 
   editBoardTitle() {
@@ -100,8 +99,7 @@ export class BoardComponent implements OnInit {
   }
 
   addNewBoardToBoards() {
-    // to do
-    this.boardStore.addNewBoardToBoardsE();
+    this.boardStore.addNewBoardToBoardsUpdate();
   }
 
   setIsDueTodayFilterOn() {

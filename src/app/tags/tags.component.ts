@@ -51,7 +51,7 @@ export class TagsComponent implements OnInit, OnChanges {
 
   ngAfterContentChecked(): void {
     if (this.tagsList) {
-      this.tagsList['_results'].map((res) => {
+      this.tagsList['_results']?.map((res) => {
         let num =
           res?.nativeElement?.offsetLeft + res?.nativeElement?.offsetWidth;
         num = `${num}px`;

@@ -5,8 +5,9 @@ import {
 } from '@angular/cdk/drag-drop';
 import { Injectable } from '@angular/core';
 
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { Board } from '../models/board.model';
 
 const baseUrl = 'http://localhost:8080';
 
@@ -14,40 +15,53 @@ const baseUrl = 'http://localhost:8080';
   providedIn: 'root',
 })
 export class BoardService {
+   httpOptions = {
+    headers: new HttpHeaders({
+        'Content-Type': 'application/json',
+    })};
+
   constructor(private http: HttpClient) {}
 
-  getAll(): Observable<any[]> {
-    return this.http.get<any[]>(baseUrl);
-  }
+  // getAll(): Observable<any[]> {
+  //   return this.http.get<any[]>(baseUrl);
+  // }
 
   getBoards(): Observable<any> {
     return this.http.get<any>(`${baseUrl}/getBoards`);
   }
 
-  get(id: any): Observable<any> {
-    return this.http.get<any>(`${baseUrl}/${id}`);
-  }
+  // get(id: any): Observable<any> {
+  //   return this.http.get<any>(`${baseUrl}/${id}`);
+  // }
 
   addNewBoardToBoards(boards?: any): Observable<any> {
     const body = JSON.stringify(boards);
     return this.http.post(`${baseUrl}/addNewBoardToBoards`, body);
   }
 
-  update(id: any, data: any): Observable<any> {
-    return this.http.put(`${baseUrl}/${id}`, data);
+  updateCurrentBoardTitle(title?: string, _id?: string): Observable<any> {
+    return this.http.post(`${baseUrl}/updateCurrentBoardTitle`, JSON.stringify({ title, _id }), this.httpOptions);
   }
 
-  delete(id: any): Observable<any> {
-    return this.http.delete(`${baseUrl}/${id}`);
+  setBoards(boards: Board[]): Observable<any> {
+    return this.http.post(`${baseUrl}/setBoards`, JSON.stringify({ boards }), this.httpOptions);
   }
 
-  deleteAll(): Observable<any> {
-    return this.http.delete(baseUrl);
-  }
+  // update(id: any, data: any): Observable<any> {
+  //   return this.http.put(`${baseUrl}/${id}`, data);
+  // }
 
-  findByTitle(title: any): Observable<any[]> {
-    return this.http.get<any[]>(`${baseUrl}?title=${title}`);
-  }
+  // delete(id: any): Observable<any> {
+  //   return this.http.delete(`${baseUrl}/${id}`);
+  // }
+
+  // deleteAll(): Observable<any> {
+  //   return this.http.delete(baseUrl);
+  // }
+
+  // findByTitle(title: any): Observable<any[]> {
+  //   return this.http.get<any[]>(`${baseUrl}?title=${title}`);
+  // }
 
   public drop(event: CdkDragDrop<string[]>) {
     if (event.previousContainer === event.container) {
