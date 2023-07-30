@@ -22,17 +22,13 @@ export class BoardService {
 
   constructor(private http: HttpClient) {}
 
-  // getAll(): Observable<any[]> {
-  //   return this.http.get<any[]>(baseUrl);
-  // }
-
   getBoards(): Observable<any> {
     return this.http.get<any>(`${baseUrl}/getBoards`);
   }
 
-  // get(id: any): Observable<any> {
-  //   return this.http.get<any>(`${baseUrl}/${id}`);
-  // }
+  getNextTicketNumber(boardId?: string): Observable<any> {
+    return this.http.get<any>(`${baseUrl}/getNextTicketNumber?boardId=${boardId}`);
+  }
 
   addNewBoardToBoards(boards?: any): Observable<any> {
     const body = JSON.stringify(boards);
@@ -42,25 +38,17 @@ export class BoardService {
   updateCurrentBoardTitle(title?: string, _id?: string): Observable<any> {
     return this.http.post(`${baseUrl}/updateCurrentBoardTitle`, JSON.stringify({ title, _id }), this.httpOptions);
   }
+  
+  updateTicketSwimlane(title?: string, ticketNumber?: string, currentIndex?: number, previousIndex?: number): Observable<any> {
+    return this.http.post(`${baseUrl}/updateTicketSwimlane`, JSON.stringify({ title, ticketNumber, currentIndex, previousIndex }), this.httpOptions);
+  }
 
   setBoards(boards: Board[]): Observable<any> {
     return this.http.post(`${baseUrl}/setBoards`, JSON.stringify({ boards }), this.httpOptions);
   }
 
-  // update(id: any, data: any): Observable<any> {
-  //   return this.http.put(`${baseUrl}/${id}`, data);
-  // }
-
   // delete(id: any): Observable<any> {
   //   return this.http.delete(`${baseUrl}/${id}`);
-  // }
-
-  // deleteAll(): Observable<any> {
-  //   return this.http.delete(baseUrl);
-  // }
-
-  // findByTitle(title: any): Observable<any[]> {
-  //   return this.http.get<any[]>(`${baseUrl}?title=${title}`);
   // }
 
   public drop(event: CdkDragDrop<string[]>) {

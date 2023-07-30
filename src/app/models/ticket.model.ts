@@ -1,6 +1,6 @@
 export interface Ticket {
   title: string;
-  ticketNumber: string;
+  ticketNumber: string; // like _id in board
   description: string;
   tags: string[];
   dueDate: string;

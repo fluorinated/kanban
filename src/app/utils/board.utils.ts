@@ -1,6 +1,8 @@
 import { Ticket } from '../models/ticket.model';
 import * as moment from 'moment';
 
+export const sortTickets = (tickets: Ticket[]) => tickets?.sort((a, b) => a.index - b.index);
+
 export const filterTicketsBySearch = (
   searchTerm: string,
   currentBoardTickets: Ticket[]

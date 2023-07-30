@@ -76,7 +76,7 @@ export const mockTickets: Ticket[] = [
 export const mockTicketsTwo: Ticket[] = [
   {
     title: 'make puttanesca',
-    ticketNumber: 'MD-619',
+    ticketNumber: 'MD-625',
     description: '* grab the red wine * have a good time',
     tags: ['buy', 'dress-up', 'fun'],
     dueDate: 'friday, may 26, 2023',

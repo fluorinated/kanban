@@ -1,8 +1,15 @@
 import { Ticket } from '../../models/ticket.model';
 import { Injectable } from '@angular/core';
 import { ComponentStore, tapResponse } from '@ngrx/component-store';
-import { Observable, of, throwError } from 'rxjs';
-import { catchError, filter, finalize, map, switchMap, tap, withLatestFrom } from 'rxjs/operators';
+import { Observable, throwError } from 'rxjs';
+import {
+  catchError,
+  map,
+  switchMap,
+  take,
+  tap,
+  withLatestFrom,
+} from 'rxjs/operators';
 import { Board } from 'src/app/models/board.model';
 import { TicketStore } from 'src/app/ticket/store/ticket-store.service';
 import {
@@ -11,10 +18,11 @@ import {
   dueThisMonthTickets,
   filterTicketsBySearch,
   filterTicketsByMatchingActiveTags,
+  sortTickets,
 } from 'src/app/utils/board.utils';
-import { mockTickets } from 'src/mock-data/mock-data';
 import { BoardService } from '../board.service';
 import { v4 as uuidv4 } from 'uuid';
+import { CdkDragDrop } from '@angular/cdk/drag-drop';
 
 export interface BoardStoreState {
   currentBoard: Board;
@@ -146,36 +154,52 @@ export class BoardStore extends ComponentStore<BoardStoreState> {
 
   readonly backlogTickets$: Observable<Ticket[]> = this.select(
     this.filteredTickets$,
-    (filteredTickets) =>
-      filteredTickets?.filter((ticket) => ticket?.swimlaneTitle === 'backlog')
+    (filteredTickets) => {
+      filteredTickets = filteredTickets?.filter(
+        (ticket) => ticket?.swimlaneTitle === 'backlog'
+      );
+      return sortTickets(filteredTickets);
+    }
   );
 
   readonly rdy2StartTickets$: Observable<Ticket[]> = this.select(
     this.filteredTickets$,
-    (filteredTickets) =>
-      filteredTickets?.filter(
+    (filteredTickets) => {
+      filteredTickets = filteredTickets?.filter(
         (ticket) => ticket?.swimlaneTitle === 'rdy 2 start'
-      )
+      );
+      return sortTickets(filteredTickets);
+    }
   );
 
   readonly blockedTickets$: Observable<Ticket[]> = this.select(
     this.filteredTickets$,
-    (filteredTickets) =>
-      filteredTickets?.filter((ticket) => ticket?.swimlaneTitle === 'blocked')
+    (filteredTickets) => {
+      filteredTickets = filteredTickets?.filter(
+        (ticket) => ticket?.swimlaneTitle === 'blocked'
+      );
+      return sortTickets(filteredTickets);
+    }
   );
 
   readonly inProgressTickets$: Observable<Ticket[]> = this.select(
     this.filteredTickets$,
-    (filteredTickets) =>
-      filteredTickets?.filter(
+    (filteredTickets) => {
+      filteredTickets = filteredTickets?.filter(
         (ticket) => ticket?.swimlaneTitle === 'in progress'
-      )
+      );
+      return sortTickets(filteredTickets);
+    }
   );
 
   readonly doneTickets$: Observable<Ticket[]> = this.select(
     this.filteredTickets$,
-    (filteredTickets) =>
-      filteredTickets?.filter((ticket) => ticket?.swimlaneTitle === 'done')
+    (filteredTickets) => {
+      filteredTickets = filteredTickets?.filter(
+        (ticket) => ticket?.swimlaneTitle === 'done'
+      );
+      return sortTickets(filteredTickets);
+    }
   );
 
   readonly setBoards = this.updater(
@@ -333,35 +357,13 @@ export class BoardStore extends ComponentStore<BoardStoreState> {
     })
   );
 
-  readonly addNewTicketToBoard = this.updater(
-    (state: BoardStoreState, swimlaneTitle: string) => ({
-      ...state,
-      currentBoard: {
-        ...state.currentBoard,
-        tickets: [
-          {
-            title: 'title',
-            ticketNumber: 'MD-619',
-            description: 'description',
-            tags: ['buy'],
-            dueDate: 'monday, july 3, 2023',
-            createdDate: 'saturday, july 1, 2023',
-            swimlaneTitle,
-            index: 0,
-          },
-          ...state.currentBoard.tickets,
-        ],
-      },
-    })
-  );
-
   readonly addNewBoardToBoards = this.updater((state: BoardStoreState) => ({
     ...state,
     boards: [
       ...state.boards,
       {
         title: 'title',
-        tickets: mockTickets,
+        tickets: [],
         tags: [],
         activeTags: [],
         collapsedLanes: [],
@@ -443,8 +445,9 @@ export class BoardStore extends ComponentStore<BoardStoreState> {
   );
 
   readonly addNewBoardToBoardsUpdate = this.effect(
-    (addNewBoardToBoards$: Observable<void>) =>
-      addNewBoardToBoards$.pipe(
+    (addNewBoardToBoardsUpdate$: Observable<void>) =>
+      addNewBoardToBoardsUpdate$.pipe(
+        tap(() => this.setAllBoardsCurrentBoardToFalse()),
         tap(() => this.addNewBoardToBoards()),
         withLatestFrom(this.boards$),
         switchMap(([, boards]) => {
@@ -452,6 +455,48 @@ export class BoardStore extends ComponentStore<BoardStoreState> {
             tapResponse(
               (res) => {
                 this.updateBoards(res);
+                return res;
+              },
+              (error: string) =>
+                console.log('err addNewBoardToBoardsUpdate', error)
+            )
+          );
+        }),
+        switchMap(() => {
+          return this.boardService.getBoards().pipe(
+            tapResponse(
+              (res) => {
+                const newBoard = res[res.length - 1];
+                this.setBoardAsCurrent(newBoard);
+                return res;
+              },
+              (error: string) =>
+                console.log('err addNewBoardToBoardsUpdate', error)
+            )
+          );
+        })
+      )
+  );
+
+  readonly setBoardAsCurrent = this.effect(
+    (setBoardAsCurrent$: Observable<Board>) =>
+      setBoardAsCurrent$.pipe(
+        withLatestFrom(this.boards$),
+        tap(([newBoard, boards]) => {
+          // find the newly added board and set its isCurrentBoard to true
+          const newBoards = boards.map((board) => ({
+            ...board,
+            isCurrentBoard: board.isCurrentBoard && board === newBoard,
+          }));
+          this.setBoards(newBoards);
+          return newBoards;
+        }),
+        switchMap(([, newBoards]) => {
+          return this.boardService.setBoards(newBoards).pipe(
+            tapResponse(
+              (res) => {
+                this.updateBoards(res);
+                return res;
               },
               (error: string) => console.log('err addNewBoardToBoardsE', error)
             )
@@ -506,13 +551,21 @@ export class BoardStore extends ComponentStore<BoardStoreState> {
       setAllBoardsCurrentBoardToFalse$.pipe(
         withLatestFrom(this.boards$),
         map(([, boards]) => {
-          const updatedBoards = boards?.map(board => ({
+          const updatedBoards = boards?.map((board) => ({
             ...board,
-            isCurrentBoard: false
+            isCurrentBoard: false,
           }));
           return updatedBoards;
         }),
-        tap((updatedBoards: Board[]) => this.setBoards(updatedBoards))
+        switchMap((updatedBoards) => {
+          return this.boardService.setBoards(updatedBoards).pipe(
+            tap(() => this.setBoards(updatedBoards)),
+            catchError((error) => {
+              console.log('err changeCurrentBoard:', error);
+              return throwError(error);
+            })
+          );
+        })
       )
   );
 
@@ -521,18 +574,146 @@ export class BoardStore extends ComponentStore<BoardStoreState> {
       changeCurrentBoard$.pipe(
         withLatestFrom(this.boards$),
         switchMap(([board, boards]) => {
-          const updatedBoards = boards.map(b => ({
+          const updatedBoards = boards.map((b) => ({
             ...b,
-            isCurrentBoard: b._id === board._id
+            isCurrentBoard: b._id === board._id,
           }));
-  
+
           return this.boardService.setBoards(updatedBoards).pipe(
             tap(() => this.setBoards(updatedBoards)),
-            catchError(error => {
+            catchError((error) => {
               console.log('err changeCurrentBoard:', error);
               return throwError(error);
             })
           );
+        })
+      )
+  );
+
+  readonly addNewTicketToBoard = this.effect(
+    (addNewTicketToBoard$: Observable<string>) =>
+      addNewTicketToBoard$.pipe(
+        switchMap((swimlaneTitle) => {
+          return this.boards$.pipe(
+            take(1),
+            switchMap((boards) => {
+              const currentBoard = boards.find((board) => board.isCurrentBoard);
+
+              if (!currentBoard) {
+                return [];
+              }
+
+              let highestTicketNumber = 0;
+              for (const ticket of currentBoard.tickets) {
+                const ticketNumber = parseInt(
+                  ticket.ticketNumber.split('-')[1]
+                );
+                if (
+                  !isNaN(ticketNumber) &&
+                  ticketNumber > highestTicketNumber
+                ) {
+                  highestTicketNumber = ticketNumber;
+                }
+              }
+
+              const swimlaneTickets = currentBoard.tickets.filter(
+                (ticket) => ticket.swimlaneTitle === swimlaneTitle
+              );
+
+              let swimlaneHighestTicketNumber = 0;
+              for (const ticket of swimlaneTickets) {
+                const ticketNumber = parseInt(
+                  ticket.ticketNumber.split('-')[1]
+                );
+                if (
+                  !isNaN(ticketNumber) &&
+                  ticketNumber > swimlaneHighestTicketNumber
+                ) {
+                  swimlaneHighestTicketNumber = ticketNumber;
+                }
+              }
+
+              // calc the next ticket number based on the highest ticket number in the specific swimlane
+              const nextTicketNumber =
+                Math.max(highestTicketNumber, swimlaneHighestTicketNumber) + 1;
+
+              const newTicket: Ticket = {
+                title: 'title',
+                ticketNumber: `MD-${nextTicketNumber}`,
+                description: 'description',
+                tags: ['buy'],
+                dueDate: 'monday, july 3, 2023',
+                createdDate: 'saturday, july 1, 2023',
+                swimlaneTitle,
+                index: swimlaneTickets.length,
+              };
+
+              const updatedTickets = [...currentBoard.tickets, newTicket];
+
+              const updatedBoard: Board = {
+                ...currentBoard,
+                tickets: updatedTickets,
+              };
+
+              const updatedBoards = boards.map((board) =>
+                board.isCurrentBoard ? updatedBoard : board
+              );
+
+              return this.boardService.setBoards(updatedBoards).pipe(
+                tap(() => this.setBoards(updatedBoards)),
+                catchError((error) => {
+                  console.log('err changeCurrentBoard:', error);
+                  return throwError(error);
+                })
+              );
+            }),
+            catchError((error) => {
+              console.log('err changeCurrentBoard:', error);
+              return throwError(error);
+            })
+          );
+        })
+      )
+  );
+
+  readonly dropUpdateTicketSwimlane = this.effect(
+    (dropUpdateTicketSwimlane$: Observable<CdkDragDrop<string[]>>) =>
+      dropUpdateTicketSwimlane$.pipe(
+        tap((event) => this.boardService.drop(event)),
+        switchMap((event) => {
+          let title = '';
+          switch (event.container.id) {
+            case 'cdk-drop-list-0':
+              title = 'backlog';
+              break;
+            case 'cdk-drop-list-1':
+              title = 'rdy 2 start';
+              break;
+            case 'cdk-drop-list-2':
+              title = 'blocked';
+              break;
+            case 'cdk-drop-list-3':
+              title = 'in progress';
+              break;
+            case 'cdk-drop-list-4':
+              title = 'done';
+              break;
+          }
+          const ticket = event.container.data[event.currentIndex];
+          return this.boardService
+            .updateTicketSwimlane(
+              title,
+              ticket['ticketNumber'],
+              event.currentIndex,
+              event.previousIndex
+            )
+            .pipe(
+              map(() => event),
+              catchError((error) => {
+                console.log('err changeCurrentBoard:', error);
+                return throwError(error);
+              })
+            );
         })
       )
   );
