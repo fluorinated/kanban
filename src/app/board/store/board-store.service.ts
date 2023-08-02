@@ -461,46 +461,6 @@ export class BoardStore extends ComponentStore<BoardStoreState> {
                 console.log('err addNewBoardToBoardsUpdate', error)
             )
           );
-        }),
-        switchMap(() => {
-          return this.boardService.getBoards().pipe(
-            tapResponse(
-              (res) => {
-                const newBoard = res[res.length - 1];
-                this.setBoardAsCurrent(newBoard);
-                return res;
-              },
-              (error: string) =>
-                console.log('err addNewBoardToBoardsUpdate', error)
-            )
-          );
-        })
-      )
-  );
-
-  readonly setBoardAsCurrent = this.effect(
-    (setBoardAsCurrent$: Observable<Board>) =>
-      setBoardAsCurrent$.pipe(
-        withLatestFrom(this.boards$),
-        tap(([newBoard, boards]) => {
-          // find the newly added board and set its isCurrentBoard to true
-          const newBoards = boards.map((board) => ({
-            ...board,
-            isCurrentBoard: board.isCurrentBoard && board === newBoard,
-          }));
-          this.setBoards(newBoards);
-          return newBoards;
-        }),
-        switchMap(([, newBoards]) => {
-          return this.boardService.setBoards(newBoards).pipe(
-            tapResponse(
-              (res) => {
-                this.updateBoards(res);
-                return res;
-              },
-              (error: string) => console.log('err addNewBoardToBoardsE', error)
-            )
-          );
         })
       )
   );
