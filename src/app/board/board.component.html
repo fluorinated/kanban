@@ -29,9 +29,8 @@
           (onBlur)="saveCurrentBoardTitle($event)"
         ></app-input>
       </div>
-      <app-button (buttonClicked)="addNewBoardToBoards()">
+      <app-button *ngIf="(isEditingCurrentBoardTitle$ | async) === false" (buttonClicked)="addNewBoardToBoards()">
         <app-icon
-          *ngIf="(isEditingCurrentBoardTitle$ | async) === false"
           icon="faPlus"
           color="neutral-2"
         ></app-icon>
