@@ -677,4 +677,42 @@ export class BoardStore extends ComponentStore<BoardStoreState> {
         })
       )
   );
+
+  readonly saveUpdatedCurrentTicketField = this.effect(
+    (
+      saveUpdatedCurrentTicketField$: Observable<{ field: string; value: any }>
+    ) =>
+      saveUpdatedCurrentTicketField$.pipe(
+        tap((vals) =>
+          this.updateCurrentTicketField({
+            field: vals.field,
+            value: vals.value,
+          })
+        ),
+        withLatestFrom(this.boards$, this.currentTicket$),
+        switchMap(([vals, boards, currentTicket]) => {
+          const updatedBoards = boards.map((board) => {
+            if (board.isCurrentBoard && board.tickets?.length > 0) {
+              const updatedTickets = board.tickets.map((ticket) => {
+                if (ticket.ticketNumber === currentTicket.ticketNumber) {
+                  return { ...ticket, [vals.field]: vals.value };
+                }
+                return ticket;
+              });
+              return { ...board, tickets: updatedTickets };
+            }
+            return board;
+          });
+
+          return this.boardService.setBoards(updatedBoards).pipe(
+            switchMap(() => this.boardService.getBoards()),
+            tap((res) => this.updateBoards(res)),
+            catchError((error) => {
+              console.log('Error saving updated ticket field:', error);
+              return throwError(error);
+            })
+          );
+        })
+      )
+  );
 }

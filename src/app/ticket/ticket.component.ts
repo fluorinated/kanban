@@ -69,7 +69,7 @@ export class TicketComponent implements OnInit {
 
   saveEditField(field: string, $event: string) {
     if (field !== 'newTag') {
-      this.boardStore.updateCurrentTicketField({ field, value: $event });
+      this.boardStore.saveUpdatedCurrentTicketField({ field, value: $event });
     }
     switch (field) {
       case 'title':
