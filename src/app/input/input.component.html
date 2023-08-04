@@ -10,7 +10,7 @@
     (blur)="blurInput()"
   />
 
-  <div class="auto-complete" *ngIf="options">
+  <div class="auto-complete" *ngIf="options?.length > 0">
     <div
       class="option"
       *ngFor="let option of filteredOptions | async"

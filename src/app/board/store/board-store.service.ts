@@ -1,7 +1,7 @@
 import { Ticket } from '../../models/ticket.model';
 import { Injectable } from '@angular/core';
 import { ComponentStore, tapResponse } from '@ngrx/component-store';
-import { Observable, throwError } from 'rxjs';
+import { EMPTY, Observable, throwError } from 'rxjs';
 import {
   catchError,
   map,
@@ -202,6 +202,13 @@ export class BoardStore extends ComponentStore<BoardStoreState> {
     }
   );
 
+  readonly isEditingTagsOrNoTagsYet$: Observable<boolean> = this.select(
+    this.ticketStore.isEditingTags$,
+    this.currentTicket$,
+    (isEditingTags, currentTicket) =>
+      isEditingTags || currentTicket.tags.length === 0
+  );
+
   readonly setBoards = this.updater(
     (state: BoardStoreState, boards: Board[]) => ({
       ...state,
@@ -348,13 +355,23 @@ export class BoardStore extends ComponentStore<BoardStoreState> {
   );
 
   readonly addTagToCurrentBoard = this.updater(
-    (state: BoardStoreState, tag: string) => ({
-      ...state,
-      currentBoard: {
-        ...state.currentBoard,
-        tags: [...new Set([...state.currentBoard.tags, tag])],
-      },
-    })
+    (state: BoardStoreState, tag: string) => {
+      const updatedBoards = state.boards.map((board) => {
+        if (board.isCurrentBoard) {
+          const updatedTags = [...new Set([...board.tags, tag])];
+          return {
+            ...board,
+            tags: updatedTags,
+          };
+        }
+        return board;
+      });
+
+      return {
+        ...state,
+        boards: updatedBoards,
+      };
+    }
   );
 
   readonly addNewBoardToBoards = this.updater((state: BoardStoreState) => ({
@@ -433,6 +450,73 @@ export class BoardStore extends ComponentStore<BoardStoreState> {
       )
   );
 
+  readonly addTagToCurrentTicketSave = this.effect(
+    (addTagToCurrentTicketSave$: Observable<string>) =>
+      addTagToCurrentTicketSave$.pipe(
+        withLatestFrom(this.boards$, this.currentTicket$),
+        tap(([tag]) => this.addTagToCurrentTicket(tag)),
+        switchMap(([tag, boards, currentTicket]) => {
+          const updatedBoards = boards.map((board) => {
+            if (board.isCurrentBoard && board.tickets?.length > 0) {
+              const updatedTickets = board.tickets.map((ticket) => {
+                if (ticket.ticketNumber === currentTicket.ticketNumber) {
+                  return {
+                    ...ticket,
+                    tags: [...new Set([...ticket.tags, tag])],
+                  };
+                }
+                return ticket;
+              });
+              return { ...board, tickets: updatedTickets };
+            }
+            return board;
+          });
+
+          return this.boardService.setBoards(updatedBoards).pipe(
+            tap(() => this.updateBoards()),
+            catchError((error: string) => {
+              console.log('err addTagToCurrentTicketSave', error);
+              return EMPTY;
+            })
+          );
+        })
+      )
+  );
+
+  readonly removeTagFromCurrentTicketSave = this.effect(
+    (removeTagFromCurrentTicketSave$: Observable<string>) =>
+      removeTagFromCurrentTicketSave$.pipe(
+        withLatestFrom(this.boards$, this.currentTicket$),
+        tap(([tag]) => this.removeTagFromCurrentTicket(tag)),
+        switchMap(([tag, boards, currentTicket]) => {
+          const updatedBoards = boards.map((board) => {
+            if (board.isCurrentBoard && board.tickets?.length > 0) {
+              const updatedTickets = board.tickets.map((ticket) => {
+                if (ticket.ticketNumber === currentTicket.ticketNumber) {
+                  return {
+                    ...ticket,
+                    tags: ticket.tags.filter((ticketTag) => ticketTag !== tag),
+                  };
+                }
+                return ticket;
+              });
+              return { ...board, tickets: updatedTickets };
+            }
+            return board;
+          });
+
+          return this.boardService.setBoards(updatedBoards).pipe(
+            tap(() => this.updateBoards()),
+            catchError((error: string) => {
+              console.log('err removeTagFromCurrentTicketSave', error);
+              return EMPTY;
+            })
+          );
+        })
+      )
+  );
+
+  // refresh for new tag
   readonly addNewTagToCurrentBoardTags = this.effect(
     (addNewTagToCurrentBoardTags$: Observable<void>) =>
       addNewTagToCurrentBoardTags$.pipe(
@@ -440,6 +524,16 @@ export class BoardStore extends ComponentStore<BoardStoreState> {
         tap(([, newTagName]: [any, string]) =>
           this.addTagToCurrentBoard(newTagName)
         ),
+        withLatestFrom(this.boards$),
+        switchMap(([, boards]) => {
+          return this.boardService.setBoards(boards).pipe(
+            tapResponse(
+              () => this.updateBoards(),
+              (error: string) =>
+                console.log('err addNewTagToCurrentBoardTags', error)
+            )
+          );
+        }),
         tap(() => this.ticketStore.setIsEditingNewTag(false))
       )
   );
@@ -521,7 +615,7 @@ export class BoardStore extends ComponentStore<BoardStoreState> {
           return this.boardService.setBoards(updatedBoards).pipe(
             tap(() => this.setBoards(updatedBoards)),
             catchError((error) => {
-              console.log('err changeCurrentBoard:', error);
+              console.log('err setAllBoardsCurrentBoardToFalse:', error);
               return throwError(error);
             })
           );
@@ -622,13 +716,13 @@ export class BoardStore extends ComponentStore<BoardStoreState> {
               return this.boardService.setBoards(updatedBoards).pipe(
                 tap(() => this.setBoards(updatedBoards)),
                 catchError((error) => {
-                  console.log('err changeCurrentBoard:', error);
+                  console.log('err addNewTicketToBoard:', error);
                   return throwError(error);
                 })
               );
             }),
             catchError((error) => {
-              console.log('err changeCurrentBoard:', error);
+              console.log('err addNewTicketToBoard:', error);
               return throwError(error);
             })
           );
@@ -670,7 +764,7 @@ export class BoardStore extends ComponentStore<BoardStoreState> {
             .pipe(
               map(() => event),
               catchError((error) => {
-                console.log('err changeCurrentBoard:', error);
+                console.log('err dropUpdateTicketSwimlane:', error);
                 return throwError(error);
               })
             );
@@ -708,7 +802,7 @@ export class BoardStore extends ComponentStore<BoardStoreState> {
             switchMap(() => this.boardService.getBoards()),
             tap((res) => this.updateBoards(res)),
             catchError((error) => {
-              console.log('Error saving updated ticket field:', error);
+              console.log('err saveUpdatedCurrentTicketField:', error);
               return throwError(error);
             })
           );

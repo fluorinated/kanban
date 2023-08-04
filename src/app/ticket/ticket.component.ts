@@ -12,14 +12,15 @@ import { TicketStore } from './store/ticket-store.service';
 })
 export class TicketComponent implements OnInit {
   @Input() ticket: Ticket;
-  @Input() tags: string[];
 
   @Output() closeButtonClicked: EventEmitter<void> = new EventEmitter();
   isEditingTitle$: Observable<boolean>;
   isEditingDescription$: Observable<boolean>;
   isEditingDueDate$: Observable<boolean>;
+  isEditingTagsOrNoTagsYet$: Observable<boolean>;
   isEditingTags$: Observable<boolean>;
   isEditingNewTag$: Observable<boolean>;
+  currentBoardTags$: Observable<string[]>;
 
   constructor(
     private boardStore: BoardStore,
@@ -28,14 +29,16 @@ export class TicketComponent implements OnInit {
     this.isEditingTitle$ = this.ticketStore.isEditingTitle$;
     this.isEditingDescription$ = this.ticketStore.isEditingDescription$;
     this.isEditingDueDate$ = this.ticketStore.isEditingDueDate$;
+    this.isEditingTagsOrNoTagsYet$ = this.boardStore.isEditingTagsOrNoTagsYet$;
     this.isEditingTags$ = this.ticketStore.isEditingTags$;
     this.isEditingNewTag$ = this.ticketStore.isEditingNewTag$;
+    this.currentBoardTags$ = this.boardStore.currentBoardTags$;
   }
 
   ngOnInit() {}
 
   tagClicked(tag: string) {
-    this.boardStore.addTagToCurrentTicket(tag);
+    this.boardStore.addTagToCurrentTicketSave(tag);
   }
 
   closeTicket() {
@@ -43,7 +46,7 @@ export class TicketComponent implements OnInit {
   }
 
   removeTag(tag: string) {
-    this.boardStore.removeTagFromCurrentTicket(tag);
+    this.boardStore.removeTagFromCurrentTicketSave(tag);
   }
 
   toggleSaveStartEditingTags() {

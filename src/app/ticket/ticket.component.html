@@ -56,14 +56,14 @@
       ></app-tags>
     </div>
 
-    <div class="tags-input-container" *ngIf="isEditingTags$ | async">
+    <div class="tags-input-container" *ngIf="isEditingTagsOrNoTagsYet$ | async">
       <div class="tags-input-plus-btn">
         <app-input
           [h2]="false"
           class="input"
           placeholder="ticket tags"
           [isTextarea]="false"
-          [options]="tags"
+          [options]="currentBoardTags$ | async"
           (optionClicked)="tagClicked($event)"
         ></app-input>
 

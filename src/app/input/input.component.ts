@@ -52,7 +52,7 @@ export class InputComponent implements OnInit {
     const filterValue = value?.toLowerCase();
 
     return this.options?.filter((option) =>
-      option.toLowerCase().includes(filterValue)
+      option?.toLowerCase().includes(filterValue)
     );
   }
 

@@ -3,7 +3,6 @@ import { Ticket } from '../models/ticket.model';
 import { Board } from '../models/board.model';
 import { BoardStore } from './store/board-store.service';
 import { Observable } from 'rxjs';
-import { BoardService } from './board.service';
 
 @Component({
   selector: 'app-board',
@@ -25,13 +24,9 @@ export class BoardComponent implements OnInit {
   isFiltersListOpen$: Observable<boolean>;
   currentTicket$: Observable<Ticket>;
   isEditingCurrentBoardTitle$: Observable<boolean>;
-  currentBoardTags$: Observable<string[]>;
   currentBoardCollapsedLanes$: Observable<string[]>;
 
-  constructor(
-    private boardStore: BoardStore,
-    private boardService: BoardService
-  ) {
+  constructor(private boardStore: BoardStore) {
     this.currentBoard$ = this.boardStore.currentBoard$;
     this.boards$ = this.boardStore.boards$;
     this.backlogTickets$ = this.boardStore.backlogTickets$;
@@ -45,7 +40,6 @@ export class BoardComponent implements OnInit {
     this.currentTicket$ = this.boardStore.currentTicket$;
     this.isEditingCurrentBoardTitle$ =
       this.boardStore.isEditingCurrentBoardTitle$;
-    this.currentBoardTags$ = this.boardStore.currentBoardTags$;
     this.currentBoardCollapsedLanes$ =
       this.boardStore.currentBoardCollapsedLanes$;
   }

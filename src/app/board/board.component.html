@@ -29,11 +29,11 @@
           (onBlur)="saveCurrentBoardTitle($event)"
         ></app-input>
       </div>
-      <app-button *ngIf="(isEditingCurrentBoardTitle$ | async) === false" (buttonClicked)="addNewBoardToBoards()">
-        <app-icon
-          icon="faPlus"
-          color="neutral-2"
-        ></app-icon>
+      <app-button
+        *ngIf="(isEditingCurrentBoardTitle$ | async) === false"
+        (buttonClicked)="addNewBoardToBoards()"
+      >
+        <app-icon icon="faPlus" color="neutral-2"></app-icon>
       </app-button>
     </div>
   </div>
@@ -48,7 +48,6 @@
     <app-ticket
       *ngIf="isTicketOpen$ | async"
       [ticket]="currentTicket$ | async"
-      [tags]="currentBoardTags$ | async"
       (closeButtonClicked)="closeTicket()"
     ></app-ticket>
     <app-filters-list
