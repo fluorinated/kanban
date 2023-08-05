@@ -345,25 +345,41 @@ export class BoardStore extends ComponentStore<BoardStoreState> {
   );
 
   readonly addTagToCurrentBoardActiveTags = this.updater(
-    (state: BoardStoreState, tag: string) => ({
-      ...state,
-      currentBoard: {
-        ...state.currentBoard,
-        activeTags: [...new Set([...state.currentBoard.activeTags, tag])],
-      },
-    })
+    (state: BoardStoreState, tag: string) => {
+      const updatedBoards = state.boards.map((board) => {
+        if (board.isCurrentBoard) {
+          return {
+            ...board,
+            activeTags: [...new Set([...board.activeTags, tag])],
+          };
+        }
+        return board;
+      });
+      return {
+        ...state,
+        boards: updatedBoards,
+      };
+    }
   );
 
   readonly removeTagFromCurrentBoardActiveTags = this.updater(
-    (state: BoardStoreState, tag: string) => ({
-      ...state,
-      currentBoard: {
-        ...state.currentBoard,
-        activeTags: [...state.currentBoard.activeTags].filter(
-          (currentTag) => currentTag !== tag
-        ),
-      },
-    })
+    (state: BoardStoreState, tag: string) => {
+      const updatedBoards = state.boards.map((board) => {
+        if (board.isCurrentBoard) {
+          return {
+            ...board,
+            activeTags: [...board.activeTags].filter(
+              (currentTag) => currentTag !== tag
+            ),
+          };
+        }
+        return board;
+      });
+      return {
+        ...state,
+        boards: updatedBoards,
+      };
+    }
   );
 
   readonly addTagToCurrentTicket = this.updater(
