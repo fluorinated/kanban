@@ -259,26 +259,57 @@ export class BoardStore extends ComponentStore<BoardStoreState> {
   );
 
   readonly addCollapsedLaneToCurrentBoard = this.updater(
-    (state: BoardStoreState, lane: string) => ({
-      ...state,
-      currentBoard: {
-        ...state.currentBoard,
-        collapsedLanes: [...state.currentBoard.collapsedLanes, lane],
-      },
-    })
+    (state: BoardStoreState, lane: string) => {
+      const updatedBoards = state.boards.map((board) => {
+        if (board.isCurrentBoard) {
+          const updatedCollapsedLanes = [...board.collapsedLanes, lane];
+          return {
+            ...board,
+            collapsedLanes: updatedCollapsedLanes,
+          };
+        }
+        return board;
+      });
+      return {
+        ...state,
+        boards: updatedBoards,
+      };
+    }
   );
 
   readonly removeCollapsedLaneToCurrentBoard = this.updater(
-    (state: BoardStoreState, lane: string) => ({
-      ...state,
-      currentBoard: {
-        ...state.currentBoard,
-        collapsedLanes: state.currentBoard.collapsedLanes.filter(
-          (collapsedLane) => collapsedLane !== lane
-        ),
-      },
-    })
+    (state: BoardStoreState, lane: string) => {
+      const updatedBoards = state.boards.map((board) => {
+        if (board.isCurrentBoard) {
+          return {
+            ...board,
+            collapsedLanes: [
+              ...board.collapsedLanes.filter(
+                (collapsedLane) => collapsedLane !== lane
+              ),
+            ],
+          };
+        }
+        return board;
+      });
+      return {
+        ...state,
+        boards: updatedBoards,
+      };
+    }
   );
+
+  // readonly removeCollapsedLaneToCurrentBoard = this.updater(
+  //   (state: BoardStoreState, lane: string) => ({
+  //     ...state,
+  //     currentBoard: {
+  //       ...state.currentBoard,
+  //       collapsedLanes: state.currentBoard.collapsedLanes.filter(
+  //         (collapsedLane) => collapsedLane !== lane
+  //       ),
+  //     },
+  //   })
+  // );
 
   readonly setSearchTerm = this.updater(
     (state: BoardStoreState, searchTerm: string) => ({
