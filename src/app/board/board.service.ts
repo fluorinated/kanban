@@ -15,10 +15,11 @@ const baseUrl = 'http://localhost:8080';
   providedIn: 'root',
 })
 export class BoardService {
-   httpOptions = {
+  httpOptions = {
     headers: new HttpHeaders({
-        'Content-Type': 'application/json',
-    })};
+      'Content-Type': 'application/json',
+    }),
+  };
 
   constructor(private http: HttpClient) {}
 
@@ -27,7 +28,9 @@ export class BoardService {
   }
 
   getNextTicketNumber(boardId?: string): Observable<any> {
-    return this.http.get<any>(`${baseUrl}/getNextTicketNumber?boardId=${boardId}`);
+    return this.http.get<any>(
+      `${baseUrl}/getNextTicketNumber?boardId=${boardId}`
+    );
   }
 
   addNewBoardToBoards(boards?: any): Observable<any> {
@@ -36,20 +39,37 @@ export class BoardService {
   }
 
   updateCurrentBoardTitle(title?: string, _id?: string): Observable<any> {
-    return this.http.post(`${baseUrl}/updateCurrentBoardTitle`, JSON.stringify({ title, _id }), this.httpOptions);
+    return this.http.post(
+      `${baseUrl}/updateCurrentBoardTitle`,
+      JSON.stringify({ title, _id }),
+      this.httpOptions
+    );
   }
-  
-  updateTicketSwimlane(title?: string, ticketNumber?: string, currentIndex?: number, previousIndex?: number): Observable<any> {
-    return this.http.post(`${baseUrl}/updateTicketSwimlane`, JSON.stringify({ title, ticketNumber, currentIndex, previousIndex }), this.httpOptions);
+
+  updateTicketSwimlane(
+    title?: string,
+    ticketNumber?: string,
+    currentIndex?: number,
+    previousIndex?: number
+  ): Observable<any> {
+    return this.http.post(
+      `${baseUrl}/updateTicketSwimlane`,
+      JSON.stringify({ title, ticketNumber, currentIndex, previousIndex }),
+      this.httpOptions
+    );
   }
 
   setBoards(boards: Board[]): Observable<any> {
-    return this.http.post(`${baseUrl}/setBoards`, JSON.stringify({ boards }), this.httpOptions);
+    return this.http.post(
+      `${baseUrl}/setBoards`,
+      JSON.stringify({ boards }),
+      this.httpOptions
+    );
   }
 
-  // delete(id: any): Observable<any> {
-  //   return this.http.delete(`${baseUrl}/${id}`);
-  // }
+  deleteCurrentBoard(): Observable<any> {
+    return this.http.delete(`${baseUrl}/deleteCurrentBoard`, this.httpOptions);
+  }
 
   public drop(event: CdkDragDrop<string[]>) {
     if (event.previousContainer === event.container) {

@@ -277,3 +277,33 @@ app.post('/addNewBoardToBoards', async (req, res) => {
     return res.status(500).send(err);
   }
 });
+
+app.delete('/deleteCurrentBoard', async (req, res) => {
+  try {
+    const collection = await client.db('kanban').collection('users');
+
+    const query = {
+      'username': 'admin',
+      'boards.isCurrentBoard': true,
+    };
+
+    const update = {
+      $pull: {
+        boards: { isCurrentBoard: true },
+      },
+    };
+
+    const result = await collection.updateOne(query, update);
+
+    if (result.modifiedCount > 0) {
+      return res.status(200).send({ status: 'Board deleted successfully' });
+    } else {
+      return res
+        .status(404)
+        .send({ status: 'No board found with isCurrentBoard true' });
+    }
+  } catch (err) {
+    console.error(err);
+    return res.status(500).send(err);
+  }
+});

@@ -96,6 +96,10 @@ export class BoardComponent implements OnInit {
     this.boardStore.addNewBoardToBoardsUpdate();
   }
 
+  deleteCurrentBoard() {
+    this.boardStore.deleteCurrentBoardUpdate();
+  }
+
   setIsDueTodayFilterOn() {
     this.boardStore.setIsDueTodayFilter();
   }

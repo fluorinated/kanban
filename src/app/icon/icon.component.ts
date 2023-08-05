@@ -6,6 +6,7 @@ import { faFilter } from '@fortawesome/free-solid-svg-icons';
 import { faClose } from '@fortawesome/free-solid-svg-icons';
 import { faPencil } from '@fortawesome/free-solid-svg-icons';
 import { faCheck } from '@fortawesome/free-solid-svg-icons';
+import { faTrash } from '@fortawesome/free-solid-svg-icons';
 
 @Component({
   selector: 'app-icon',
@@ -20,6 +21,7 @@ export class IconComponent implements OnInit {
   faClose = faClose;
   faPencil = faPencil;
   faCheck = faCheck;
+  faTrash = faTrash;
   @Input() set size(size: string) {
     if (this.sizeMap.has(size)) {
       this.iconSize = this.sizeMap.get(size);
@@ -42,6 +44,7 @@ export class IconComponent implements OnInit {
     ['faClose', faClose],
     ['faPencil', faPencil],
     ['faCheck', faCheck],
+    ['faTrash', faTrash],
   ]);
   colorMap = new Map([
     ['pink-1', 'var(--pink-1)'],
