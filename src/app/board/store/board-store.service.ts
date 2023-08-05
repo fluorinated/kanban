@@ -146,7 +146,10 @@ export class BoardStore extends ComponentStore<BoardStoreState> {
         newTickets = dueThisMonthTickets(newTickets);
       }
       newTickets = filterTicketsBySearch(searchTerm, newTickets);
-      newTickets = filterTicketsByMatchingActiveTags(activeTags, newTickets);
+
+      if (activeTags?.length > 0) {
+        newTickets = filterTicketsByMatchingActiveTags(activeTags, newTickets);
+      }
 
       return newTickets;
     }
