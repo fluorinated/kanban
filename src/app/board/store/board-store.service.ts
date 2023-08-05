@@ -299,18 +299,6 @@ export class BoardStore extends ComponentStore<BoardStoreState> {
     }
   );
 
-  // readonly removeCollapsedLaneToCurrentBoard = this.updater(
-  //   (state: BoardStoreState, lane: string) => ({
-  //     ...state,
-  //     currentBoard: {
-  //       ...state.currentBoard,
-  //       collapsedLanes: state.currentBoard.collapsedLanes.filter(
-  //         (collapsedLane) => collapsedLane !== lane
-  //       ),
-  //     },
-  //   })
-  // );
-
   readonly setSearchTerm = this.updater(
     (state: BoardStoreState, searchTerm: string) => ({
       ...state,
