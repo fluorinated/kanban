@@ -4,7 +4,6 @@ import { faAngleLeft } from '@fortawesome/free-solid-svg-icons';
 import { faAngleRight } from '@fortawesome/free-solid-svg-icons';
 import { faFilter } from '@fortawesome/free-solid-svg-icons';
 import { faClose } from '@fortawesome/free-solid-svg-icons';
-import { faPencil } from '@fortawesome/free-solid-svg-icons';
 import { faCheck } from '@fortawesome/free-solid-svg-icons';
 import { faTrash } from '@fortawesome/free-solid-svg-icons';
 
@@ -19,7 +18,6 @@ export class IconComponent implements OnInit {
   faAngleRight = faAngleRight;
   faFilter = faFilter;
   faClose = faClose;
-  faPencil = faPencil;
   faCheck = faCheck;
   faTrash = faTrash;
   @Input() set size(size: string) {
@@ -42,7 +40,6 @@ export class IconComponent implements OnInit {
     ['faAngleRight', faAngleRight],
     ['faFilter', faFilter],
     ['faClose', faClose],
-    ['faPencil', faPencil],
     ['faCheck', faCheck],
     ['faTrash', faTrash],
   ]);

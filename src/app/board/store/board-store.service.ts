@@ -436,6 +436,15 @@ export class BoardStore extends ComponentStore<BoardStoreState> {
     };
   });
 
+  readonly deleteBoard = this.updater(
+    (state: BoardStoreState, board: Board) => {
+      return {
+        ...state,
+        boards: state.boards.filter((b) => b !== board),
+      };
+    }
+  );
+
   readonly turnOffMainFilters = this.updater((state: BoardStoreState) => ({
     ...state,
     isDueTodayFilterOn: false,
@@ -620,6 +629,27 @@ export class BoardStore extends ComponentStore<BoardStoreState> {
               },
               (error: string) =>
                 console.log('err deleteCurrentBoardUpdate', error)
+            )
+          );
+        })
+      )
+  );
+
+  readonly deleteBoardUpdate = this.effect(
+    (deleteBoardUpdate$: Observable<Board>) =>
+      deleteBoardUpdate$.pipe(
+        tap((board) => this.deleteBoard(board)),
+        withLatestFrom(this.boards$),
+        switchMap(([board, boards]) => {
+          return this.boardService.deleteBoard(board._id).pipe(
+            tapResponse(
+              (res) => {
+                if (boards[0]) {
+                  this.changeCurrentBoard(boards[0]);
+                }
+                return res;
+              },
+              (error: string) => console.log('err deleteBoardUpdate', error)
             )
           );
         })

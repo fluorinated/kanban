@@ -307,3 +307,35 @@ app.delete('/deleteCurrentBoard', async (req, res) => {
     return res.status(500).send(err);
   }
 });
+
+app.delete('/deleteBoard/:boardId', async (req, res) => {
+  try {
+    const collection = await client.db('kanban').collection('users');
+
+    const boardId = req.params.boardId;
+
+    const query = {
+      'username': 'admin',
+      'boards._id': boardId,
+    };
+
+    const update = {
+      $pull: {
+        boards: { _id: boardId },
+      },
+    };
+
+    const result = await collection.updateOne(query, update);
+
+    if (result.modifiedCount > 0) {
+      return res.status(200).send({ status: 'Board deleted successfully' });
+    } else {
+      return res
+        .status(404)
+        .send({ status: 'No board found with the specified ID' });
+    }
+  } catch (err) {
+    console.error(err);
+    return res.status(500).send(err);
+  }
+});

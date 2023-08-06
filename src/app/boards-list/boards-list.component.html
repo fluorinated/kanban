@@ -8,12 +8,17 @@
   <div *ngFor="let board of boards" class="titles">
     <h3 class="board-title">{{ board.title }}</h3>
     <div class="icons">
-      <app-icon class="icon" icon="faPencil" color="neutral-2"></app-icon>
+      <app-icon
+        class="icon"
+        icon="faTrash"
+        color="neutral-2"
+        (click)="onTrashClick(board)"
+      ></app-icon>
       <app-icon
         class="icon"
         icon="faAngleRight"
         color="neutral-2"
-        (click)="caretClicked(board)"
+        (click)="onCaretClick(board)"
       ></app-icon>
     </div>
   </div>

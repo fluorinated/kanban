@@ -10,14 +10,18 @@ export class BoardsListComponent {
   @Input() boards: Board[];
 
   @Output() closeButtonClicked: EventEmitter<void> = new EventEmitter();
-  @Output() boardClicked: EventEmitter<Board> = new EventEmitter();
+  @Output() caretClicked: EventEmitter<Board> = new EventEmitter();
+  @Output() trashClicked: EventEmitter<Board> = new EventEmitter();
 
   constructor() {}
 
   ngOnInit(): void {}
 
-  caretClicked(board: Board) {
-    this.boardClicked.emit(board);
+  onCaretClick(board: Board) {
+    this.caretClicked.emit(board);
+  }
+  onTrashClick(board: Board) {
+    this.trashClicked.emit(board);
   }
   closeBoardsList() {
     this.closeButtonClicked.emit();

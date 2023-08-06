@@ -42,9 +42,31 @@
   </div>
 
   <div class="due-date-button-filters">
-    <p (click)="setIsDueTodayFilterOn()">due today</p>
-    <p (click)="setIsDueTodayFilterOn()">due this week</p>
-    <p (click)="setIsDueTodayFilterOn()">due this month</p>
+    <p
+      (click)="setIsDueTodayFilterOn()"
+      class="due-date-button-filter"
+      [ngClass]="{ 'filter-active': isDueTodayFilterOn$ | async }"
+    >
+      due today
+    </p>
+    <p
+      (click)="setIsDueThisWeekFilterOn()"
+      class="due-date-button-filter"
+      [ngClass]="{
+        'filter-active': isDueThisWeekFilterOn$ | async
+      }"
+    >
+      due this week
+    </p>
+    <p
+      (click)="setIsDueThisMonthFilterOn()"
+      class="due-date-button-filter"
+      [ngClass]="{
+        'filter-active': isDueThisMonthFilterOn$ | async
+      }"
+    >
+      due this month
+    </p>
   </div>
 
   <div class="open right">
@@ -63,8 +85,9 @@
     <app-boards-list
       *ngIf="isBoardsListOpen$ | async"
       [boards]="boards$ | async"
-      (boardClicked)="changeCurrentBoard($event)"
+      (caretClicked)="changeCurrentBoard($event)"
       (closeButtonClicked)="closeBoards()"
+      (trashClicked)="deleteBoard($event)"
     ></app-boards-list>
   </div>
 

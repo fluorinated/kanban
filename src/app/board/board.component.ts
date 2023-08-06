@@ -22,6 +22,9 @@ export class BoardComponent implements OnInit {
   isTicketOpen$: Observable<boolean>;
   isBoardsListOpen$: Observable<boolean>;
   isFiltersListOpen$: Observable<boolean>;
+  isDueTodayFilterOn$: Observable<boolean>;
+  isDueThisWeekFilterOn$: Observable<boolean>;
+  isDueThisMonthFilterOn$: Observable<boolean>;
   currentTicket$: Observable<Ticket>;
   isEditingCurrentBoardTitle$: Observable<boolean>;
   currentBoardCollapsedLanes$: Observable<string[]>;
@@ -37,6 +40,9 @@ export class BoardComponent implements OnInit {
     this.isTicketOpen$ = this.boardStore.isTicketOpen$;
     this.isBoardsListOpen$ = this.boardStore.isBoardsListOpen$;
     this.isFiltersListOpen$ = this.boardStore.isFiltersListOpen$;
+    this.isDueTodayFilterOn$ = this.boardStore.isDueTodayFilterOn$;
+    this.isDueThisWeekFilterOn$ = this.boardStore.isDueThisWeekFilterOn$;
+    this.isDueThisMonthFilterOn$ = this.boardStore.isDueThisMonthFilterOn$;
     this.currentTicket$ = this.boardStore.currentTicket$;
     this.isEditingCurrentBoardTitle$ =
       this.boardStore.isEditingCurrentBoardTitle$;
@@ -98,6 +104,10 @@ export class BoardComponent implements OnInit {
 
   deleteCurrentBoard() {
     this.boardStore.deleteCurrentBoardUpdate();
+  }
+
+  deleteBoard($event: Board) {
+    this.boardStore.deleteBoardUpdate($event);
   }
 
   setIsDueTodayFilterOn() {

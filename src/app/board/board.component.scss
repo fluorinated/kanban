@@ -60,6 +60,15 @@
   cursor: pointer;
 }
 
+.due-date-button-filter {
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+}
+
 .delete-board {
   margin-left: 1rem;
+}
+
+.filter-active {
+  background-color: var(--neutral-3);
 }
