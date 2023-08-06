@@ -445,6 +445,27 @@ export class BoardStore extends ComponentStore<BoardStoreState> {
     }
   );
 
+  readonly deleteTicket = this.updater(
+    (state: BoardStoreState, ticketToDelete: Ticket) => {
+      const updatedBoards = state.boards.map((board) => {
+        if (board.tickets.includes(ticketToDelete)) {
+          return {
+            ...board,
+            tickets: board.tickets.filter(
+              (ticket) => ticket !== ticketToDelete
+            ),
+          };
+        }
+        return board;
+      });
+
+      return {
+        ...state,
+        boards: updatedBoards,
+      };
+    }
+  );
+
   readonly turnOffMainFilters = this.updater((state: BoardStoreState) => ({
     ...state,
     isDueTodayFilterOn: false,
@@ -650,6 +671,24 @@ export class BoardStore extends ComponentStore<BoardStoreState> {
                 return res;
               },
               (error: string) => console.log('err deleteBoardUpdate', error)
+            )
+          );
+        })
+      )
+  );
+
+  readonly deleteTicketUpdate = this.effect(
+    (deleteTicketUpdate$: Observable<Ticket>) =>
+      deleteTicketUpdate$.pipe(
+        tap((ticket) => this.deleteTicket(ticket)),
+        switchMap((ticket) => {
+          return this.boardService.deleteTicket(ticket.ticketNumber).pipe(
+            tapResponse(
+              (res) => {
+                this.setIsTicketOpen(false);
+                return res;
+              },
+              (error: string) => console.log('err deleteTicketUpdate', error)
             )
           );
         })

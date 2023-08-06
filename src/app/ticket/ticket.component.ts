@@ -45,6 +45,10 @@ export class TicketComponent implements OnInit {
     this.closeButtonClicked.emit();
   }
 
+  deleteTicket() {
+    this.boardStore.deleteTicketUpdate(this.ticket);
+  }
+
   removeTag(tag: string) {
     this.boardStore.removeTagFromCurrentTicketSave(tag);
   }

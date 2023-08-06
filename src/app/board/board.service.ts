@@ -75,6 +75,13 @@ export class BoardService {
     return this.http.delete(`${baseUrl}/deleteBoard/${id}`, this.httpOptions);
   }
 
+  deleteTicket(ticketNumber: string): Observable<any> {
+    return this.http.delete(
+      `${baseUrl}/deleteTicket/${ticketNumber}`,
+      this.httpOptions
+    );
+  }
+
   public drop(event: CdkDragDrop<string[]>) {
     if (event.previousContainer === event.container) {
       moveItemInArray(
