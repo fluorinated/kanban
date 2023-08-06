@@ -1,7 +1,8 @@
 import { Ticket } from '../models/ticket.model';
 import * as moment from 'moment';
 
-export const sortTickets = (tickets: Ticket[]) => tickets?.sort((a, b) => a.index - b.index);
+export const sortTickets = (tickets: Ticket[]) =>
+  tickets?.sort((a, b) => a.index - b.index);
 
 export const filterTicketsBySearch = (
   searchTerm: string,
@@ -91,4 +92,22 @@ export const dueThisMonthTickets = (filteredTickets: Ticket[]) => {
     return moment(ticketCurrentDate).isBetween(startOfMonth, endOfMonth);
   });
   return filteredTickets;
+};
+
+export const getFormattedDate = (date) => {
+  const daysOfWeek = [
+    'Sunday',
+    'Monday',
+    'Tuesday',
+    'Wednesday',
+    'Thursday',
+    'Friday',
+    'Saturday',
+  ];
+  const dayOfWeek = daysOfWeek[date.getDay()];
+  const day = date.getDate();
+  const month = date.toLocaleString('default', { month: 'long' });
+  const year = date.getFullYear();
+
+  return `${dayOfWeek}, ${month} ${day}, ${year}`.toLowerCase();
 };

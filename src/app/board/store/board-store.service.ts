@@ -19,6 +19,7 @@ import {
   filterTicketsBySearch,
   filterTicketsByMatchingActiveTags,
   sortTickets,
+  getFormattedDate,
 } from 'src/app/utils/board.utils';
 import { BoardService } from '../board.service';
 import { v4 as uuidv4 } from 'uuid';
@@ -872,7 +873,7 @@ export class BoardStore extends ComponentStore<BoardStoreState> {
                 description: 'description',
                 tags: ['buy'],
                 dueDate: 'monday, july 3, 2023',
-                createdDate: 'saturday, july 1, 2023',
+                createdDate: getFormattedDate(new Date()),
                 swimlaneTitle,
                 index: swimlaneTickets.length,
               };

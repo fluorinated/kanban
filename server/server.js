@@ -236,6 +236,24 @@ app.get('/getNextTicketNumber', async (req, res) => {
   }
 });
 
+const getFormattedDate = (date) => {
+  const daysOfWeek = [
+    'Sunday',
+    'Monday',
+    'Tuesday',
+    'Wednesday',
+    'Thursday',
+    'Friday',
+    'Saturday',
+  ];
+  const dayOfWeek = daysOfWeek[date.getDay()];
+  const day = date.getDate();
+  const month = date.toLocaleString('default', { month: 'long' });
+  const year = date.getFullYear();
+
+  return `${dayOfWeek}, ${month} ${day}, ${year}`.toLowerCase();
+};
+
 app.post('/addNewBoardToBoards', async (req, res) => {
   try {
     const collection = await client.db('kanban').collection('users');
@@ -256,7 +274,7 @@ app.post('/addNewBoardToBoards', async (req, res) => {
                 '* watch youtube videos * practice basic crocheting methods',
               tags: ['buy', 'dress-up', 'fun'],
               dueDate: 'friday, may 26, 2023',
-              createdDate: 'tuesday, may 16, 2023',
+              createdDate: getFormattedDate(new Date()),
               swimlaneTitle: 'backlog',
               index: 0,
             },
