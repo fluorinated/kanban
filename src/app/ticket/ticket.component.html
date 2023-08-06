@@ -68,6 +68,7 @@
           [isTextarea]="false"
           [options]="currentBoardTags$ | async"
           (optionClicked)="tagClicked($event)"
+          (deleteOptionClicked)="deleteCurrentBoardTag($event)"
         ></app-input>
 
         <app-button

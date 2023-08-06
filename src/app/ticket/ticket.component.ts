@@ -53,6 +53,10 @@ export class TicketComponent implements OnInit {
     this.boardStore.removeTagFromCurrentTicketSave(tag);
   }
 
+  deleteCurrentBoardTag(tag: string) {
+    this.boardStore.deleteCurrentBoardTag(tag);
+  }
+
   toggleSaveStartEditingTags() {
     this.ticketStore.toggleSaveStartEditingTags();
   }

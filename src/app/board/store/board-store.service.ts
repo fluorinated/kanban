@@ -382,6 +382,28 @@ export class BoardStore extends ComponentStore<BoardStoreState> {
     }
   );
 
+  readonly deleteCurrentBoardTag = this.updater(
+    (state: BoardStoreState, tag: string) => {
+      const updatedBoards = state.boards.map((board) => {
+        if (board.isCurrentBoard) {
+          const updatedTags = board.tags.filter(
+            (existingTag) => existingTag !== tag
+          );
+          return {
+            ...board,
+            tags: updatedTags,
+          };
+        }
+        return board;
+      });
+
+      return {
+        ...state,
+        boards: updatedBoards,
+      };
+    }
+  );
+
   readonly addTagToCurrentTicket = this.updater(
     (state: BoardStoreState, tag: string) => ({
       ...state,
@@ -671,6 +693,23 @@ export class BoardStore extends ComponentStore<BoardStoreState> {
                 return res;
               },
               (error: string) => console.log('err deleteBoardUpdate', error)
+            )
+          );
+        })
+      )
+  );
+
+  readonly deleteCurrentBoardTagUpdate = this.effect(
+    (deleteCurrentBoardTag$: Observable<string>) =>
+      deleteCurrentBoardTag$.pipe(
+        tap((tag) => this.deleteCurrentBoardTag(tag)),
+        switchMap((tag) => {
+          return this.boardService.deleteCurrentBoardTag(tag).pipe(
+            tapResponse(
+              (res) => {
+                return res;
+              },
+              (error: string) => console.log('err deleteCurrentBoardTag', error)
             )
           );
         })

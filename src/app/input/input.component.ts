@@ -25,6 +25,7 @@ export class InputComponent implements OnInit {
   @Output() onKeyUp: EventEmitter<string> = new EventEmitter();
   @Output() onBlur: EventEmitter<string> = new EventEmitter();
   @Output() optionClicked: EventEmitter<string> = new EventEmitter();
+  @Output() deleteOptionClicked: EventEmitter<string> = new EventEmitter();
   @ViewChild('input', { static: false })
   input: ElementRef;
   @ViewChild('textarea', { static: false })
@@ -69,5 +70,9 @@ export class InputComponent implements OnInit {
 
   onOptionClick($event) {
     this.optionClicked.emit($event);
+  }
+
+  deleteOption($event) {
+    this.deleteOptionClicked.emit($event);
   }
 }

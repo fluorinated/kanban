@@ -75,6 +75,13 @@ export class BoardService {
     return this.http.delete(`${baseUrl}/deleteBoard/${id}`, this.httpOptions);
   }
 
+  deleteCurrentBoardTag(tag: string): Observable<any> {
+    return this.http.delete(
+      `${baseUrl}/deleteCurrentBoardTag/${tag}`,
+      this.httpOptions
+    );
+  }
+
   deleteTicket(ticketNumber: string): Observable<any> {
     return this.http.delete(
       `${baseUrl}/deleteTicket/${ticketNumber}`,

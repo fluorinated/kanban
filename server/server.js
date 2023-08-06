@@ -374,3 +374,38 @@ app.delete('/deleteTicket/:ticketNumber', async (req, res) => {
     return res.status(500).send(err);
   }
 });
+
+app.delete('/deleteCurrentBoardTag/:tag', async (req, res) => {
+  try {
+    const collection = await client.db('kanban').collection('users');
+
+    const tagToDelete = req.params.tag;
+
+    const query = {
+      username: 'admin',
+      boards: {
+        $elemMatch: {
+          isCurrentBoard: true,
+          tags: tagToDelete,
+        },
+      },
+    };
+
+    const update = {
+      $pull: {
+        'boards.$.tags': tagToDelete,
+      },
+    };
+
+    const result = await collection.updateOne(query, update);
+
+    if (result.modifiedCount > 0) {
+      return res.status(200).send({ status: 'Tag deleted successfully' });
+    } else {
+      return res.status(404).send({ status: 'No matching tag found' });
+    }
+  } catch (err) {
+    console.error(err);
+    return res.status(500).send(err);
+  }
+});
