@@ -281,7 +281,7 @@ export class BoardStore extends ComponentStore<BoardStoreState> {
     }
   );
 
-  readonly removeCollapsedLaneToCurrentBoard = this.updater(
+  readonly removeCollapsedLaneFromCurrentBoard = this.updater(
     (state: BoardStoreState, lane: string) => {
       const updatedBoards = state.boards.map((board) => {
         if (board.isCurrentBoard) {
@@ -731,6 +731,49 @@ export class BoardStore extends ComponentStore<BoardStoreState> {
               (error: string) => console.log('err deleteTicketUpdate', error)
             )
           );
+        })
+      )
+  );
+
+  readonly addCollapsedLaneToCurrentBoardSave = this.effect(
+    (addCollapsedLaneToCurrentBoardSave$: Observable<string>) =>
+      addCollapsedLaneToCurrentBoardSave$.pipe(
+        tap((lane) => this.addCollapsedLaneToCurrentBoard(lane)),
+        switchMap((lane) => {
+          return this.boardService
+            .addCollapsedLaneToCurrentBoardSave(lane)
+            .pipe(
+              tapResponse(
+                (res) => {
+                  return res;
+                },
+                (error: string) =>
+                  console.log('err addCollapsedLaneToCurrentBoardSave', error)
+              )
+            );
+        })
+      )
+  );
+
+  readonly removeCollapsedLaneFromCurrentBoardSave = this.effect(
+    (removeCollapsedLaneFromCurrentBoardSave$: Observable<string>) =>
+      removeCollapsedLaneFromCurrentBoardSave$.pipe(
+        tap((lane) => this.removeCollapsedLaneFromCurrentBoard(lane)),
+        switchMap((lane) => {
+          return this.boardService
+            .removeCollapsedLaneFromCurrentBoardSave(lane)
+            .pipe(
+              tapResponse(
+                (res) => {
+                  return res;
+                },
+                (error: string) =>
+                  console.log(
+                    'err removeCollapsedLaneFromCurrentBoardSave',
+                    error
+                  )
+              )
+            );
         })
       )
   );

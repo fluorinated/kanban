@@ -18,11 +18,11 @@ export class SwimlaneComponent implements OnInit {
   ngOnInit(): void {}
 
   addCollapsedLaneToCurrentBoard(lane: string) {
-    this.boardStore.addCollapsedLaneToCurrentBoard(lane);
+    this.boardStore.addCollapsedLaneToCurrentBoardSave(lane);
   }
 
   removeCollapsedLaneToCurrentBoard(lane: string) {
-    this.boardStore.removeCollapsedLaneToCurrentBoard(lane);
+    this.boardStore.removeCollapsedLaneFromCurrentBoardSave(lane);
   }
 
   addNewTicket() {

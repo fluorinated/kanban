@@ -89,6 +89,22 @@ export class BoardService {
     );
   }
 
+  addCollapsedLaneToCurrentBoardSave(lane: string): Observable<any> {
+    return this.http.post(
+      `${baseUrl}/addCollapsedLaneToCurrentBoardSave`,
+      JSON.stringify({ lane }),
+      this.httpOptions
+    );
+  }
+
+  removeCollapsedLaneFromCurrentBoardSave(lane: string): Observable<any> {
+    return this.http.post(
+      `${baseUrl}/removeCollapsedLaneFromCurrentBoardSave`,
+      JSON.stringify({ lane }),
+      this.httpOptions
+    );
+  }
+
   public drop(event: CdkDragDrop<string[]>) {
     if (event.previousContainer === event.container) {
       moveItemInArray(

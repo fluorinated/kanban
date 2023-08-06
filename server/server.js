@@ -427,3 +427,69 @@ app.delete('/deleteCurrentBoardTag/:tag', async (req, res) => {
     return res.status(500).send(err);
   }
 });
+
+app.post('/addCollapsedLaneToCurrentBoardSave', async (req, res) => {
+  try {
+    const { lane } = req.body;
+    const collection = await client.db('kanban').collection('users');
+
+    const query = {
+      'username': 'admin',
+      'boards.isCurrentBoard': true,
+    };
+
+    const update = {
+      $addToSet: {
+        'boards.$.collapsedLanes': lane,
+      },
+    };
+
+    const result = await collection.updateOne(query, update);
+
+    if (result.modifiedCount > 0) {
+      return res
+        .status(200)
+        .send({ status: 'Lane added to current board successfully' });
+    } else {
+      return res
+        .status(404)
+        .send({ status: 'No board found with isCurrentBoard true' });
+    }
+  } catch (err) {
+    console.error(err);
+    return res.status(500).send(err);
+  }
+});
+
+app.post('/removeCollapsedLaneFromCurrentBoardSave', async (req, res) => {
+  try {
+    const { lane } = req.body;
+    const collection = await client.db('kanban').collection('users');
+
+    const query = {
+      'username': 'admin',
+      'boards.isCurrentBoard': true,
+    };
+
+    const update = {
+      $pull: {
+        'boards.$.collapsedLanes': lane,
+      },
+    };
+
+    const result = await collection.updateOne(query, update);
+
+    if (result.modifiedCount > 0) {
+      return res
+        .status(200)
+        .send({ status: 'Lane removed from current board successfully' });
+    } else {
+      return res
+        .status(404)
+        .send({ status: 'No board found with isCurrentBoard true' });
+    }
+  } catch (err) {
+    console.error(err);
+    return res.status(500).send(err);
+  }
+});
