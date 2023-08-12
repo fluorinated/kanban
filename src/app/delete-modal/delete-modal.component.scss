@@ -11,6 +11,7 @@
   bottom: 0;
   margin: auto;
   position: absolute;
+  z-index: 99;
 }
 
 .top-btns {
@@ -42,4 +43,5 @@
   width: 100vw;
   background-color: var(--pink-1-05);
   position: absolute;
+  z-index: 99;
 }
