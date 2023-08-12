@@ -1,14 +1,16 @@
 <div
   class="tags"
-  [style]="{ width }"
   [ngClass]="{ 'tags-scroll': !noScroll, 'tags-wrap': noScroll }"
+  [style]="{ width }"
+  #tagsContainer
 >
-  <div *ngFor="let tag of tags" class="tag">
-    <div
-      *ngIf="showCloseButton"
-      class="close-circle"
-      [style]="{ left: (this.tagsMap$ | async).get(tag) }"
-    >
+  <div
+    *ngFor="let tag of tags"
+    class="tag"
+    [style]="{ left: (tagsMap$ | async).get(tag) }"
+  >
+    <span #tagsList>{{ tag }}</span>
+    <div *ngIf="showCloseButton" class="close-circle">
       <app-icon
         class="close-btn"
         icon="faClose"
@@ -17,6 +19,5 @@
         (click)="close(tag)"
       ></app-icon>
     </div>
-    <span #tagsList>{{ tag }}</span>
   </div>
 </div>

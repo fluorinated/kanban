@@ -1,12 +1,13 @@
 import {
+  AfterViewInit,
   Component,
   ElementRef,
   EventEmitter,
   Input,
-  OnChanges,
   OnInit,
   Output,
   QueryList,
+  ViewChild,
   ViewChildren,
 } from '@angular/core';
 import { TicketStore } from '../ticket/store/ticket-store.service';
@@ -17,7 +18,7 @@ import { Observable } from 'rxjs';
   templateUrl: './tags.component.html',
   styleUrls: ['./tags.component.scss'],
 })
-export class TagsComponent implements OnInit, OnChanges {
+export class TagsComponent implements OnInit, AfterViewInit {
   @Input() tags: string[];
   @Input() noScroll: boolean = false;
   @Input() width: string;
@@ -28,6 +29,8 @@ export class TagsComponent implements OnInit, OnChanges {
   @ViewChildren('tagsList')
   tagsList: QueryList<ElementRef>;
 
+  @ViewChild('tagsContainer', { static: false }) tagsContainer: ElementRef;
+
   tagsMap = new Map();
   tagsMap$: Observable<Map<string, string>>;
 
@@ -37,28 +40,22 @@ export class TagsComponent implements OnInit, OnChanges {
     this.tagsMap$ = this.ticketStore.getTagsMap$;
   }
 
-  ngOnChanges(): void {
-    this.tagsList?.changes?.subscribe((changes: QueryList<ElementRef>) => {
-      changes.forEach((res) => {
-        let num =
-          res?.nativeElement?.offsetLeft + res?.nativeElement?.offsetWidth;
-        num = `${num}px`;
-        this.tagsMap.set(res?.nativeElement?.innerText, num);
-        this.ticketStore.setTagsMap(this.tagsMap);
-      });
+  ngAfterViewInit(): void {
+    this.tagsList.changes.subscribe(() => {
+      this.updateTagPositions();
     });
   }
 
-  ngAfterContentChecked(): void {
-    if (this.tagsList) {
-      this.tagsList['_results']?.map((res) => {
-        let num =
-          res?.nativeElement?.offsetLeft + res?.nativeElement?.offsetWidth;
-        num = `${num}px`;
-        this.tagsMap.set(res?.nativeElement?.innerText, num);
-        this.ticketStore.setTagsMap(this.tagsMap);
-      });
-    }
+  updateTagPositions(): void {
+    const scrollOffset = this.tagsContainer.nativeElement.scrollLeft;
+
+    let accumulatedWidth = 0;
+    this.tagsList.forEach((tagElement) => {
+      const tagWidth = tagElement.nativeElement.offsetWidth;
+      const newPosition = accumulatedWidth + scrollOffset;
+      tagElement.nativeElement.style.left = `${newPosition}px`;
+      accumulatedWidth += tagWidth;
+    });
   }
 
   close(tag: string) {
