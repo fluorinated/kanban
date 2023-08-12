@@ -46,7 +46,8 @@ export class TicketComponent implements OnInit {
   }
 
   deleteTicket() {
-    this.boardStore.deleteTicketUpdate(this.ticket);
+    this.boardStore.setIsDeleteModalOpen(true);
+    this.boardStore.setItemToDelete(this.ticket);
   }
 
   removeTag(tag: string) {
@@ -54,7 +55,8 @@ export class TicketComponent implements OnInit {
   }
 
   deleteCurrentBoardTag(tag: string) {
-    this.boardStore.deleteCurrentBoardTag(tag);
+    this.boardStore.setIsDeleteModalOpen(true);
+    this.boardStore.setItemToDelete(tag);
   }
 
   toggleSaveStartEditingTags() {

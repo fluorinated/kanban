@@ -40,7 +40,7 @@ export interface BoardStoreState {
   isDueThisMonthFilterOn: boolean;
   hasAnsweredYesToDelete: boolean;
   isDeleteModalOpen: boolean;
-  itemToDelete: string | Board;
+  itemToDelete: string | Board | Ticket;
 }
 
 @Injectable()
@@ -138,7 +138,7 @@ export class BoardStore extends ComponentStore<BoardStoreState> {
     (state) => state.isDeleteModalOpen
   );
 
-  readonly itemToDelete$: Observable<string | Board> = this.select(
+  readonly itemToDelete$: Observable<string | Board | Ticket> = this.select(
     (state) => state.itemToDelete
   );
 
@@ -268,7 +268,7 @@ export class BoardStore extends ComponentStore<BoardStoreState> {
   );
 
   readonly setItemToDelete = this.updater(
-    (state: BoardStoreState, itemToDelete: string | Board) => ({
+    (state: BoardStoreState, itemToDelete: string | Board | Ticket) => ({
       ...state,
       itemToDelete,
     })
@@ -707,6 +707,10 @@ export class BoardStore extends ComponentStore<BoardStoreState> {
             this.deleteBoardUpdate(itemToDelete as Board);
           } else if (itemToDelete === 'currentBoard') {
             this.deleteCurrentBoardUpdate();
+          } else if (itemToDelete.hasOwnProperty('ticketNumber')) {
+            this.deleteTicketUpdate(itemToDelete as Ticket);
+          } else {
+            this.deleteCurrentBoardTagUpdate(itemToDelete as string);
           }
         }),
         tap(() => {
