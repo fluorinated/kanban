@@ -11,11 +11,15 @@
   />
 
   <div class="auto-complete" *ngIf="options?.length > 0">
-    <div class="option-trash" *ngFor="let option of filteredOptions | async">
-      <span (click)="onOptionClick(option)">
+    <div
+      class="option-trash"
+      *ngFor="let option of filteredOptions | async"
+      (click)="onOptionClick(option)"
+    >
+      <span class="option-text">
         {{ option }}
       </span>
-      <app-button (buttonClicked)="deleteOption(option)">
+      <app-button class="trash-btn" (buttonClicked)="deleteOption(option)">
         <app-icon icon="faTrash" color="neutral-2"></app-icon>
       </app-button>
     </div>
