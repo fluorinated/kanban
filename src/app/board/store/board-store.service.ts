@@ -959,22 +959,17 @@ export class BoardStore extends ComponentStore<BoardStoreState> {
                 (ticket) => ticket.swimlaneTitle === swimlaneTitle
               );
 
-              let swimlaneHighestTicketNumber = 0;
-              for (const ticket of swimlaneTickets) {
-                const ticketNumber = parseInt(
-                  ticket.ticketNumber.split('-')[1]
-                );
-                if (
-                  !isNaN(ticketNumber) &&
-                  ticketNumber > swimlaneHighestTicketNumber
-                ) {
-                  swimlaneHighestTicketNumber = ticketNumber;
-                }
-              }
+              const swimlaneHighestIndex = Math.max(
+                ...swimlaneTickets.map((ticket) => ticket.index),
+                -1
+              );
 
-              // calc the next ticket number based on the highest ticket number in the specific swimlane
+              // Calculate the next ticket number based on the highest ticket number in the specific swimlane
               const nextTicketNumber =
-                Math.max(highestTicketNumber, swimlaneHighestTicketNumber) + 1;
+                Math.max(highestTicketNumber, swimlaneHighestIndex) + 1;
+
+              // Calculate the index for the new ticket (top of the lane)
+              const newIndex = 0;
 
               const newTicket: Ticket = {
                 title: 'title',
@@ -984,14 +979,26 @@ export class BoardStore extends ComponentStore<BoardStoreState> {
                 dueDate: 'monday, july 3, 2023',
                 createdDate: getFormattedDate(new Date()),
                 swimlaneTitle,
-                index: swimlaneTickets.length,
+                index: newIndex,
               };
 
-              const updatedTickets = [...currentBoard.tickets, newTicket];
+              const updatedTickets = [
+                newTicket,
+                ...swimlaneTickets.map((ticket) =>
+                  ticket.index >= newIndex
+                    ? { ...ticket, index: ticket.index + 1 }
+                    : ticket
+                ),
+              ];
 
               const updatedBoard: Board = {
                 ...currentBoard,
-                tickets: updatedTickets,
+                tickets: [
+                  ...currentBoard.tickets.filter(
+                    (ticket) => ticket.swimlaneTitle !== swimlaneTitle
+                  ),
+                  ...updatedTickets,
+                ],
               };
 
               const updatedBoards = boards.map((board) =>

@@ -82,7 +82,6 @@ app.post('/updateTicketSwimlane', async function (req, res) {
     const ticketId = req.body.ticketNumber;
     const newSwimlaneTitle = req.body.title;
     const newIndex = req.body.currentIndex;
-    const previousIndex = req.body.previousIndex;
 
     const collection = await client.db('kanban').collection('users');
 
@@ -93,7 +92,6 @@ app.post('/updateTicketSwimlane', async function (req, res) {
       {
         $set: {
           'boards.$[board].tickets.$[ticket].swimlaneTitle': newSwimlaneTitle,
-          'boards.$[board].tickets.$[ticket].index': newIndex,
         },
       },
       {
@@ -112,49 +110,46 @@ app.post('/updateTicketSwimlane', async function (req, res) {
         .send({ error: 'Board not found containing the ticket' });
     }
 
-    const updatedTicket = updatedBoard.boards[0].tickets.find(
+    // Find the dragged ticket
+    const draggedTicket = updatedBoard.boards[0].tickets.find(
       (ticket) => ticket.ticketNumber === ticketId
     );
 
-    if (!updatedTicket) {
-      return res.status(404).send({ error: 'Ticket not found in the board' });
+    if (!draggedTicket) {
+      return res.status(404).send({ error: 'Dragged ticket not found' });
     }
 
-    // update all tickets with the same swimlane title as the updated ticket's previous swimlane title
-    const previousSwimlaneTitle = updatedTicket.swimlaneTitle;
-    const ticketsToUpdate = updatedBoard.boards[0].tickets.filter(
-      (ticket) => ticket.swimlaneTitle === previousSwimlaneTitle
+    // Copy the array of tickets to work with
+    const updatedTickets = [...updatedBoard.boards[0].tickets];
+
+    // Remove the dragged ticket from its original position
+    const draggedTicketIndex = updatedTickets.findIndex(
+      (ticket) => ticket.ticketNumber === ticketId
     );
 
-    const updatedTickets = ticketsToUpdate.map((ticketToUpdate) => {
-      if (ticketToUpdate.ticketNumber === ticketId) {
-        // update the moved ticket with the new index and swimlane title
-        return {
-          ...ticketToUpdate,
-          index: newIndex,
-          swimlaneTitle: newSwimlaneTitle,
-        };
-      } else if (
-        ticketToUpdate.index >= newIndex &&
-        ticketToUpdate.index < previousIndex
-      ) {
-        // shift up the indexes between the new and previous index (when moving up within the same swimlane)
-        return { ...ticketToUpdate, index: ticketToUpdate.index + 1 };
-      } else if (
-        ticketToUpdate.index <= newIndex &&
-        ticketToUpdate.index > previousIndex
-      ) {
-        // shift down the indexes between the previous and new index (when moving down within the same swimlane)
-        return { ...ticketToUpdate, index: ticketToUpdate.index - 1 };
-      } else {
-        return ticketToUpdate;
-      }
+    const [draggedTicketObject] = updatedTickets.splice(draggedTicketIndex, 1);
+
+    // Reinsert the dragged ticket at the desired index
+    updatedTickets.splice(newIndex, 0, {
+      ...draggedTicketObject,
+      index: newIndex,
+      swimlaneTitle: newSwimlaneTitle,
     });
 
-    // update the board with the updated ticket list
+    // Update the board with the reordered ticket list
+    updatedTickets.forEach((ticket, index) => {
+      const ticketIndex = updatedTickets.findIndex(
+        (t) => t.ticketNumber === ticket.ticketNumber
+      );
+      updatedTickets[ticketIndex].index = index;
+    });
+
+    // Update the collection with the modified board
+    updatedBoard.boards[0].tickets = updatedTickets;
+
     await collection.updateOne(
       { _id: updatedBoard._id },
-      { $set: { 'boards.0.tickets': updatedTickets } }
+      { $set: { boards: updatedBoard.boards } }
     );
 
     return res.status(200).send({ status: 'OK' });
