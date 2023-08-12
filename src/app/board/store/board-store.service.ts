@@ -972,11 +972,11 @@ export class BoardStore extends ComponentStore<BoardStoreState> {
               const newIndex = 0;
 
               const newTicket: Ticket = {
-                title: 'title',
+                title: 'ticket title',
                 ticketNumber: `MD-${nextTicketNumber}`,
-                description: 'description',
-                tags: ['buy'],
-                dueDate: 'monday, july 3, 2023',
+                description: 'ticket description',
+                tags: [],
+                dueDate: getFormattedDate(new Date()),
                 createdDate: getFormattedDate(new Date()),
                 swimlaneTitle,
                 index: newIndex,

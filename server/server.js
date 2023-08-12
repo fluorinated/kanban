@@ -260,20 +260,8 @@ app.post('/addNewBoardToBoards', async (req, res) => {
     const update = {
       $push: {
         boards: {
-          title: 'title',
-          tickets: [
-            {
-              title: 'craft crochet pouches',
-              ticketNumber: await getNextTicketNumber(),
-              description:
-                '* watch youtube videos * practice basic crocheting methods',
-              tags: ['buy', 'dress-up', 'fun'],
-              dueDate: 'friday, may 26, 2023',
-              createdDate: getFormattedDate(new Date()),
-              swimlaneTitle: 'backlog',
-              index: 0,
-            },
-          ],
+          title: 'board title',
+          tickets: [],
           tags: [],
           activeTags: [],
           index: 2,
