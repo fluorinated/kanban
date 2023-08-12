@@ -121,4 +121,9 @@ export class BoardComponent implements OnInit {
   setIsDueThisMonthFilterOn() {
     this.boardStore.setIsDueThisMonthFilter();
   }
+
+  handleDeleteCurrentBoard() {
+    this.boardStore.setIsDeleteModalOpen(true);
+    this.boardStore.setItemToDelete('currentBoard');
+  }
 }

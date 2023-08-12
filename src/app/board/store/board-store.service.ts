@@ -4,6 +4,7 @@ import { ComponentStore, tapResponse } from '@ngrx/component-store';
 import { EMPTY, Observable, throwError } from 'rxjs';
 import {
   catchError,
+  filter,
   map,
   switchMap,
   take,
@@ -37,6 +38,9 @@ export interface BoardStoreState {
   isDueTodayFilterOn: boolean;
   isDueThisWeekFilterOn: boolean;
   isDueThisMonthFilterOn: boolean;
+  hasAnsweredYesToDelete: boolean;
+  isDeleteModalOpen: boolean;
+  itemToDelete: string;
 }
 
 @Injectable()
@@ -57,6 +61,9 @@ export class BoardStore extends ComponentStore<BoardStoreState> {
       isDueTodayFilterOn: false,
       isDueThisWeekFilterOn: false,
       isDueThisMonthFilterOn: false,
+      hasAnsweredYesToDelete: false,
+      isDeleteModalOpen: false,
+      itemToDelete: '',
     });
   }
 
@@ -121,6 +128,18 @@ export class BoardStore extends ComponentStore<BoardStoreState> {
 
   readonly isDueThisMonthFilterOn$: Observable<boolean> = this.select(
     (state) => state.isDueThisMonthFilterOn
+  );
+
+  readonly hasAnsweredYesToDelete$: Observable<boolean> = this.select(
+    (state) => state.hasAnsweredYesToDelete
+  );
+
+  readonly isDeleteModalOpen$: Observable<boolean> = this.select(
+    (state) => state.isDeleteModalOpen
+  );
+
+  readonly itemToDelete$: Observable<string> = this.select(
+    (state) => state.itemToDelete
   );
 
   readonly filteredTickets$: Observable<Ticket[]> = this.select(
@@ -248,6 +267,13 @@ export class BoardStore extends ComponentStore<BoardStoreState> {
     })
   );
 
+  readonly setItemToDelete = this.updater(
+    (state: BoardStoreState, itemToDelete: string) => ({
+      ...state,
+      itemToDelete,
+    })
+  );
+
   readonly updateCurrentTicketField = this.updater(
     (state: BoardStoreState, pair: { field: string; value: any }) => ({
       ...state,
@@ -342,6 +368,20 @@ export class BoardStore extends ComponentStore<BoardStoreState> {
     (state: BoardStoreState, currentBoardActiveTags: Board) => ({
       ...state,
       currentBoardActiveTags,
+    })
+  );
+
+  readonly setHasAnsweredYesToDelete = this.updater(
+    (state: BoardStoreState, hasAnsweredYesToDelete: boolean) => ({
+      ...state,
+      hasAnsweredYesToDelete,
+    })
+  );
+
+  readonly setIsDeleteModalOpen = this.updater(
+    (state: BoardStoreState, isDeleteModalOpen: boolean) => ({
+      ...state,
+      isDeleteModalOpen,
     })
   );
 
@@ -657,9 +697,25 @@ export class BoardStore extends ComponentStore<BoardStoreState> {
       )
   );
 
+  readonly determineDeleteItem = this.effect(
+    (determineDeleteItem$: Observable<void>) =>
+      determineDeleteItem$.pipe(
+        tap(() => this.setHasAnsweredYesToDelete(true)),
+        withLatestFrom(this.itemToDelete$),
+        tap(([, itemToDelete]) => {
+          if (itemToDelete === 'currentBoard') {
+            this.deleteCurrentBoardUpdate();
+          }
+        }),
+        tap(() => this.setHasAnsweredYesToDelete(false))
+      )
+  );
+
   readonly deleteCurrentBoardUpdate = this.effect(
     (deleteCurrentBoardUpdate$: Observable<void>) =>
       deleteCurrentBoardUpdate$.pipe(
+        withLatestFrom(this.hasAnsweredYesToDelete$),
+        filter(([, hasAnsweredYesToDelete]) => hasAnsweredYesToDelete),
         tap(() => this.deleteCurrentBoard()),
         withLatestFrom(this.boards$),
         switchMap(([, boards]) => {
@@ -668,6 +724,7 @@ export class BoardStore extends ComponentStore<BoardStoreState> {
               (res) => {
                 if (boards[0]) {
                   this.changeCurrentBoard(boards[0]);
+                  this.setIsDeleteModalOpen(false);
                 }
                 return res;
               },

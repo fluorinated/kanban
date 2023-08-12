@@ -1,7 +1,7 @@
 .container {
-  height: 100vh;
-  margin: none;
-  padding: none;
+  height: calc(100vh - 2rem);
+  margin: 0;
+  padding: 1rem;
 }
 
 .swimlanes-container {

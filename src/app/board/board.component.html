@@ -1,3 +1,4 @@
+<app-delete-modal></app-delete-modal>
 <div class="container">
   <div class="top-row">
     <div class="collapse-search-filters">
@@ -35,7 +36,10 @@
       >
         <app-icon icon="faPlus" color="neutral-2"></app-icon>
       </app-button>
-      <app-button class="delete-board" (buttonClicked)="deleteCurrentBoard()">
+      <app-button
+        class="delete-board"
+        (buttonClicked)="handleDeleteCurrentBoard()"
+      >
         <app-icon icon="faTrash" color="neutral-2"></app-icon>
       </app-button>
     </div>
