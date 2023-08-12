@@ -103,7 +103,8 @@ export class BoardComponent implements OnInit {
   }
 
   deleteBoard($event: Board) {
-    this.boardStore.deleteBoardUpdate($event);
+    this.boardStore.setIsDeleteModalOpen(true);
+    this.boardStore.setItemToDelete($event);
   }
 
   setIsDueTodayFilterOn() {

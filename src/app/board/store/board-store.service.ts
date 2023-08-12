@@ -40,7 +40,7 @@ export interface BoardStoreState {
   isDueThisMonthFilterOn: boolean;
   hasAnsweredYesToDelete: boolean;
   isDeleteModalOpen: boolean;
-  itemToDelete: string;
+  itemToDelete: string | Board;
 }
 
 @Injectable()
@@ -138,7 +138,7 @@ export class BoardStore extends ComponentStore<BoardStoreState> {
     (state) => state.isDeleteModalOpen
   );
 
-  readonly itemToDelete$: Observable<string> = this.select(
+  readonly itemToDelete$: Observable<string | Board> = this.select(
     (state) => state.itemToDelete
   );
 
@@ -268,7 +268,7 @@ export class BoardStore extends ComponentStore<BoardStoreState> {
   );
 
   readonly setItemToDelete = this.updater(
-    (state: BoardStoreState, itemToDelete: string) => ({
+    (state: BoardStoreState, itemToDelete: string | Board) => ({
       ...state,
       itemToDelete,
     })
@@ -703,12 +703,16 @@ export class BoardStore extends ComponentStore<BoardStoreState> {
         tap(() => this.setHasAnsweredYesToDelete(true)),
         withLatestFrom(this.itemToDelete$),
         tap(([, itemToDelete]) => {
-          if (itemToDelete === 'currentBoard') {
+          if (itemToDelete.hasOwnProperty('_id')) {
+            this.deleteBoardUpdate(itemToDelete as Board);
+          } else if (itemToDelete === 'currentBoard') {
             this.deleteCurrentBoardUpdate();
           }
         }),
-        tap(() => this.setHasAnsweredYesToDelete(false)),
-        tap(() => this.setIsDeleteModalOpen(false))
+        tap(() => {
+          this.setHasAnsweredYesToDelete(false);
+          this.setIsDeleteModalOpen(false);
+        })
       )
   );
 
@@ -739,9 +743,10 @@ export class BoardStore extends ComponentStore<BoardStoreState> {
   readonly deleteBoardUpdate = this.effect(
     (deleteBoardUpdate$: Observable<Board>) =>
       deleteBoardUpdate$.pipe(
-        tap((board) => this.deleteBoard(board)),
-        withLatestFrom(this.boards$),
-        switchMap(([board, boards]) => {
+        withLatestFrom(this.hasAnsweredYesToDelete$, this.boards$),
+        filter(([, hasAnsweredYesToDelete]) => hasAnsweredYesToDelete),
+        tap(([board]) => this.deleteBoard(board)),
+        switchMap(([board, , boards]) => {
           return this.boardService.deleteBoard(board._id).pipe(
             tapResponse(
               (res) => {
