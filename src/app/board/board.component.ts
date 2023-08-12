@@ -102,10 +102,6 @@ export class BoardComponent implements OnInit {
     this.boardStore.addNewBoardToBoardsUpdate();
   }
 
-  deleteCurrentBoard() {
-    this.boardStore.deleteCurrentBoardUpdate();
-  }
-
   deleteBoard($event: Board) {
     this.boardStore.deleteBoardUpdate($event);
   }

@@ -707,7 +707,8 @@ export class BoardStore extends ComponentStore<BoardStoreState> {
             this.deleteCurrentBoardUpdate();
           }
         }),
-        tap(() => this.setHasAnsweredYesToDelete(false))
+        tap(() => this.setHasAnsweredYesToDelete(false)),
+        tap(() => this.setIsDeleteModalOpen(false))
       )
   );
 
@@ -724,7 +725,6 @@ export class BoardStore extends ComponentStore<BoardStoreState> {
               (res) => {
                 if (boards[0]) {
                   this.changeCurrentBoard(boards[0]);
-                  this.setIsDeleteModalOpen(false);
                 }
                 return res;
               },
