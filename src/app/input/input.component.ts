@@ -3,6 +3,7 @@ import {
   ElementRef,
   EventEmitter,
   Input,
+  OnChanges,
   OnInit,
   Output,
   ViewChild,
@@ -16,7 +17,7 @@ import { map, startWith } from 'rxjs/operators';
   templateUrl: './input.component.html',
   styleUrls: ['./input.component.scss'],
 })
-export class InputComponent implements OnInit {
+export class InputComponent implements OnInit, OnChanges {
   @Input() placeholder: string;
   @Input() value: string;
   @Input() options: string[];
@@ -44,15 +45,24 @@ export class InputComponent implements OnInit {
     if (this.options) {
       this.filteredOptions = this.form?.controls?.control?.valueChanges?.pipe(
         startWith(''),
-        map((value) => this._filter(value || ''))
+        map((value) => this._filter(value || '', this.options))
       );
     }
   }
 
-  private _filter(value: string): string[] {
+  ngOnChanges() {
+    if (this.options) {
+      this.filteredOptions = this.form?.controls?.control?.valueChanges?.pipe(
+        startWith(''),
+        map((value) => this._filter(value || '', this.options))
+      );
+    }
+  }
+
+  private _filter(value: string, options: string[]): string[] {
     const filterValue = value?.toLowerCase();
 
-    return this.options?.filter((option) =>
+    return options?.filter((option) =>
       option?.toLowerCase().includes(filterValue)
     );
   }

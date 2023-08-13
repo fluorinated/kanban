@@ -654,22 +654,19 @@ export class BoardStore extends ComponentStore<BoardStoreState> {
       )
   );
 
-  // refresh for new tag
   readonly addNewTagToCurrentBoardTags = this.effect(
     (addNewTagToCurrentBoardTags$: Observable<void>) =>
       addNewTagToCurrentBoardTags$.pipe(
         withLatestFrom(this.ticketStore.newTagName$),
-        tap(([, newTagName]: [any, string]) =>
-          this.addTagToCurrentBoard(newTagName)
-        ),
+        tap(([, newTagName]) => this.addTagToCurrentBoard(newTagName)),
         withLatestFrom(this.boards$),
         switchMap(([, boards]) => {
           return this.boardService.setBoards(boards).pipe(
-            tapResponse(
-              () => this.updateBoards(),
-              (error: string) =>
-                console.log('err addNewTagToCurrentBoardTags', error)
-            )
+            tap((res) => this.updateBoards(res)),
+            catchError((error) => {
+              console.log('err addNewTagToCurrentBoardTags', error);
+              return EMPTY;
+            })
           );
         }),
         tap(() => this.ticketStore.setIsEditingNewTag(false))
