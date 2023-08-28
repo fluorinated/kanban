@@ -622,23 +622,6 @@ export class BoardStore extends ComponentStore<BoardStoreState> {
     }
   );
 
-  readonly addNewBoardToBoards = this.updater((state: BoardStoreState) => ({
-    ...state,
-    boards: [
-      ...state.boards,
-      {
-        title: 'title',
-        tickets: [],
-        tags: [],
-        activeTags: [],
-        collapsedLanes: [],
-        isCurrentBoard: true,
-        index: 2,
-        _id: uuidv4(),
-      },
-    ],
-  }));
-
   readonly deleteCurrentBoard = this.updater((state: BoardStoreState) => {
     return {
       ...state,
@@ -856,13 +839,12 @@ export class BoardStore extends ComponentStore<BoardStoreState> {
     (addNewBoardToBoardsUpdate$: Observable<void>) =>
       addNewBoardToBoardsUpdate$.pipe(
         tap(() => this.setAllBoardsCurrentBoardToFalse()),
-        tap(() => this.addNewBoardToBoards()),
         withLatestFrom(this.boards$),
         switchMap(([, boards]) => {
           return this.boardService.addNewBoardToBoards(boards).pipe(
             tapResponse(
               (res) => {
-                this.updateBoards(res);
+                this.updateBoards();
                 return res;
               },
               (error: string) =>
