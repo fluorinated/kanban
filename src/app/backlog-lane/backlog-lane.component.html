@@ -20,3 +20,9 @@
     ></app-mini-card>
   </div>
 </div>
+
+<app-paginator
+  title="backlog"
+  [pageNumber]="pageNumber$ | async"
+  [totalPages]="backlogLaneMaxPages$ | async"
+></app-paginator>

@@ -20,3 +20,8 @@
     ></app-mini-card>
   </div>
 </div>
+<app-paginator
+  title="blocked"
+  [pageNumber]="pageNumber$ | async"
+  [totalPages]="blockedLaneMaxPages$ | async"
+></app-paginator>

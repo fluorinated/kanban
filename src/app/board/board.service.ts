@@ -8,6 +8,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { Board } from '../models/board.model';
+import { Ticket } from '../models/ticket.model';
 
 const baseUrl = 'http://localhost:8080';
 
@@ -23,8 +24,51 @@ export class BoardService {
 
   constructor(private http: HttpClient) {}
 
-  getBoards(): Observable<any> {
-    return this.http.get<any>(`${baseUrl}/getBoards`);
+  getBoardsPaginated(
+    pageNumber: string,
+    swimlaneTitle: string
+  ): Observable<any> {
+    return this.http.get<any>(
+      `${baseUrl}/getBoardsPaginated?pageNumber=${pageNumber}&swimlaneTitle=${swimlaneTitle}`
+    );
+  }
+
+  getBoardsOnlyTen(): Observable<any> {
+    return this.http.get<any>(`${baseUrl}/getBoardsOnlyTen`);
+  }
+
+  getSwimlaneTicketsAtFirstPage(swimlaneTitle: string): Observable<any> {
+    return this.http.get<any>(
+      `${baseUrl}/getSwimlaneTicketsAtFirstPage?swimlaneTitle=${swimlaneTitle}`
+    );
+  }
+
+  getMaxPagesForSwimlane(swimlaneTitle: string): Observable<any> {
+    return this.http.get<any>(
+      `${baseUrl}/getMaxPagesForSwimlane?swimlaneTitle=${swimlaneTitle}`
+    );
+  }
+
+  getBoards(): Observable<Board[]> {
+    return this.http.get<Board[]>(`${baseUrl}/getBoards`);
+  }
+
+  getCurrentBoardSwimlaneTicketsPaginated(
+    pageNumber: string,
+    swimlaneTitle: string
+  ): Observable<any> {
+    return this.http.get<any>(
+      `${baseUrl}/getCurrentBoardSwimlaneTicketsPaginated?pageNumber=${pageNumber}&swimlaneTitle=${swimlaneTitle}`
+    );
+  }
+
+  addTicketToCurrentBoard(newTicket: Ticket): Observable<any> {
+    const body = JSON.stringify(newTicket);
+    return this.http.post(
+      `${baseUrl}/addTicketToCurrentBoard`,
+      body,
+      this.httpOptions
+    );
   }
 
   getNextTicketNumber(boardId?: string): Observable<any> {
@@ -50,11 +94,20 @@ export class BoardService {
     title?: string,
     ticketNumber?: string,
     currentIndex?: number,
-    previousIndex?: number
+    previousIndex?: number,
+    previousSwimlaneTitle?: string,
+    lanePageNumber?: string
   ): Observable<any> {
     return this.http.post(
       `${baseUrl}/updateTicketSwimlane`,
-      JSON.stringify({ title, ticketNumber, currentIndex, previousIndex }),
+      JSON.stringify({
+        title,
+        ticketNumber,
+        currentIndex,
+        previousIndex,
+        previousSwimlaneTitle,
+        lanePageNumber,
+      }),
       this.httpOptions
     );
   }

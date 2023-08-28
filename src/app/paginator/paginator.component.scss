@@ -1,0 +1,15 @@
+.page-number {
+  background-color: var(--neutral-3-50);
+  color: var(--neutral-2);
+  width: fit-content;
+  border-radius: 0.25rem;
+  padding: 0.125rem;
+}
+
+.pagination-container {
+  display: flex;
+}
+
+.caret {
+  margin: 0 0.5rem;
+}

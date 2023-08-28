@@ -60,6 +60,7 @@ export class BoardComponent implements OnInit {
       description: 'desc test',
       published: false,
     };
+    this.boardStore.getLaneMaxPagesUpdate();
     this.boardStore.updateBoards();
   }
 

@@ -20,3 +20,9 @@
     ></app-mini-card>
   </div>
 </div>
+
+<app-paginator
+  title="in progress"
+  [pageNumber]="pageNumber$ | async"
+  [totalPages]="inProgressLaneMaxPages$ | async"
+></app-paginator>

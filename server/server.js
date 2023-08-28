@@ -35,6 +35,251 @@ client.connect((err) => {
   app.listen(process.env.PORT || 8080);
 });
 
+app.get('/getCurrentBoardSwimlaneTicketsPaginated', async function (req, res) {
+  try {
+    const swimlaneTitle = req.query.swimlaneTitle;
+    const pageNumber = parseInt(req.query.pageNumber);
+    const pageSize = 10;
+
+    const kanban = await client
+      .db('kanban')
+      .collection('users')
+      .find({ username: 'admin' })
+      .toArray();
+
+    if (kanban.length > 0) {
+      const boards = kanban[0].boards;
+
+      const currentBoard = boards.find((board) => board.isCurrentBoard);
+
+      if (!currentBoard) {
+        return res.status(400).send('No current board found.');
+      }
+
+      if (!currentBoard.tickets) {
+        currentBoard.tickets = [];
+      }
+
+      const swimlaneTickets = currentBoard.tickets.filter(
+        (ticket) => ticket.swimlaneTitle === swimlaneTitle
+      );
+
+      // adjust the pageNumber to start at 0
+      const adjustedPageNumber = pageNumber - 1;
+
+      const startIndex = adjustedPageNumber * pageSize;
+      const endIndex = startIndex + pageSize;
+
+      const paginatedTickets = swimlaneTickets.slice(startIndex, endIndex);
+
+      return res.status(200).send(paginatedTickets);
+    }
+  } catch (err) {
+    console.error('Error getting swimlane tickets:', err);
+    return res.status(500).send(err);
+  }
+});
+
+app.post('/addTicketToCurrentBoard', async function (req, res) {
+  try {
+    const newTicket = req.body;
+    const boards = await getBoards();
+
+    const currentBoard = boards.find((board) => board.isCurrentBoard);
+
+    if (!currentBoard) {
+      return res.status(400).send('No current board found.');
+    }
+
+    if (!currentBoard.tickets) {
+      currentBoard.tickets = [];
+    }
+
+    newTicket.index = 0;
+
+    // shift the indices for the rest of the tickets in the swimlane
+    currentBoard.tickets.forEach((ticket) => {
+      if (
+        ticket.swimlaneTitle === newTicket.swimlaneTitle &&
+        ticket.index >= newTicket.index
+      ) {
+        ticket.index++;
+      }
+    });
+
+    currentBoard.tickets.unshift(newTicket);
+
+    await setBoards(boards);
+
+    return res.status(200).send({ status: 'OK', boards });
+  } catch (err) {
+    console.error('Error adding ticket:', err);
+    return res.status(500).send(err);
+  }
+});
+
+getMaxPagesForSwimlane = async (req) => {
+  const swimlaneTitle = req.query.swimlaneTitle;
+  const pageSize = 10;
+  const kanban = await client
+    .db('kanban')
+    .collection('users')
+    .find({ username: 'admin' })
+    .toArray();
+
+  if (kanban.length > 0) {
+    const boards = kanban[0].boards;
+
+    const totalTicketsInSwimlane = boards.reduce((total, board) => {
+      if (!board.tickets) {
+        return total;
+      }
+
+      const ticketsInSwimlane = board.tickets.filter(
+        (ticket) => ticket.swimlaneTitle === swimlaneTitle
+      );
+
+      return total + ticketsInSwimlane.length;
+    }, 0);
+
+    const maxPages = Math.ceil(totalTicketsInSwimlane / pageSize);
+
+    return { maxPages: maxPages.toString() };
+  }
+};
+
+getBoardsPaginated = async (req) => {
+  const pageNumber = parseInt(req.query.pageNumber);
+  const swimlaneTitle = req.query.swimlaneTitle;
+  const pageSize = 10;
+  const kanban = await client
+    .db('kanban')
+    .collection('users')
+    .find({ username: 'admin' })
+    .toArray();
+
+  if (kanban.length > 0) {
+    const boards = kanban[0].boards;
+
+    const updatedBoards = boards.map((board) => {
+      if (!board.tickets) {
+        return board;
+      }
+
+      if (board.tickets.length === 0) {
+        return board;
+      }
+
+      const ticketsInSwimlane = board.tickets.filter(
+        (ticket) => ticket.swimlaneTitle === swimlaneTitle
+      );
+
+      const startIndex = pageNumber * pageSize;
+      const endIndex = startIndex + pageSize;
+
+      const paginatedTickets = ticketsInSwimlane.slice(startIndex, endIndex);
+
+      const updatedSwimlaneTickets = board.tickets.map((ticket) =>
+        ticket.swimlaneTitle === swimlaneTitle
+          ? paginatedTickets.find(
+              (paginatedTicket) =>
+                paginatedTicket.ticketNumber === ticket.ticketNumber
+            )
+          : ticket
+      );
+
+      return {
+        ...board,
+        tickets: updatedSwimlaneTickets,
+      };
+    });
+
+    return updatedBoards;
+  }
+};
+
+const getSwimlaneTicketsAtFirstPage = async (req) => {
+  const swimlaneTitle = req.query.swimlaneTitle;
+
+  const kanban = await client
+    .db('kanban')
+    .collection('users')
+    .find({ username: 'admin' })
+    .toArray();
+
+  if (kanban.length > 0) {
+    const swimlanes = [
+      'backlog',
+      'rdy 2 start',
+      'in progress',
+      'blocked',
+      'done',
+    ];
+
+    const selectedSwimlane = swimlanes.find((lane) => lane === swimlaneTitle);
+
+    if (selectedSwimlane) {
+      const allTickets = kanban[0].boards.reduce((acc, board) => {
+        const ticketsInSwimlane = board.tickets.filter(
+          (ticket) => ticket.swimlaneTitle === selectedSwimlane
+        );
+
+        ticketsInSwimlane.sort((a, b) => a.index - b.index);
+
+        acc.push(...ticketsInSwimlane);
+        return acc;
+      }, []);
+
+      const first10Tickets = allTickets.slice(0, 10);
+
+      return first10Tickets;
+    }
+  }
+
+  return [];
+};
+
+getBoardsOnlyTen = async () => {
+  const kanban = await client
+    .db('kanban')
+    .collection('users')
+    .find({ username: 'admin' })
+    .toArray();
+
+  if (kanban.length > 0) {
+    const boards = kanban[0].boards;
+
+    for (const board of boards) {
+      const swimlanes = [
+        'backlog',
+        'rdy 2 start',
+        'in progress',
+        'blocked',
+        'done',
+      ];
+
+      for (const swimlane of swimlanes) {
+        const ticketsInSwimlane = board.tickets.filter(
+          (ticket) => ticket.swimlaneTitle === swimlane
+        );
+
+        ticketsInSwimlane.sort((a, b) => a.index - b.index);
+
+        const first10Tickets = ticketsInSwimlane.slice(0, 10);
+
+        board.tickets = board.tickets.filter(
+          (ticket) => ticket.swimlaneTitle !== swimlane
+        );
+        board.tickets.push(...first10Tickets);
+      }
+    }
+
+    return boards;
+  }
+
+  return [];
+};
+
 getBoards = async () => {
   const kanban = await client
     .db('kanban')
@@ -47,6 +292,14 @@ getBoards = async () => {
   return [];
 };
 
+app.get('/getMaxPagesForSwimlane', async (req, res) => {
+  try {
+    return res.json(await getMaxPagesForSwimlane(req));
+  } catch (err) {
+    return res.status(500).send(err);
+  }
+});
+
 app.get('/getBoards', async (req, res) => {
   try {
     return res.json(await getBoards());
@@ -55,7 +308,31 @@ app.get('/getBoards', async (req, res) => {
   }
 });
 
-app.post('/setBoards', async function (req, res) {
+app.get('/getBoardsOnlyTen', async (req, res) => {
+  try {
+    return res.json(await getBoardsOnlyTen());
+  } catch (err) {
+    return res.status(500).send(err);
+  }
+});
+
+app.get('/getBoardsPaginated', async (req, res) => {
+  try {
+    return res.json(await getBoardsPaginated(req));
+  } catch (err) {
+    return res.status(500).send(err);
+  }
+});
+
+app.get('/getSwimlaneTicketsAtFirstPage', async (req, res) => {
+  try {
+    return res.json(await getSwimlaneTicketsAtFirstPage(req));
+  } catch (err) {
+    return res.status(500).send(err);
+  }
+});
+
+setBoards = async (boards) => {
   try {
     const collection = await client.db('kanban').collection('users');
     const query = {
@@ -66,11 +343,19 @@ app.post('/setBoards', async function (req, res) {
       query,
       {
         $set: {
-          boards: req.body.boards,
+          boards,
         },
       },
       options
     );
+  } catch (err) {
+    throw err;
+  }
+};
+
+app.post('/setBoards', async function (req, res) {
+  try {
+    await setBoards(req.body.boards);
     return res.status(200).send({ status: 'OK' });
   } catch (err) {
     return res.status(500).send(err);
@@ -81,7 +366,10 @@ app.post('/updateTicketSwimlane', async function (req, res) {
   try {
     const ticketId = req.body.ticketNumber;
     const newSwimlaneTitle = req.body.title;
+    const previousSwimlaneTitle = req.body.previousSwimlaneTitle;
     const newIndex = req.body.currentIndex;
+    const previousIndex = req.body.previousIndex;
+    const lanePageNumber = req.body.lanePageNumber;
 
     const collection = await client.db('kanban').collection('users');
 
@@ -99,6 +387,7 @@ app.post('/updateTicketSwimlane', async function (req, res) {
           { 'board.tickets.ticketNumber': ticketId },
           { 'ticket.ticketNumber': ticketId },
         ],
+        returnOriginal: false,
       }
     );
 
@@ -110,46 +399,68 @@ app.post('/updateTicketSwimlane', async function (req, res) {
         .send({ error: 'Board not found containing the ticket' });
     }
 
-    // Find the dragged ticket
-    const draggedTicket = updatedBoard.boards[0].tickets.find(
+    const currentBoard = updatedBoard.boards.find(
+      (board) => board.isCurrentBoard
+    );
+
+    if (!currentBoard) {
+      return res.status(404).send({ error: 'Current board not found' });
+    }
+
+    const PAGE_SIZE = 10;
+    const currentPage = parseInt(lanePageNumber);
+    const indexOnPage = newIndex % PAGE_SIZE;
+    let newIndexInSwimlane = indexOnPage;
+    if (currentPage > 1) {
+      newIndexInSwimlane = newIndexInSwimlane + (currentPage - 1) * PAGE_SIZE;
+    }
+
+    const draggedTicketIndex = currentBoard.tickets.findIndex(
       (ticket) => ticket.ticketNumber === ticketId
     );
 
-    if (!draggedTicket) {
+    if (draggedTicketIndex === -1) {
       return res.status(404).send({ error: 'Dragged ticket not found' });
     }
 
-    // Copy the array of tickets to work with
-    const updatedTickets = [...updatedBoard.boards[0].tickets];
-
-    // Remove the dragged ticket from its original position
-    const draggedTicketIndex = updatedTickets.findIndex(
-      (ticket) => ticket.ticketNumber === ticketId
-    );
+    const updatedTickets = [...currentBoard.tickets];
 
     const [draggedTicketObject] = updatedTickets.splice(draggedTicketIndex, 1);
 
-    // Reinsert the dragged ticket at the desired index
-    updatedTickets.splice(newIndex, 0, {
+    updatedTickets.splice(newIndexInSwimlane, 0, {
       ...draggedTicketObject,
-      index: newIndex,
+      index: newIndexInSwimlane,
       swimlaneTitle: newSwimlaneTitle,
     });
 
-    // Update the board with the reordered ticket list
-    updatedTickets.forEach((ticket, index) => {
-      const ticketIndex = updatedTickets.findIndex(
-        (t) => t.ticketNumber === ticket.ticketNumber
-      );
-      updatedTickets[ticketIndex].index = index;
+    // update the indices for the rest of the tickets in the swimlane
+    updatedTickets.forEach((ticket) => {
+      if (
+        ticket.index >= newIndexInSwimlane &&
+        ticket.swimlaneTitle === newSwimlaneTitle &&
+        ticket.ticketNumber !== draggedTicketObject.ticketNumber
+      ) {
+        ticket.index = ticket.index + 1;
+      }
+      if (
+        ticket.index >= previousIndex &&
+        ticket.swimlaneTitle === previousSwimlaneTitle &&
+        ticket.ticketNumber !== draggedTicketObject.ticketNumber
+      ) {
+        ticket.index = ticket.index - 1;
+      }
     });
 
-    // Update the collection with the modified board
-    updatedBoard.boards[0].tickets = updatedTickets;
+    updatedTickets.sort((a, b) => a.index - b.index);
+
+    currentBoard.tickets = updatedTickets;
 
     await collection.updateOne(
       { _id: updatedBoard._id },
-      { $set: { boards: updatedBoard.boards } }
+      { $set: { 'boards.$[board].tickets': updatedTickets } },
+      {
+        arrayFilters: [{ 'board.isCurrentBoard': true }],
+      }
     );
 
     return res.status(200).send({ status: 'OK' });

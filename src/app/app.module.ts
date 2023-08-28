@@ -30,6 +30,7 @@ import { MatInputModule } from '@angular/material/input';
 import { FiltersListComponent } from './filters-list/filters-list.component';
 import { HttpClientModule } from '@angular/common/http';
 import { DeleteModalComponent } from './delete-modal/delete-modal.component';
+import { PaginatorComponent } from './paginator/paginator.component';
 @NgModule({
   imports: [
     CommonModule,
@@ -62,6 +63,7 @@ import { DeleteModalComponent } from './delete-modal/delete-modal.component';
     BoardsListComponent,
     FiltersListComponent,
     DeleteModalComponent,
+    PaginatorComponent,
   ],
   providers: [BoardService, BoardStore, TicketStore],
   bootstrap: [AppComponent],

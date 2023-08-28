@@ -20,3 +20,9 @@
     ></app-mini-card>
   </div>
 </div>
+
+<app-paginator
+  title="rdy 2 start"
+  [pageNumber]="pageNumber$ | async"
+  [totalPages]="rdy2StartLaneMaxPages$ | async"
+></app-paginator>
