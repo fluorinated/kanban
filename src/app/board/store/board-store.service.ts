@@ -22,7 +22,6 @@ import {
   getFormattedDate,
 } from 'src/app/utils/board.utils';
 import { BoardService } from '../board.service';
-import { v4 as uuidv4 } from 'uuid';
 import { CdkDragDrop } from '@angular/cdk/drag-drop';
 
 export interface BoardStoreState {
@@ -839,9 +838,8 @@ export class BoardStore extends ComponentStore<BoardStoreState> {
     (addNewBoardToBoardsUpdate$: Observable<void>) =>
       addNewBoardToBoardsUpdate$.pipe(
         tap(() => this.setAllBoardsCurrentBoardToFalse()),
-        withLatestFrom(this.boards$),
-        switchMap(([, boards]) => {
-          return this.boardService.addNewBoardToBoards(boards).pipe(
+        switchMap(() => {
+          return this.boardService.addNewBoardToBoards().pipe(
             tapResponse(
               (res) => {
                 this.updateBoards();
@@ -1486,7 +1484,6 @@ export class BoardStore extends ComponentStore<BoardStoreState> {
           });
 
           return this.boardService.setBoards(updatedBoards).pipe(
-            switchMap(() => this.boardService.getBoards()),
             tap(() => this.updateBoards()),
             catchError((error) => {
               console.log('err saveUpdatedCurrentTicketField:', error);

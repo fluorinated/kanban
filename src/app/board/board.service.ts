@@ -77,9 +77,8 @@ export class BoardService {
     );
   }
 
-  addNewBoardToBoards(boards?: any): Observable<any> {
-    const body = JSON.stringify(boards);
-    return this.http.post(`${baseUrl}/addNewBoardToBoards`, body);
+  addNewBoardToBoards(): Observable<any> {
+    return this.http.post(`${baseUrl}/addNewBoardToBoards`, this.httpOptions);
   }
 
   updateCurrentBoardTitle(title?: string, _id?: string): Observable<any> {
