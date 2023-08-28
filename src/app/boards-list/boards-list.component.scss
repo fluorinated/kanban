@@ -5,6 +5,8 @@
   box-shadow: 2px 2px 5px 0 var(--neutral-3), -2px -2px 5px 0 var(--neutral-5);
   border-radius: 0.25rem;
   border-color: transparent;
+  max-height: 94vh;
+  overflow: scroll;
 }
 
 .close-btn {
