@@ -1,6 +1,6 @@
 import { CdkDragDrop } from '@angular/cdk/drag-drop';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
-import { Ticket } from '../models/ticket.model';
+import { Ticket } from '@models/ticket.model';
 import { BoardStore } from '../board/store/board-store.service';
 import { Observable } from 'rxjs';
 

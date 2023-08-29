@@ -1,4 +1,4 @@
-import { Ticket } from '../models/ticket.model';
+import { Ticket } from '@models/ticket.model';
 import * as moment from 'moment';
 
 export const sortTickets = (tickets: Ticket[]) =>

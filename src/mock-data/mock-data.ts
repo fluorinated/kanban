@@ -1,5 +1,5 @@
-import { Board } from 'src/app/models/board.model';
-import { Ticket } from 'src/app/models/ticket.model';
+import { Board } from '@models/board.model';
+import { Ticket } from '@models/ticket.model';
 
 export const mockTickets: Ticket[] = [
   {
@@ -118,7 +118,7 @@ export const mockBoard: Board = {
   index: 0,
   collapsedLanes: ['blocked'],
   isCurrentBoard: false,
-  _id: '1'
+  _id: '1',
 };
 
 export const mockBoardTwo: Board = {
@@ -129,5 +129,5 @@ export const mockBoardTwo: Board = {
   index: 1,
   collapsedLanes: ['rdy 2 start'],
   isCurrentBoard: true,
-  _id: '2'
+  _id: '2',
 };

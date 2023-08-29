@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
-import { Ticket } from '../models/ticket.model';
-import { Board } from '../models/board.model';
+import { Ticket } from '@models/ticket.model';
+import { Board } from '@models/board.model';
 import { BoardStore } from './store/board-store.service';
 import { Observable } from 'rxjs';
 

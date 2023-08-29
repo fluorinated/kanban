@@ -1,7 +1,7 @@
 import { Observable } from 'rxjs';
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 
-import { Ticket } from '../models/ticket.model';
+import { Ticket } from '@models/ticket.model';
 import { BoardStore } from '../board/store/board-store.service';
 import { TicketStore } from './store/ticket-store.service';
 

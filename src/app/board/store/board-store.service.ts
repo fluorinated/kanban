@@ -1,4 +1,4 @@
-import { Ticket } from '../../models/ticket.model';
+import { Ticket } from '@models/ticket.model';
 import { Injectable } from '@angular/core';
 import { ComponentStore, tapResponse } from '@ngrx/component-store';
 import { EMPTY, Observable, forkJoin, throwError } from 'rxjs';
@@ -10,7 +10,7 @@ import {
   tap,
   withLatestFrom,
 } from 'rxjs/operators';
-import { Board } from 'src/app/models/board.model';
+import { Board } from '@models/board.model';
 import { TicketStore } from 'src/app/ticket/store/ticket-store.service';
 import {
   dueTodayTickets,
@@ -20,7 +20,7 @@ import {
   filterTicketsByMatchingActiveTags,
   sortTickets,
   getFormattedDate,
-} from 'src/app/utils/board.utils';
+} from '@utils/board.utils';
 import { BoardService } from '../board.service';
 import { CdkDragDrop } from '@angular/cdk/drag-drop';
 

@@ -1,6 +1,6 @@
 import { Component, Input, OnInit } from '@angular/core';
 
-import { Ticket } from '../models/ticket.model';
+import { Ticket } from '@models/ticket.model';
 import { BoardStore } from '../board/store/board-store.service';
 
 @Component({
