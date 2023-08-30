@@ -677,6 +677,43 @@ export class BoardStore extends ComponentStore<BoardStoreState> {
     })
   );
 
+  readonly updateCurrentBoardSwimlaneTickets = this.updater(
+    (
+      state: BoardStoreState,
+      payload: {
+        newTicket: Ticket;
+        swimlaneTitle: string;
+        updatedTickets: Ticket[];
+      }
+    ) => {
+      const updatedBoards = state.boards.map((board) => {
+        if (board.isCurrentBoard) {
+          const updatedTickets = board.tickets.map((ticket) =>
+            ticket.swimlaneTitle === payload.swimlaneTitle
+              ? {
+                  ...ticket,
+                  ...payload.updatedTickets.find(
+                    (updatedTicket) =>
+                      updatedTicket.ticketNumber === ticket.ticketNumber
+                  ),
+                }
+              : ticket
+          );
+          updatedTickets.push(payload.newTicket);
+          return {
+            ...board,
+            tickets: updatedTickets,
+          };
+        }
+        return board;
+      });
+      return {
+        ...state,
+        boards: updatedBoards,
+      };
+    }
+  );
+
   readonly getLaneMaxPagesUpdate = this.effect(
     (getLaneMaxPagesUpdate$: Observable<void>) => {
       return getLaneMaxPagesUpdate$.pipe(
@@ -775,7 +812,7 @@ export class BoardStore extends ComponentStore<BoardStoreState> {
             tap(() => this.updateBoards()),
             catchError((error: string) => {
               console.log('err addTagToCurrentTicketSave', error);
-              return EMPTY;
+              return throwError(error);
             })
           );
         })
@@ -808,7 +845,7 @@ export class BoardStore extends ComponentStore<BoardStoreState> {
             tap(() => this.updateBoards()),
             catchError((error: string) => {
               console.log('err removeTagFromCurrentTicketSave', error);
-              return EMPTY;
+              return throwError(error);
             })
           );
         })
@@ -823,10 +860,10 @@ export class BoardStore extends ComponentStore<BoardStoreState> {
         withLatestFrom(this.boards$),
         switchMap(([, boards]) => {
           return this.boardService.setBoards(boards).pipe(
-            tap((res) => this.updateBoards(res)),
-            catchError((error) => {
+            tap(() => this.updateBoards()),
+            catchError((error: string) => {
               console.log('err addNewTagToCurrentBoardTags', error);
-              return EMPTY;
+              return throwError(error);
             })
           );
         }),
@@ -840,14 +877,11 @@ export class BoardStore extends ComponentStore<BoardStoreState> {
         tap(() => this.setAllBoardsCurrentBoardToFalse()),
         switchMap(() => {
           return this.boardService.addNewBoardToBoards().pipe(
-            tapResponse(
-              (res) => {
-                this.updateBoards();
-                return res;
-              },
-              (error: string) =>
-                console.log('err addNewBoardToBoardsUpdate', error)
-            )
+            tap(() => this.updateBoards()),
+            catchError((error: string) => {
+              console.log('err addNewBoardToBoardsUpdate', error);
+              return throwError(error);
+            })
           );
         })
       )
@@ -885,16 +919,15 @@ export class BoardStore extends ComponentStore<BoardStoreState> {
         withLatestFrom(this.boards$),
         switchMap(([, boards]) => {
           return this.boardService.deleteCurrentBoard().pipe(
-            tapResponse(
-              (res) => {
-                if (boards[0]) {
-                  this.changeCurrentBoard(boards[0]);
-                }
-                return res;
-              },
-              (error: string) =>
-                console.log('err deleteCurrentBoardUpdate', error)
-            )
+            tap(() => {
+              if (boards[0]) {
+                this.changeCurrentBoard(boards[0]);
+              }
+            }),
+            catchError((error: string) => {
+              console.log('err deleteCurrentBoardUpdate', error);
+              return throwError(error);
+            })
           );
         })
       )
@@ -908,15 +941,15 @@ export class BoardStore extends ComponentStore<BoardStoreState> {
         tap(([board]) => this.deleteBoard(board)),
         switchMap(([board, , boards]) => {
           return this.boardService.deleteBoard(board._id).pipe(
-            tapResponse(
-              (res) => {
-                if (boards[0]) {
-                  this.changeCurrentBoard(boards[0]);
-                }
-                return res;
-              },
-              (error: string) => console.log('err deleteBoardUpdate', error)
-            )
+            tap(() => {
+              if (boards[0]) {
+                this.changeCurrentBoard(boards[0]);
+              }
+            }),
+            catchError((error: string) => {
+              console.log('err deleteBoardUpdate', error);
+              return throwError(error);
+            })
           );
         })
       )
@@ -928,12 +961,10 @@ export class BoardStore extends ComponentStore<BoardStoreState> {
         tap((tag) => this.deleteCurrentBoardTag(tag)),
         switchMap((tag) => {
           return this.boardService.deleteCurrentBoardTag(tag).pipe(
-            tapResponse(
-              (res) => {
-                return res;
-              },
-              (error: string) => console.log('err deleteCurrentBoardTag', error)
-            )
+            catchError((error: string) => {
+              console.log('err deleteCurrentBoardTagUpdate', error);
+              return throwError(error);
+            })
           );
         })
       )
@@ -945,13 +976,11 @@ export class BoardStore extends ComponentStore<BoardStoreState> {
         tap((ticket) => this.deleteTicket(ticket)),
         switchMap((ticket) => {
           return this.boardService.deleteTicket(ticket.ticketNumber).pipe(
-            tapResponse(
-              (res) => {
-                this.setIsTicketOpen(false);
-                return res;
-              },
-              (error: string) => console.log('err deleteTicketUpdate', error)
-            )
+            tap(() => this.setIsTicketOpen(false)),
+            catchError((error: string) => {
+              console.log('err deleteTicketUpdate', error);
+              return throwError(error);
+            })
           );
         })
       )
@@ -965,13 +994,10 @@ export class BoardStore extends ComponentStore<BoardStoreState> {
           return this.boardService
             .addCollapsedLaneToCurrentBoardSave(lane)
             .pipe(
-              tapResponse(
-                (res) => {
-                  return res;
-                },
-                (error: string) =>
-                  console.log('err addCollapsedLaneToCurrentBoardSave', error)
-              )
+              catchError((error: string) => {
+                console.log('err addCollapsedLaneToCurrentBoardSave', error);
+                return throwError(error);
+              })
             );
         })
       )
@@ -985,16 +1011,13 @@ export class BoardStore extends ComponentStore<BoardStoreState> {
           return this.boardService
             .removeCollapsedLaneFromCurrentBoardSave(lane)
             .pipe(
-              tapResponse(
-                (res) => {
-                  return res;
-                },
-                (error: string) =>
-                  console.log(
-                    'err removeCollapsedLaneFromCurrentBoardSave',
-                    error
-                  )
-              )
+              catchError((error: string) => {
+                console.log(
+                  'err removeCollapsedLaneFromCurrentBoardSave',
+                  error
+                );
+                return throwError(error);
+              })
             );
         })
       )
@@ -1011,13 +1034,11 @@ export class BoardStore extends ComponentStore<BoardStoreState> {
           return this.boardService
             .updateCurrentBoardTitle(title, currentBoard._id)
             .pipe(
-              tapResponse(
-                (res) => {
-                  this.updateBoards(res);
-                },
-                (error: string) =>
-                  console.log('err updateCurrentBoardTitle', error)
-              )
+              tap((res) => this.updateBoards(res)),
+              catchError((error: string) => {
+                console.log('err updateCurrentBoardTitle', error);
+                return throwError(error);
+              })
             );
         }),
         tap(() => this.setIsEditingCurrentBoardTitle(false))
@@ -1056,7 +1077,7 @@ export class BoardStore extends ComponentStore<BoardStoreState> {
           return this.boardService.setBoards(updatedBoards).pipe(
             tap(() => this.setBoards(updatedBoards)),
             catchError((error) => {
-              console.log('err setAllBoardsCurrentBoardToFalse:', error);
+              console.log('err setAllBoardsCurrentBoardToFalse', error);
               return throwError(error);
             })
           );
@@ -1077,49 +1098,12 @@ export class BoardStore extends ComponentStore<BoardStoreState> {
           return this.boardService.setBoards(updatedBoards).pipe(
             tap(() => this.setBoards(updatedBoards)),
             catchError((error) => {
-              console.log('err changeCurrentBoard:', error);
+              console.log('err changeCurrentBoard', error);
               return throwError(error);
             })
           );
         })
       )
-  );
-
-  readonly updateCurrentBoardSwimlaneTickets = this.updater(
-    (
-      state: BoardStoreState,
-      payload: {
-        newTicket: Ticket;
-        swimlaneTitle: string;
-        updatedTickets: Ticket[];
-      }
-    ) => {
-      const updatedBoards = state.boards.map((board) => {
-        if (board.isCurrentBoard) {
-          const updatedTickets = board.tickets.map((ticket) =>
-            ticket.swimlaneTitle === payload.swimlaneTitle
-              ? {
-                  ...ticket,
-                  ...payload.updatedTickets.find(
-                    (updatedTicket) =>
-                      updatedTicket.ticketNumber === ticket.ticketNumber
-                  ),
-                }
-              : ticket
-          );
-          updatedTickets.push(payload.newTicket);
-          return {
-            ...board,
-            tickets: updatedTickets,
-          };
-        }
-        return board;
-      });
-      return {
-        ...state,
-        boards: updatedBoards,
-      };
-    }
   );
 
   readonly addNewTicketToBoard = this.effect(
@@ -1221,7 +1205,7 @@ export class BoardStore extends ComponentStore<BoardStoreState> {
                       return this.updateCurrentBoardSwimlaneTickets(payload);
                     }),
                     catchError((error) => {
-                      console.log('err addNewTicketToBoard:', error);
+                      console.log('err addNewTicketToBoardInner', error);
                       return throwError(error);
                     })
                   );
@@ -1230,7 +1214,7 @@ export class BoardStore extends ComponentStore<BoardStoreState> {
           }
         ),
         catchError((error) => {
-          console.log('err addNewTicketToBoard:', error);
+          console.log('err addNewTicketToBoardOuter', error);
           return throwError(error);
         })
       )
@@ -1309,9 +1293,8 @@ export class BoardStore extends ComponentStore<BoardStoreState> {
                 lanePageNumber
               )
               .pipe(
-                map(() => event),
                 catchError((error) => {
-                  console.log('err dropUpdateTicketSwimlane:', error);
+                  console.log('err dropUpdateTicketSwimlane', error);
                   return throwError(error);
                 })
               );
@@ -1382,7 +1365,7 @@ export class BoardStore extends ComponentStore<BoardStoreState> {
                 });
               }),
               catchError((error) => {
-                console.error('err pageBack:', error);
+                console.error('err pageBack', error);
                 return throwError(error);
               })
             );
@@ -1448,7 +1431,7 @@ export class BoardStore extends ComponentStore<BoardStoreState> {
                 });
               }),
               catchError((error) => {
-                console.error('err pageForward:', error);
+                console.error('err pageForward', error);
                 return throwError(error);
               })
             );
@@ -1486,7 +1469,7 @@ export class BoardStore extends ComponentStore<BoardStoreState> {
           return this.boardService.setBoards(updatedBoards).pipe(
             tap(() => this.updateBoards()),
             catchError((error) => {
-              console.log('err saveUpdatedCurrentTicketField:', error);
+              console.log('err saveUpdatedCurrentTicketField', error);
               return throwError(error);
             })
           );
