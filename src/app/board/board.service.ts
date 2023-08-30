@@ -37,44 +37,8 @@ export class BoardService {
     return this.http.get<any>(`${baseUrl}/getBoardsOnlyTen`);
   }
 
-  getSwimlaneTicketsAtFirstPage(swimlaneTitle: string): Observable<any> {
-    return this.http.get<any>(
-      `${baseUrl}/getSwimlaneTicketsAtFirstPage?swimlaneTitle=${swimlaneTitle}`
-    );
-  }
-
-  getMaxPagesForSwimlane(swimlaneTitle: string): Observable<any> {
-    return this.http.get<any>(
-      `${baseUrl}/getMaxPagesForSwimlane?swimlaneTitle=${swimlaneTitle}`
-    );
-  }
-
   getBoards(): Observable<Board[]> {
     return this.http.get<Board[]>(`${baseUrl}/getBoards`);
-  }
-
-  getCurrentBoardSwimlaneTicketsPaginated(
-    pageNumber: string,
-    swimlaneTitle: string
-  ): Observable<any> {
-    return this.http.get<any>(
-      `${baseUrl}/getCurrentBoardSwimlaneTicketsPaginated?pageNumber=${pageNumber}&swimlaneTitle=${swimlaneTitle}`
-    );
-  }
-
-  addTicketToCurrentBoard(newTicket: Ticket): Observable<any> {
-    const body = JSON.stringify(newTicket);
-    return this.http.post(
-      `${baseUrl}/addTicketToCurrentBoard`,
-      body,
-      this.httpOptions
-    );
-  }
-
-  getNextTicketNumber(boardId?: string): Observable<any> {
-    return this.http.get<any>(
-      `${baseUrl}/getNextTicketNumber?boardId=${boardId}`
-    );
   }
 
   addNewBoardToBoards(): Observable<any> {
@@ -85,28 +49,6 @@ export class BoardService {
     return this.http.post(
       `${baseUrl}/updateCurrentBoardTitle`,
       JSON.stringify({ title, _id }),
-      this.httpOptions
-    );
-  }
-
-  updateTicketSwimlane(
-    title?: string,
-    ticketNumber?: string,
-    currentIndex?: number,
-    previousIndex?: number,
-    previousSwimlaneTitle?: string,
-    lanePageNumber?: string
-  ): Observable<any> {
-    return this.http.post(
-      `${baseUrl}/updateTicketSwimlane`,
-      JSON.stringify({
-        title,
-        ticketNumber,
-        currentIndex,
-        previousIndex,
-        previousSwimlaneTitle,
-        lanePageNumber,
-      }),
       this.httpOptions
     );
   }
@@ -155,22 +97,5 @@ export class BoardService {
       JSON.stringify({ lane }),
       this.httpOptions
     );
-  }
-
-  public drop(event: CdkDragDrop<string[]>) {
-    if (event.previousContainer === event.container) {
-      moveItemInArray(
-        event.container.data,
-        event.previousIndex,
-        event.currentIndex
-      );
-    } else {
-      transferArrayItem(
-        event.previousContainer.data,
-        event.container.data,
-        event.previousIndex,
-        event.currentIndex
-      );
-    }
   }
 }

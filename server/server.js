@@ -498,68 +498,6 @@ app.post('/updateCurrentBoardTitle', async function (req, res) {
   }
 });
 
-async function getNextTicketNumber(boardId) {
-  const collection = await client.db('kanban').collection('users');
-
-  const query = {
-    '_id': boardId,
-    'boards.tickets.ticketNumber': { $regex: /^MD-\d+$/ },
-  };
-  const projection = { 'boards.$': 1 }; // select the first matching board where _id matches
-
-  const result = await collection.findOne(query, projection);
-
-  let nextTicketNumber = 1;
-
-  if (result && result.boards && result.boards.length > 0) {
-    const currentBoard = result.boards[0];
-
-    // calc the highest ticket number in the current board's tickets
-    let highestTicketNumber = 0;
-
-    for (const ticket of currentBoard.tickets) {
-      const ticketNumber = parseInt(ticket.ticketNumber.split('-')[1]);
-      if (!isNaN(ticketNumber) && ticketNumber > highestTicketNumber) {
-        highestTicketNumber = ticketNumber;
-      }
-    }
-
-    nextTicketNumber = highestTicketNumber + 1;
-  }
-
-  const formattedTicketNumber = `MD-${nextTicketNumber}`;
-
-  return formattedTicketNumber;
-}
-
-app.get('/getNextTicketNumber', async (req, res) => {
-  try {
-    const boardId = req.query.boardId;
-    const nextTicketNumber = await getNextTicketNumber(boardId);
-    return res.status(200).json(nextTicketNumber);
-  } catch (err) {
-    return res.status(500).send(err);
-  }
-});
-
-const getFormattedDate = (date) => {
-  const daysOfWeek = [
-    'Sunday',
-    'Monday',
-    'Tuesday',
-    'Wednesday',
-    'Thursday',
-    'Friday',
-    'Saturday',
-  ];
-  const dayOfWeek = daysOfWeek[date.getDay()];
-  const day = date.getDate();
-  const month = date.toLocaleString('default', { month: 'long' });
-  const year = date.getFullYear();
-
-  return `${dayOfWeek}, ${month} ${day}, ${year}`.toLowerCase();
-};
-
 app.post('/addNewBoardToBoards', async (req, res) => {
   try {
     const collection = await client.db('kanban').collection('users');

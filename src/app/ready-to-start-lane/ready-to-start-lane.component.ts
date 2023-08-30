@@ -1,8 +1,8 @@
 import { CdkDragDrop } from '@angular/cdk/drag-drop';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { Ticket } from '@models/ticket.model';
-import { BoardStore } from '../board/store/board-store.service';
 import { Observable } from 'rxjs';
+import { SwimlaneStore } from '../swimlane/store/swimlane-store.service';
 
 @Component({
   selector: 'app-ready-to-start-lane',
@@ -16,13 +16,13 @@ export class ReadyToStartLaneComponent {
   pageNumber$: Observable<string>;
   rdy2StartLaneMaxPages$: Observable<string>;
 
-  constructor(private boardStore: BoardStore) {
-    this.pageNumber$ = this.boardStore.rdy2StartLanePageNumber$;
-    this.rdy2StartLaneMaxPages$ = this.boardStore.rdy2StartLaneMaxPages$;
+  constructor(private swimlaneStore: SwimlaneStore) {
+    this.pageNumber$ = this.swimlaneStore.rdy2StartLanePageNumber$;
+    this.rdy2StartLaneMaxPages$ = this.swimlaneStore.rdy2StartLaneMaxPages$;
   }
 
   drop(event: CdkDragDrop<string[]>) {
-    this.boardStore.dropUpdateTicketSwimlane(event);
+    this.swimlaneStore.dropUpdateTicketSwimlane(event);
   }
 
   openTicket(ticket: Ticket): void {

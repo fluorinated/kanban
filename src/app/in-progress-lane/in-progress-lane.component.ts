@@ -1,8 +1,8 @@
 import { CdkDragDrop } from '@angular/cdk/drag-drop';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { Ticket } from '@models/ticket.model';
-import { BoardStore } from '../board/store/board-store.service';
 import { Observable } from 'rxjs';
+import { SwimlaneStore } from '../swimlane/store/swimlane-store.service';
 
 @Component({
   selector: 'app-in-progress-lane',
@@ -15,13 +15,13 @@ export class InProgressLaneComponent {
 
   pageNumber$: Observable<string>;
   inProgressLaneMaxPages$: Observable<string>;
-  constructor(private boardStore: BoardStore) {
-    this.pageNumber$ = this.boardStore.inProgressLanePageNumber$;
-    this.inProgressLaneMaxPages$ = this.boardStore.inProgressLaneMaxPages$;
+  constructor(private swimlaneStore: SwimlaneStore) {
+    this.pageNumber$ = this.swimlaneStore.inProgressLanePageNumber$;
+    this.inProgressLaneMaxPages$ = this.swimlaneStore.inProgressLaneMaxPages$;
   }
 
   drop(event: CdkDragDrop<string[]>) {
-    this.boardStore.dropUpdateTicketSwimlane(event);
+    this.swimlaneStore.dropUpdateTicketSwimlane(event);
   }
 
   openTicket(ticket: Ticket): void {

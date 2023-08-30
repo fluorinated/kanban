@@ -31,6 +31,8 @@ import { FiltersListComponent } from './filters-list/filters-list.component';
 import { HttpClientModule } from '@angular/common/http';
 import { DeleteModalComponent } from './delete-modal/delete-modal.component';
 import { PaginatorComponent } from './paginator/paginator.component';
+import { SwimlaneStore } from './swimlane/store/swimlane-store.service';
+import { SwimlaneService } from './swimlane/swimlane.service';
 @NgModule({
   imports: [
     CommonModule,
@@ -65,7 +67,13 @@ import { PaginatorComponent } from './paginator/paginator.component';
     DeleteModalComponent,
     PaginatorComponent,
   ],
-  providers: [BoardService, BoardStore, TicketStore],
+  providers: [
+    BoardService,
+    BoardStore,
+    TicketStore,
+    SwimlaneService,
+    SwimlaneStore,
+  ],
   bootstrap: [AppComponent],
 })
 export class AppModule {}

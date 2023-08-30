@@ -1,7 +1,7 @@
 import { Ticket } from '@models/ticket.model';
 import { Injectable } from '@angular/core';
 import { ComponentStore, tapResponse } from '@ngrx/component-store';
-import { EMPTY, Observable, forkJoin, throwError } from 'rxjs';
+import { Observable, throwError } from 'rxjs';
 import {
   catchError,
   filter,
@@ -19,10 +19,8 @@ import {
   filterTicketsBySearch,
   filterTicketsByMatchingActiveTags,
   sortTickets,
-  getFormattedDate,
 } from '@utils/board.utils';
 import { BoardService } from '../board.service';
-import { CdkDragDrop } from '@angular/cdk/drag-drop';
 
 export interface BoardStoreState {
   currentBoard: Board;
@@ -39,16 +37,6 @@ export interface BoardStoreState {
   hasAnsweredYesToDelete: boolean;
   isDeleteModalOpen: boolean;
   itemToDelete: string | Board | Ticket;
-  backlogLanePageNumber: string;
-  rdy2StartLanePageNumber: string;
-  blockedLanePageNumber: string;
-  inProgressLanePageNumber: string;
-  doneLanePageNumber: string;
-  backlogLaneMaxPages: string;
-  blockedLaneMaxPages: string;
-  rdy2StartLaneMaxPages: string;
-  inProgressLaneMaxPages: string;
-  doneLaneMaxPages: string;
 }
 
 @Injectable()
@@ -72,16 +60,6 @@ export class BoardStore extends ComponentStore<BoardStoreState> {
       hasAnsweredYesToDelete: false,
       isDeleteModalOpen: false,
       itemToDelete: '',
-      backlogLanePageNumber: '1',
-      rdy2StartLanePageNumber: '1',
-      blockedLanePageNumber: '1',
-      inProgressLanePageNumber: '1',
-      doneLanePageNumber: '1',
-      backlogLaneMaxPages: '1',
-      blockedLaneMaxPages: '1',
-      rdy2StartLaneMaxPages: '1',
-      inProgressLaneMaxPages: '1',
-      doneLaneMaxPages: '1',
     });
   }
 
@@ -158,46 +136,6 @@ export class BoardStore extends ComponentStore<BoardStoreState> {
 
   readonly itemToDelete$: Observable<string | Board | Ticket> = this.select(
     (state) => state.itemToDelete
-  );
-
-  readonly backlogLanePageNumber$: Observable<string> = this.select(
-    (state) => state.backlogLanePageNumber
-  );
-
-  readonly rdy2StartLanePageNumber$: Observable<string> = this.select(
-    (state) => state.rdy2StartLanePageNumber
-  );
-
-  readonly blockedLanePageNumber$: Observable<string> = this.select(
-    (state) => state.blockedLanePageNumber
-  );
-
-  readonly inProgressLanePageNumber$: Observable<string> = this.select(
-    (state) => state.inProgressLanePageNumber
-  );
-
-  readonly doneLanePageNumber$: Observable<string> = this.select(
-    (state) => state.doneLanePageNumber
-  );
-
-  readonly backlogLaneMaxPages$: Observable<string> = this.select(
-    (state) => state.backlogLaneMaxPages
-  );
-
-  readonly blockedLaneMaxPages$: Observable<string> = this.select(
-    (state) => state.blockedLaneMaxPages
-  );
-
-  readonly rdy2StartLaneMaxPages$: Observable<string> = this.select(
-    (state) => state.rdy2StartLaneMaxPages
-  );
-
-  readonly inProgressLaneMaxPages$: Observable<string> = this.select(
-    (state) => state.inProgressLaneMaxPages
-  );
-
-  readonly doneLaneMaxPages$: Observable<string> = this.select(
-    (state) => state.doneLaneMaxPages
   );
 
   readonly filteredTickets$: Observable<Ticket[]> = this.select(
@@ -330,94 +268,6 @@ export class BoardStore extends ComponentStore<BoardStoreState> {
       ...state,
       itemToDelete,
     })
-  );
-
-  readonly setLanePageNumber = this.updater(
-    (
-      state: BoardStoreState,
-      pair: { lanePageNumber: string; lane: string }
-    ) => {
-      let updatedLane = pair.lane;
-
-      switch (pair.lane) {
-        case 'rdy 2 start':
-          updatedLane = 'rdy2StartLanePageNumber';
-          break;
-        case 'backlog':
-          updatedLane = 'backlogLanePageNumber';
-          break;
-        case 'blocked':
-          updatedLane = 'blockedLanePageNumber';
-          break;
-        case 'in progress':
-          updatedLane = 'inProgressLanePageNumber';
-          break;
-        case 'done':
-          updatedLane = 'doneLanePageNumber';
-          break;
-      }
-
-      return {
-        ...state,
-        [updatedLane]: pair.lanePageNumber,
-      };
-    }
-  );
-
-  readonly setCurrentBoardSwimlaneTickets = this.updater(
-    (
-      state: BoardStoreState,
-      update: { swimlaneTitle: string; newSwimlaneTickets: Ticket[] }
-    ) => {
-      // remove swimlaneTitle's tickets from the board and add newSwimlaneTickets
-      const updatedBoards = state.boards.map((board) => {
-        if (board.isCurrentBoard && board.tickets) {
-          const updatedTickets = board.tickets.filter(
-            (ticket) => ticket.swimlaneTitle !== update.swimlaneTitle
-          );
-
-          return {
-            ...board,
-            tickets: [...updatedTickets, ...update.newSwimlaneTickets],
-          };
-        }
-        return board;
-      });
-
-      return {
-        ...state,
-        boards: updatedBoards,
-      };
-    }
-  );
-
-  readonly setLaneMaxPages = this.updater(
-    (state: BoardStoreState, pair: { maxPages: string; lane: string }) => {
-      let updatedLane = pair.lane;
-
-      switch (pair.lane) {
-        case 'rdy 2 start':
-          updatedLane = 'rdy2StartLaneMaxPages';
-          break;
-        case 'backlog':
-          updatedLane = 'backlogLaneMaxPages';
-          break;
-        case 'blocked':
-          updatedLane = 'blockedLaneMaxPages';
-          break;
-        case 'in progress':
-          updatedLane = 'inProgressLaneMaxPages';
-          break;
-        case 'done':
-          updatedLane = 'doneLaneMaxPages';
-          break;
-      }
-
-      return {
-        ...state,
-        [updatedLane]: pair.maxPages,
-      };
-    }
   );
 
   readonly updateCurrentTicketField = this.updater(
@@ -677,7 +527,34 @@ export class BoardStore extends ComponentStore<BoardStoreState> {
     })
   );
 
-  readonly updateCurrentBoardSwimlaneTickets = this.updater(
+  readonly setCurrentBoardSwimlaneTickets = this.updater(
+    (
+      state: BoardStoreState,
+      update: { swimlaneTitle: string; newSwimlaneTickets: Ticket[] }
+    ) => {
+      // remove swimlaneTitle's tickets from the board and add newSwimlaneTickets
+      const updatedBoards = state.boards.map((board) => {
+        if (board.isCurrentBoard && board.tickets) {
+          const updatedTickets = board.tickets.filter(
+            (ticket) => ticket.swimlaneTitle !== update.swimlaneTitle
+          );
+
+          return {
+            ...board,
+            tickets: [...updatedTickets, ...update.newSwimlaneTickets],
+          };
+        }
+        return board;
+      });
+
+      return {
+        ...state,
+        boards: updatedBoards,
+      };
+    }
+  );
+
+  readonly updateCurrentBoardSwimlaneTicketsWithNewTicket = this.updater(
     (
       state: BoardStoreState,
       payload: {
@@ -711,38 +588,6 @@ export class BoardStore extends ComponentStore<BoardStoreState> {
         ...state,
         boards: updatedBoards,
       };
-    }
-  );
-
-  readonly getLaneMaxPagesUpdate = this.effect(
-    (getLaneMaxPagesUpdate$: Observable<void>) => {
-      return getLaneMaxPagesUpdate$.pipe(
-        switchMap(() => {
-          const swimlaneTitles = [
-            'backlog',
-            'rdy 2 start',
-            'blocked',
-            'in progress',
-            'done',
-          ];
-
-          const maxPagesObservables = swimlaneTitles.map((lane) =>
-            this.boardService.getMaxPagesForSwimlane(lane).pipe(
-              map((maxPages) => ({
-                lane,
-                maxPages: maxPages?.maxPages.toString(),
-              }))
-            )
-          );
-
-          return forkJoin(maxPagesObservables);
-        }),
-        tap((results: { lane: string; maxPages: string }[]) => {
-          results.forEach((result) => {
-            this.setLaneMaxPages(result);
-          });
-        })
-      );
     }
   );
 
@@ -1104,340 +949,6 @@ export class BoardStore extends ComponentStore<BoardStoreState> {
           );
         })
       )
-  );
-
-  readonly addNewTicketToBoard = this.effect(
-    (addNewTicketToBoard$: Observable<string>) =>
-      addNewTicketToBoard$.pipe(
-        withLatestFrom(
-          this.backlogLanePageNumber$,
-          this.rdy2StartLanePageNumber$,
-          this.blockedLanePageNumber$,
-          this.inProgressLanePageNumber$,
-          this.doneLanePageNumber$
-        ),
-        switchMap(
-          ([
-            swimlaneTitle,
-            backlogLanePageNumber,
-            rdy2StartLanePageNumber,
-            blockedLanePageNumber,
-            inProgressLanePageNumber,
-            doneLanePageNumber,
-          ]) => {
-            return this.boardService.getBoards().pipe(
-              switchMap((boards) => {
-                let lanePageNumber;
-
-                switch (swimlaneTitle) {
-                  case 'backlog':
-                    lanePageNumber = backlogLanePageNumber;
-                    break;
-                  case 'rdy 2 start':
-                    lanePageNumber = rdy2StartLanePageNumber;
-                    break;
-                  case 'blocked':
-                    lanePageNumber = blockedLanePageNumber;
-                    break;
-                  case 'in progress':
-                    lanePageNumber = inProgressLanePageNumber;
-                    break;
-                  case 'done':
-                    lanePageNumber = doneLanePageNumber;
-                    break;
-                  default:
-                    console.log('Invalid swimlane title');
-                    return EMPTY;
-                }
-                const currentBoard = boards.find(
-                  (board) => board.isCurrentBoard
-                );
-
-                if (!currentBoard) {
-                  return EMPTY;
-                }
-
-                let highestTicketNumber = 0;
-                for (const ticket of currentBoard.tickets) {
-                  const ticketNumber = parseInt(
-                    ticket?.ticketNumber?.split('-')[1]
-                  );
-                  if (
-                    !isNaN(ticketNumber) &&
-                    ticketNumber > highestTicketNumber
-                  ) {
-                    highestTicketNumber = ticketNumber;
-                  }
-                }
-
-                const nextTicketNumber = highestTicketNumber + 1;
-                const newIndex = 0;
-
-                const newTicket: Ticket = {
-                  title: 'ticket title',
-                  ticketNumber: `MD-${nextTicketNumber}`,
-                  description: 'ticket description',
-                  tags: [],
-                  dueDate: getFormattedDate(new Date()),
-                  createdDate: getFormattedDate(new Date()),
-                  swimlaneTitle,
-                  index: newIndex,
-                };
-
-                for (let i = 1; i < lanePageNumber; i++) {
-                  this.pageBack(swimlaneTitle);
-                }
-
-                return this.boardService
-                  .addTicketToCurrentBoard(newTicket)
-                  .pipe(
-                    switchMap(() =>
-                      this.boardService.getSwimlaneTicketsAtFirstPage(
-                        swimlaneTitle
-                      )
-                    ),
-                    map((updatedSwimlaneTickets) => {
-                      const payload = {
-                        newTicket,
-                        swimlaneTitle,
-                        updatedTickets: updatedSwimlaneTickets,
-                      };
-                      return this.updateCurrentBoardSwimlaneTickets(payload);
-                    }),
-                    catchError((error) => {
-                      console.log('err addNewTicketToBoardInner', error);
-                      return throwError(error);
-                    })
-                  );
-              })
-            );
-          }
-        ),
-        catchError((error) => {
-          console.log('err addNewTicketToBoardOuter', error);
-          return throwError(error);
-        })
-      )
-  );
-
-  readonly dropUpdateTicketSwimlane = this.effect(
-    (dropUpdateTicketSwimlane$: Observable<CdkDragDrop<string[]>>) =>
-      dropUpdateTicketSwimlane$.pipe(
-        tap((event) => this.boardService.drop(event)),
-        withLatestFrom(
-          this.backlogLanePageNumber$,
-          this.rdy2StartLanePageNumber$,
-          this.blockedLanePageNumber$,
-          this.inProgressLanePageNumber$,
-          this.doneLanePageNumber$
-        ),
-        switchMap(
-          ([
-            event,
-            backlogLanePageNumber,
-            rdy2StartLanePageNumber,
-            blockedLanePageNumber,
-            inProgressLanePageNumber,
-            doneLanePageNumber,
-          ]) => {
-            let title = '';
-            switch (event.container.id) {
-              case 'cdk-drop-list-0':
-                title = 'backlog';
-                break;
-              case 'cdk-drop-list-1':
-                title = 'rdy 2 start';
-                break;
-              case 'cdk-drop-list-2':
-                title = 'blocked';
-                break;
-              case 'cdk-drop-list-3':
-                title = 'in progress';
-                break;
-              case 'cdk-drop-list-4':
-                title = 'done';
-                break;
-            }
-            const ticket = event.container.data[event.currentIndex];
-
-            let lanePageNumber = '1';
-
-            switch (title) {
-              case 'backlog':
-                lanePageNumber = backlogLanePageNumber;
-                break;
-              case 'rdy 2 start':
-                lanePageNumber = rdy2StartLanePageNumber;
-                break;
-              case 'blocked':
-                lanePageNumber = blockedLanePageNumber;
-                break;
-              case 'in progress':
-                lanePageNumber = inProgressLanePageNumber;
-                break;
-              case 'done':
-                lanePageNumber = doneLanePageNumber;
-                break;
-              default:
-                console.log('Invalid swimlane title');
-                return EMPTY;
-            }
-
-            return this.boardService
-              .updateTicketSwimlane(
-                title,
-                ticket['ticketNumber'],
-                event.currentIndex,
-                event.previousIndex,
-                ticket['swimlaneTitle'],
-                lanePageNumber
-              )
-              .pipe(
-                catchError((error) => {
-                  console.log('err dropUpdateTicketSwimlane', error);
-                  return throwError(error);
-                })
-              );
-          }
-        )
-      )
-  );
-
-  readonly pageBack = this.effect((pageBack$: Observable<string>) =>
-    pageBack$.pipe(
-      withLatestFrom(
-        this.backlogLanePageNumber$,
-        this.rdy2StartLanePageNumber$,
-        this.blockedLanePageNumber$,
-        this.inProgressLanePageNumber$,
-        this.doneLanePageNumber$
-      ),
-      switchMap(
-        ([
-          swimlaneTitle,
-          backlogLanePageNumber,
-          rdy2StartLanePageNumber,
-          blockedLanePageNumber,
-          inProgressLanePageNumber,
-          doneLanePageNumber,
-        ]) => {
-          let lanePageNumber;
-
-          switch (swimlaneTitle) {
-            case 'backlog':
-              lanePageNumber = backlogLanePageNumber;
-              break;
-            case 'rdy 2 start':
-              lanePageNumber = rdy2StartLanePageNumber;
-              break;
-            case 'blocked':
-              lanePageNumber = blockedLanePageNumber;
-              break;
-            case 'in progress':
-              lanePageNumber = inProgressLanePageNumber;
-              break;
-            case 'done':
-              lanePageNumber = doneLanePageNumber;
-              break;
-            default:
-              console.log('Invalid swimlane title');
-              return EMPTY;
-          }
-
-          if (lanePageNumber === 1) {
-            console.log('No more previous pages');
-            return EMPTY;
-          }
-
-          const pageNumber = (parseInt(lanePageNumber) - 1).toString();
-
-          return this.boardService
-            .getCurrentBoardSwimlaneTicketsPaginated(pageNumber, swimlaneTitle)
-            .pipe(
-              tap((newSwimlaneTickets) => {
-                this.setCurrentBoardSwimlaneTickets({
-                  swimlaneTitle,
-                  newSwimlaneTickets,
-                });
-                this.setLanePageNumber({
-                  lanePageNumber: pageNumber,
-                  lane: swimlaneTitle,
-                });
-              }),
-              catchError((error) => {
-                console.error('err pageBack', error);
-                return throwError(error);
-              })
-            );
-        }
-      )
-    )
-  );
-
-  readonly pageForward = this.effect((pageForward$: Observable<string>) =>
-    pageForward$.pipe(
-      withLatestFrom(
-        this.backlogLanePageNumber$,
-        this.rdy2StartLanePageNumber$,
-        this.blockedLanePageNumber$,
-        this.inProgressLanePageNumber$,
-        this.doneLanePageNumber$
-      ),
-      switchMap(
-        ([
-          swimlaneTitle,
-          backlogLanePageNumber,
-          rdy2StartLanePageNumber,
-          blockedLanePageNumber,
-          inProgressLanePageNumber,
-          doneLanePageNumber,
-        ]) => {
-          let lanePageNumber;
-
-          switch (swimlaneTitle) {
-            case 'backlog':
-              lanePageNumber = backlogLanePageNumber;
-              break;
-            case 'rdy 2 start':
-              lanePageNumber = rdy2StartLanePageNumber;
-              break;
-            case 'blocked':
-              lanePageNumber = blockedLanePageNumber;
-              break;
-            case 'in progress':
-              lanePageNumber = inProgressLanePageNumber;
-              break;
-            case 'done':
-              lanePageNumber = doneLanePageNumber;
-              break;
-            default:
-              console.log('Invalid swimlane title');
-              return EMPTY;
-          }
-
-          const pageNumber = (parseInt(lanePageNumber) + 1).toString();
-
-          return this.boardService
-            .getCurrentBoardSwimlaneTicketsPaginated(pageNumber, swimlaneTitle)
-            .pipe(
-              tap((newSwimlaneTickets) => {
-                this.setCurrentBoardSwimlaneTickets({
-                  swimlaneTitle,
-                  newSwimlaneTickets,
-                });
-                this.setLanePageNumber({
-                  lanePageNumber: pageNumber,
-                  lane: swimlaneTitle,
-                });
-              }),
-              catchError((error) => {
-                console.error('err pageForward', error);
-                return throwError(error);
-              })
-            );
-        }
-      )
-    )
   );
 
   readonly saveUpdatedCurrentTicketField = this.effect(

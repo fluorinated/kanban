@@ -3,6 +3,7 @@ import { Ticket } from '@models/ticket.model';
 import { Board } from '@models/board.model';
 import { BoardStore } from './store/board-store.service';
 import { Observable } from 'rxjs';
+import { SwimlaneStore } from '../swimlane/store/swimlane-store.service';
 
 @Component({
   selector: 'app-board',
@@ -29,7 +30,10 @@ export class BoardComponent implements OnInit {
   isEditingCurrentBoardTitle$: Observable<boolean>;
   currentBoardCollapsedLanes$: Observable<string[]>;
 
-  constructor(private boardStore: BoardStore) {
+  constructor(
+    private boardStore: BoardStore,
+    private swimlaneStore: SwimlaneStore
+  ) {
     this.currentBoard$ = this.boardStore.currentBoard$;
     this.boards$ = this.boardStore.boards$;
     this.backlogTickets$ = this.boardStore.backlogTickets$;
@@ -55,12 +59,7 @@ export class BoardComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    const data = {
-      title: 'test',
-      description: 'desc test',
-      published: false,
-    };
-    this.boardStore.getLaneMaxPagesUpdate();
+    this.swimlaneStore.getLaneMaxPagesUpdate();
     this.boardStore.updateBoards();
   }
 

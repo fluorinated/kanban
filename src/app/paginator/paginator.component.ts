@@ -1,5 +1,5 @@
 import { AfterViewChecked, Component, Input } from '@angular/core';
-import { BoardStore } from '../board/store/board-store.service';
+import { SwimlaneStore } from '../swimlane/store/swimlane-store.service';
 
 @Component({
   selector: 'app-paginator',
@@ -13,7 +13,7 @@ export class PaginatorComponent implements AfterViewChecked {
   showTotalPagesCaretBefore: boolean = false;
   showTotalPagesCaretAfter: boolean = false;
 
-  constructor(private boardStore: BoardStore) {}
+  constructor(private swimlaneStore: SwimlaneStore) {}
 
   ngAfterViewChecked(): void {
     this.showTotalPagesCaretBefore = Number(this.pageNumber) > 1;
@@ -22,14 +22,14 @@ export class PaginatorComponent implements AfterViewChecked {
   }
 
   pageBack() {
-    this.boardStore.pageBack(this.title);
+    this.swimlaneStore.pageBack(this.title);
     this.showTotalPagesCaretBefore = Number(this.pageNumber) > 1;
     this.showTotalPagesCaretAfter =
       Number(this.pageNumber) < Number(this.totalPages);
   }
 
   pageForward() {
-    this.boardStore.pageForward(this.title);
+    this.swimlaneStore.pageForward(this.title);
     this.showTotalPagesCaretBefore = Number(this.pageNumber) > 1;
     this.showTotalPagesCaretAfter =
       Number(this.pageNumber) < Number(this.totalPages);

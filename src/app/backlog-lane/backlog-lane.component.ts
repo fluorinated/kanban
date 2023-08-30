@@ -1,8 +1,8 @@
 import { CdkDragDrop } from '@angular/cdk/drag-drop';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { Ticket } from '@models/ticket.model';
-import { BoardStore } from '../board/store/board-store.service';
 import { Observable } from 'rxjs';
+import { SwimlaneStore } from '../swimlane/store/swimlane-store.service';
 
 @Component({
   selector: 'app-backlog-lane',
@@ -15,13 +15,13 @@ export class BacklogLaneComponent {
 
   pageNumber$: Observable<string>;
   backlogLaneMaxPages$: Observable<string>;
-  constructor(private boardStore: BoardStore) {
-    this.pageNumber$ = this.boardStore.backlogLanePageNumber$;
-    this.backlogLaneMaxPages$ = this.boardStore.backlogLaneMaxPages$;
+  constructor(private swimlaneStore: SwimlaneStore) {
+    this.pageNumber$ = this.swimlaneStore.backlogLanePageNumber$;
+    this.backlogLaneMaxPages$ = this.swimlaneStore.backlogLaneMaxPages$;
   }
 
   drop(event: CdkDragDrop<string[]>) {
-    this.boardStore.dropUpdateTicketSwimlane(event);
+    this.swimlaneStore.dropUpdateTicketSwimlane(event);
   }
 
   openTicket(ticket: Ticket): void {

@@ -2,6 +2,7 @@ import { Component, Input, OnInit } from '@angular/core';
 
 import { Ticket } from '@models/ticket.model';
 import { BoardStore } from '../board/store/board-store.service';
+import { SwimlaneStore } from './store/swimlane-store.service';
 
 @Component({
   selector: 'app-swimlane',
@@ -13,7 +14,10 @@ export class SwimlaneComponent implements OnInit {
   @Input() tickets: Ticket[];
   @Input() currentBoardCollapsedLanes: string[];
 
-  constructor(private boardStore: BoardStore) {}
+  constructor(
+    private boardStore: BoardStore,
+    private swimlaneStore: SwimlaneStore
+  ) {}
 
   ngOnInit(): void {}
 
@@ -26,6 +30,6 @@ export class SwimlaneComponent implements OnInit {
   }
 
   addNewTicket() {
-    this.boardStore.addNewTicketToBoard(this.title);
+    this.swimlaneStore.addNewTicketToSwimlane(this.title);
   }
 }
