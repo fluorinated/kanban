@@ -11,8 +11,6 @@ import { SwimlaneStore } from '../swimlane/store/swimlane-store.service';
   styleUrls: ['./board.component.scss'],
 })
 export class BoardComponent implements OnInit {
-  swimlaneTitles = ['backlog', 'rdy 2 start', 'blocked', 'in progress', 'done'];
-
   currentBoard$: Observable<Board>;
   boards$: Observable<Board[]>;
   backlogTickets$: Observable<Ticket[]>;

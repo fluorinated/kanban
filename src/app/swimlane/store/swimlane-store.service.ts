@@ -14,6 +14,11 @@ import { getFormattedDate } from '@utils/board.utils';
 import { BoardStore } from 'src/app/board/store/board-store.service';
 import { Ticket } from '@models/ticket.model';
 import { SwimlaneService } from '../swimlane.service';
+import {
+  getLanePageNumberTitleFromLane,
+  getLanePageNumberFromLane,
+  swimlaneTitles,
+} from '@utils/swimlane.utils';
 
 export interface SwimlaneStoreState {
   backlogLanePageNumber: string;
@@ -95,25 +100,7 @@ export class SwimlaneStore extends ComponentStore<SwimlaneStoreState> {
       pair: { lanePageNumber: string; lane: string }
     ) => {
       let updatedLane = pair.lane;
-
-      switch (pair.lane) {
-        case 'rdy 2 start':
-          updatedLane = 'rdy2StartLanePageNumber';
-          break;
-        case 'backlog':
-          updatedLane = 'backlogLanePageNumber';
-          break;
-        case 'blocked':
-          updatedLane = 'blockedLanePageNumber';
-          break;
-        case 'in progress':
-          updatedLane = 'inProgressLanePageNumber';
-          break;
-        case 'done':
-          updatedLane = 'doneLanePageNumber';
-          break;
-      }
-
+      updatedLane = getLanePageNumberTitleFromLane[pair.lane];
       return {
         ...state,
         [updatedLane]: pair.lanePageNumber,
@@ -124,25 +111,14 @@ export class SwimlaneStore extends ComponentStore<SwimlaneStoreState> {
   readonly setLaneMaxPages = this.updater(
     (state: SwimlaneStoreState, pair: { maxPages: string; lane: string }) => {
       let updatedLane = pair.lane;
-
-      switch (pair.lane) {
-        case 'rdy 2 start':
-          updatedLane = 'rdy2StartLaneMaxPages';
-          break;
-        case 'backlog':
-          updatedLane = 'backlogLaneMaxPages';
-          break;
-        case 'blocked':
-          updatedLane = 'blockedLaneMaxPages';
-          break;
-        case 'in progress':
-          updatedLane = 'inProgressLaneMaxPages';
-          break;
-        case 'done':
-          updatedLane = 'doneLaneMaxPages';
-          break;
-      }
-
+      const maxLanePageNumbers = {
+        'backlog': 'backlogLaneMaxPages',
+        'rdy 2 start': 'rdy2StartLaneMaxPages',
+        'blocked': 'blockedLaneMaxPages',
+        'in progress': 'inProgressLaneMaxPages',
+        'done': 'doneLaneMaxPages',
+      };
+      updatedLane = maxLanePageNumbers[pair.lane];
       return {
         ...state,
         [updatedLane]: pair.maxPages,
@@ -154,14 +130,6 @@ export class SwimlaneStore extends ComponentStore<SwimlaneStoreState> {
     (getLaneMaxPagesUpdate$: Observable<void>) => {
       return getLaneMaxPagesUpdate$.pipe(
         switchMap(() => {
-          const swimlaneTitles = [
-            'backlog',
-            'rdy 2 start',
-            'blocked',
-            'in progress',
-            'done',
-          ];
-
           const maxPagesObservables = swimlaneTitles.map((lane) =>
             this.swimlaneService.getMaxPagesForSwimlane(lane).pipe(
               map((maxPages) => ({
@@ -202,48 +170,32 @@ export class SwimlaneStore extends ComponentStore<SwimlaneStoreState> {
             inProgressLanePageNumber,
             doneLanePageNumber,
           ]) => {
-            let title = '';
-            switch (event.container.id) {
-              case 'cdk-drop-list-0':
-                title = 'backlog';
-                break;
-              case 'cdk-drop-list-1':
-                title = 'rdy 2 start';
-                break;
-              case 'cdk-drop-list-2':
-                title = 'blocked';
-                break;
-              case 'cdk-drop-list-3':
-                title = 'in progress';
-                break;
-              case 'cdk-drop-list-4':
-                title = 'done';
-                break;
+            const getTitleFromContainerId = (containerId: string): string => {
+              const containerIdToTitleMap = {
+                'cdk-drop-list-0': 'backlog',
+                'cdk-drop-list-1': 'rdy 2 start',
+                'cdk-drop-list-2': 'blocked',
+                'cdk-drop-list-3': 'in progress',
+                'cdk-drop-list-4': 'done',
+              };
+              return containerIdToTitleMap[containerId] || '';
+            };
+            const title = getTitleFromContainerId(event.container.id);
+            if (!title) {
+              console.log('invalid swimlane title');
+              return EMPTY;
             }
+
             const ticket = event.container.data[event.currentIndex];
 
             let lanePageNumber = '1';
-
-            switch (title) {
-              case 'backlog':
-                lanePageNumber = backlogLanePageNumber;
-                break;
-              case 'rdy 2 start':
-                lanePageNumber = rdy2StartLanePageNumber;
-                break;
-              case 'blocked':
-                lanePageNumber = blockedLanePageNumber;
-                break;
-              case 'in progress':
-                lanePageNumber = inProgressLanePageNumber;
-                break;
-              case 'done':
-                lanePageNumber = doneLanePageNumber;
-                break;
-              default:
-                console.log('Invalid swimlane title');
-                return EMPTY;
-            }
+            lanePageNumber = getLanePageNumberFromLane(
+              backlogLanePageNumber,
+              rdy2StartLanePageNumber,
+              blockedLanePageNumber,
+              inProgressLanePageNumber,
+              doneLanePageNumber
+            )[title];
 
             return this.swimlaneService
               .updateTicketSwimlane(
@@ -287,27 +239,14 @@ export class SwimlaneStore extends ComponentStore<SwimlaneStoreState> {
             return this.boardService.getBoards().pipe(
               switchMap((boards) => {
                 let lanePageNumber;
+                lanePageNumber = getLanePageNumberFromLane(
+                  backlogLanePageNumber,
+                  rdy2StartLanePageNumber,
+                  blockedLanePageNumber,
+                  inProgressLanePageNumber,
+                  doneLanePageNumber
+                )[swimlaneTitle];
 
-                switch (swimlaneTitle) {
-                  case 'backlog':
-                    lanePageNumber = backlogLanePageNumber;
-                    break;
-                  case 'rdy 2 start':
-                    lanePageNumber = rdy2StartLanePageNumber;
-                    break;
-                  case 'blocked':
-                    lanePageNumber = blockedLanePageNumber;
-                    break;
-                  case 'in progress':
-                    lanePageNumber = inProgressLanePageNumber;
-                    break;
-                  case 'done':
-                    lanePageNumber = doneLanePageNumber;
-                    break;
-                  default:
-                    console.log('Invalid swimlane title');
-                    return EMPTY;
-                }
                 const currentBoard = boards.find(
                   (board) => board.isCurrentBoard
                 );
@@ -366,7 +305,10 @@ export class SwimlaneStore extends ComponentStore<SwimlaneStoreState> {
                       );
                     }),
                     catchError((error) => {
-                      console.log('err addNewTicketToBoardInner', error);
+                      console.log(
+                        'err addNewTicketToBoard addTicketToCurrentBoard',
+                        error
+                      );
                       return throwError(error);
                     })
                   );
@@ -375,7 +317,7 @@ export class SwimlaneStore extends ComponentStore<SwimlaneStoreState> {
           }
         ),
         catchError((error) => {
-          console.log('err addNewTicketToBoardOuter', error);
+          console.log('err addNewTicketToBoard getBoards', error);
           return throwError(error);
         })
       )
@@ -400,27 +342,13 @@ export class SwimlaneStore extends ComponentStore<SwimlaneStoreState> {
           doneLanePageNumber,
         ]) => {
           let lanePageNumber;
-
-          switch (swimlaneTitle) {
-            case 'backlog':
-              lanePageNumber = backlogLanePageNumber;
-              break;
-            case 'rdy 2 start':
-              lanePageNumber = rdy2StartLanePageNumber;
-              break;
-            case 'blocked':
-              lanePageNumber = blockedLanePageNumber;
-              break;
-            case 'in progress':
-              lanePageNumber = inProgressLanePageNumber;
-              break;
-            case 'done':
-              lanePageNumber = doneLanePageNumber;
-              break;
-            default:
-              console.log('Invalid swimlane title');
-              return EMPTY;
-          }
+          lanePageNumber = getLanePageNumberFromLane(
+            backlogLanePageNumber,
+            rdy2StartLanePageNumber,
+            blockedLanePageNumber,
+            inProgressLanePageNumber,
+            doneLanePageNumber
+          )[swimlaneTitle];
 
           if (lanePageNumber === 1) {
             console.log('No more previous pages');
@@ -471,27 +399,13 @@ export class SwimlaneStore extends ComponentStore<SwimlaneStoreState> {
           doneLanePageNumber,
         ]) => {
           let lanePageNumber;
-
-          switch (swimlaneTitle) {
-            case 'backlog':
-              lanePageNumber = backlogLanePageNumber;
-              break;
-            case 'rdy 2 start':
-              lanePageNumber = rdy2StartLanePageNumber;
-              break;
-            case 'blocked':
-              lanePageNumber = blockedLanePageNumber;
-              break;
-            case 'in progress':
-              lanePageNumber = inProgressLanePageNumber;
-              break;
-            case 'done':
-              lanePageNumber = doneLanePageNumber;
-              break;
-            default:
-              console.log('Invalid swimlane title');
-              return EMPTY;
-          }
+          lanePageNumber = getLanePageNumberFromLane(
+            backlogLanePageNumber,
+            rdy2StartLanePageNumber,
+            blockedLanePageNumber,
+            inProgressLanePageNumber,
+            doneLanePageNumber
+          )[swimlaneTitle];
 
           const pageNumber = (parseInt(lanePageNumber) + 1).toString();
 
