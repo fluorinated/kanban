@@ -373,25 +373,9 @@ app.post('/updateTicketSwimlane', async function (req, res) {
 
     const collection = await client.db('kanban').collection('users');
 
-    const result = await collection.findOneAndUpdate(
-      {
-        'boards.tickets.ticketNumber': ticketId,
-      },
-      {
-        $set: {
-          'boards.$[board].tickets.$[ticket].swimlaneTitle': newSwimlaneTitle,
-        },
-      },
-      {
-        arrayFilters: [
-          { 'board.tickets.ticketNumber': ticketId },
-          { 'ticket.ticketNumber': ticketId },
-        ],
-        returnOriginal: false,
-      }
-    );
-
-    const updatedBoard = result.value;
+    const updatedBoard = await collection.findOne({
+      'boards.tickets.ticketNumber': ticketId,
+    });
 
     if (!updatedBoard) {
       return res
@@ -453,15 +437,20 @@ app.post('/updateTicketSwimlane', async function (req, res) {
 
     updatedTickets.sort((a, b) => a.index - b.index);
 
-    currentBoard.tickets = updatedTickets;
+    const updateFilter = {
+      '_id': updatedBoard._id,
+      'boards.isCurrentBoard': true,
+    };
 
-    await collection.updateOne(
-      { _id: updatedBoard._id },
-      { $set: { 'boards.$[board].tickets': updatedTickets } },
-      {
-        arrayFilters: [{ 'board.isCurrentBoard': true }],
-      }
-    );
+    const updateQuery = {
+      $set: { 'boards.$[board].tickets': updatedTickets },
+    };
+
+    const updateOptions = {
+      arrayFilters: [{ 'board.isCurrentBoard': true }],
+    };
+
+    await collection.updateOne(updateFilter, updateQuery, updateOptions);
 
     return res.status(200).send({ status: 'OK' });
   } catch (err) {
