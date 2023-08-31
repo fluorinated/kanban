@@ -4,7 +4,7 @@
   [style]="{ width }"
   #tagsContainer
 >
-  <div *ngFor="let tag of tags" class="tag">
+  <div *ngFor="let tag of tags" class="tag" (click)="onTagClick($event)">
     <span #tagsList>{{ tag }}</span>
     <div *ngIf="showCloseButton" class="close-circle">
       <app-icon
@@ -12,7 +12,7 @@
         icon="faClose"
         color="neutral-5"
         size="small"
-        (click)="close(tag)"
+        (click)="close($event, tag)"
       ></app-icon>
     </div>
   </div>

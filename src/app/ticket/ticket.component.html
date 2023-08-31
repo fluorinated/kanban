@@ -50,12 +50,13 @@
       (onBlur)="saveEditField('description', $event)"
     ></app-input>
 
-    <div class="tags" (click)="toggleSaveStartEditingTags()">
+    <div class="tags">
       <app-tags
         [tags]="ticket?.tags"
         [showCloseButton]="isEditingTags$ | async"
         (closeClicked)="removeTag($event)"
         [noScroll]="true"
+        (tagClicked)="toggleSaveStartEditingTags()"
       ></app-tags>
     </div>
 

@@ -22,6 +22,7 @@ export class TagsComponent implements AfterViewInit {
   @Input() showCloseButton: boolean = false;
 
   @Output() closeClicked: EventEmitter<string> = new EventEmitter<string>();
+  @Output() tagClicked: EventEmitter<void> = new EventEmitter<void>();
 
   @ViewChildren('tagsList')
   tagsList: QueryList<ElementRef>;
@@ -48,7 +49,13 @@ export class TagsComponent implements AfterViewInit {
     });
   }
 
-  close(tag: string) {
+  close($event: Event, tag: string) {
+    $event.stopPropagation();
     this.closeClicked.emit(tag);
+  }
+
+  onTagClick($event: Event) {
+    $event.stopPropagation();
+    this.tagClicked.emit();
   }
 }
