@@ -4,11 +4,7 @@
   [style]="{ width }"
   #tagsContainer
 >
-  <div
-    *ngFor="let tag of tags"
-    class="tag"
-    [style]="{ left: (tagsMap$ | async).get(tag) }"
-  >
+  <div *ngFor="let tag of tags" class="tag">
     <span #tagsList>{{ tag }}</span>
     <div *ngIf="showCloseButton" class="close-circle">
       <app-icon

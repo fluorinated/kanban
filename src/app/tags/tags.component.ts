@@ -4,21 +4,18 @@ import {
   ElementRef,
   EventEmitter,
   Input,
-  OnInit,
   Output,
   QueryList,
   ViewChild,
   ViewChildren,
 } from '@angular/core';
-import { TicketStore } from '../ticket/store/ticket-store.service';
-import { Observable } from 'rxjs';
 
 @Component({
   selector: 'app-tags',
   templateUrl: './tags.component.html',
   styleUrls: ['./tags.component.scss'],
 })
-export class TagsComponent implements OnInit, AfterViewInit {
+export class TagsComponent implements AfterViewInit {
   @Input() tags: string[];
   @Input() noScroll: boolean = false;
   @Input() width: string;
@@ -31,14 +28,7 @@ export class TagsComponent implements OnInit, AfterViewInit {
 
   @ViewChild('tagsContainer', { static: false }) tagsContainer: ElementRef;
 
-  tagsMap = new Map();
-  tagsMap$: Observable<Map<string, string>>;
-
-  constructor(private ticketStore: TicketStore) {}
-
-  ngOnInit(): void {
-    this.tagsMap$ = this.ticketStore.getTagsMap$;
-  }
+  constructor() {}
 
   ngAfterViewInit(): void {
     this.tagsList.changes.subscribe(() => {

@@ -10,7 +10,6 @@ export interface TicketStoreState {
   isEditingTags: boolean;
   isEditingNewTag: boolean;
   newTagName: string;
-  tagsMap: Map<string, string>;
 }
 
 @Injectable()
@@ -23,7 +22,6 @@ export class TicketStore extends ComponentStore<TicketStoreState> {
       isEditingTags: false,
       isEditingNewTag: false,
       newTagName: '',
-      tagsMap: new Map(),
     });
   }
 
@@ -49,10 +47,6 @@ export class TicketStore extends ComponentStore<TicketStoreState> {
 
   readonly newTagName$: Observable<string> = this.select(
     (state) => state.newTagName
-  );
-
-  readonly getTagsMap$: Observable<Map<string, string>> = this.select(
-    (state) => state.tagsMap
   );
 
   readonly setIsEditingTitle = this.updater(
@@ -97,18 +91,11 @@ export class TicketStore extends ComponentStore<TicketStoreState> {
     })
   );
 
-  readonly setTagsMap = this.updater(
-    (state: TicketStoreState, tagsMap: Map<string, string>) => ({
-      ...state,
-      tagsMap,
-    })
-  );
-
   readonly toggleSaveStartEditingTags = this.effect(
     (toggleSaveStartEditingTags$: Observable<void>) =>
       toggleSaveStartEditingTags$.pipe(
         withLatestFrom(this.isEditingTags$),
-        tap(([, isEditingTags]: [any, boolean]) => {
+        tap(([, isEditingTags]) => {
           this.setIsEditingTags(!isEditingTags);
         }),
         tap(() => this.setIsEditingNewTag(false))
