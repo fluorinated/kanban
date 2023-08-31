@@ -13,15 +13,15 @@ export class DeleteModalComponent {
   constructor(private boardStore: BoardStore) {
     this.isDeleteModalOpen$ = this.boardStore.isDeleteModalOpen$;
   }
-  closeModal() {
+  closeModal(): void {
     this.boardStore.setIsDeleteModalOpen(false);
   }
 
-  checkClicked() {
+  checkClicked(): void {
     this.boardStore.determineDeleteItem();
   }
 
-  xClicked() {
+  xClicked(): void {
     this.boardStore.setIsDeleteModalOpen(false);
   }
 }

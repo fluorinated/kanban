@@ -9,21 +9,17 @@ import { Board } from '@models/board.model';
 export class BoardsListComponent {
   @Input() boards: Board[];
 
-  @Output() closeButtonClicked: EventEmitter<void> = new EventEmitter();
-  @Output() caretClicked: EventEmitter<Board> = new EventEmitter();
-  @Output() trashClicked: EventEmitter<Board> = new EventEmitter();
+  @Output() closeButtonClicked: EventEmitter<void> = new EventEmitter<void>();
+  @Output() caretClicked: EventEmitter<Board> = new EventEmitter<Board>();
+  @Output() trashClicked: EventEmitter<Board> = new EventEmitter<Board>();
 
-  constructor() {}
-
-  ngOnInit(): void {}
-
-  onCaretClick(board: Board) {
+  onCaretClick(board: Board): void {
     this.caretClicked.emit(board);
   }
-  onTrashClick(board: Board) {
+  onTrashClick(board: Board): void {
     this.trashClicked.emit(board);
   }
-  closeBoardsList() {
+  closeBoardsList(): void {
     this.closeButtonClicked.emit();
   }
 }

@@ -20,7 +20,7 @@ export class DoneLaneComponent {
     this.doneLaneMaxPages$ = this.swimlaneStore.doneLaneMaxPages$;
   }
 
-  drop(event: CdkDragDrop<string[]>) {
+  drop(event: CdkDragDrop<string[]>): void {
     this.swimlaneStore.dropUpdateTicketSwimlane(event);
   }
 

@@ -8,7 +8,7 @@ import { Observable } from 'rxjs';
   styleUrls: ['./filters-list.component.scss'],
 })
 export class FiltersListComponent {
-  @Output() closeButtonClicked: EventEmitter<void> = new EventEmitter();
+  @Output() closeButtonClicked: EventEmitter<void> = new EventEmitter<void>();
 
   currentBoardTags$: Observable<string[]>;
   currentBoardActiveTags$: Observable<string[]>;
@@ -18,17 +18,15 @@ export class FiltersListComponent {
     this.currentBoardActiveTags$ = this.boardStore.currentBoardActiveTags$;
   }
 
-  ngOnInit(): void {}
-
-  closeFiltersList() {
+  closeFiltersList(): void {
     this.closeButtonClicked.emit();
   }
 
-  removeTag(tag: string) {
+  removeTag(tag: string): void {
     this.boardStore.removeTagFromCurrentBoardActiveTags(tag);
   }
 
-  tagClicked(tag: string) {
+  tagClicked(tag: string): void {
     this.boardStore.addTagToCurrentBoardActiveTags(tag);
   }
 }

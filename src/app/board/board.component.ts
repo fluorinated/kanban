@@ -52,7 +52,7 @@ export class BoardComponent implements OnInit {
       this.boardStore.currentBoardCollapsedLanes$;
   }
 
-  changeCurrentBoard(board: Board) {
+  changeCurrentBoard(board: Board): void {
     this.boardStore.changeCurrentBoard(board);
   }
 
@@ -92,32 +92,32 @@ export class BoardComponent implements OnInit {
     this.boardStore.updateCurrentBoardTitle($event);
   }
 
-  editBoardTitle() {
+  editBoardTitle(): void {
     this.boardStore.setIsEditingCurrentBoardTitle(true);
   }
 
-  addNewBoardToBoards() {
+  addNewBoardToBoards(): void {
     this.boardStore.addNewBoardToBoardsUpdate();
   }
 
-  deleteBoard($event: Board) {
+  deleteBoard($event: Board): void {
     this.boardStore.setIsDeleteModalOpen(true);
     this.boardStore.setItemToDelete($event);
   }
 
-  setIsDueTodayFilterOn() {
+  setIsDueTodayFilterOn(): void {
     this.swimlaneStore.setIsDueTodayFilter();
   }
 
-  setIsDueThisWeekFilterOn() {
+  setIsDueThisWeekFilterOn(): void {
     this.swimlaneStore.setIsDueThisWeekFilter();
   }
 
-  setIsDueThisMonthFilterOn() {
+  setIsDueThisMonthFilterOn(): void {
     this.swimlaneStore.setIsDueThisMonthFilter();
   }
 
-  handleDeleteCurrentBoard() {
+  handleDeleteCurrentBoard(): void {
     this.boardStore.setIsDeleteModalOpen(true);
     this.boardStore.setItemToDelete('currentBoard');
   }

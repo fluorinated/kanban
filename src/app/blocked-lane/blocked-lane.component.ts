@@ -21,7 +21,7 @@ export class BlockedLaneComponent {
     this.blockedLaneMaxPages$ = this.swimlaneStore.blockedLaneMaxPages$;
   }
 
-  drop(event: CdkDragDrop<string[]>) {
+  drop(event: CdkDragDrop<string[]>): void {
     this.swimlaneStore.dropUpdateTicketSwimlane(event);
   }
 

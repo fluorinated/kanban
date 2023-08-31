@@ -22,11 +22,13 @@ export class InputComponent implements OnInit, OnChanges {
   @Input() value: string;
   @Input() options: string[];
   @Input() isTextarea: boolean;
+  @Input() showTextareaMarginTop: boolean;
   @Input() h2: boolean = false;
-  @Output() onKeyUp: EventEmitter<string> = new EventEmitter();
-  @Output() onBlur: EventEmitter<string> = new EventEmitter();
-  @Output() optionClicked: EventEmitter<string> = new EventEmitter();
-  @Output() deleteOptionClicked: EventEmitter<string> = new EventEmitter();
+  @Output() onKeyUp: EventEmitter<string> = new EventEmitter<string>();
+  @Output() onBlur: EventEmitter<string> = new EventEmitter<string>();
+  @Output() optionClicked: EventEmitter<string> = new EventEmitter<string>();
+  @Output() deleteOptionClicked: EventEmitter<string> =
+    new EventEmitter<string>();
   @ViewChild('input', { static: false })
   input: ElementRef;
   @ViewChild('textarea', { static: false })
@@ -36,9 +38,7 @@ export class InputComponent implements OnInit, OnChanges {
 
   form: FormGroup;
 
-  constructor() {}
-
-  ngOnInit() {
+  ngOnInit(): void {
     this.form = new FormGroup({
       control: new FormControl(''),
     });
@@ -50,7 +50,7 @@ export class InputComponent implements OnInit, OnChanges {
     }
   }
 
-  ngOnChanges() {
+  ngOnChanges(): void {
     if (this.options) {
       this.filteredOptions = this.form?.controls?.control?.valueChanges?.pipe(
         startWith(''),
@@ -67,22 +67,22 @@ export class InputComponent implements OnInit, OnChanges {
     );
   }
 
-  keyUp() {
+  keyUp(): void {
     this.onKeyUp.emit(this.input?.nativeElement?.value);
   }
 
-  blurTextarea() {
+  blurTextarea(): void {
     this.onBlur.emit(this.textarea?.nativeElement?.value);
   }
-  blurInput() {
+  blurInput(): void {
     this.onBlur.emit(this.input?.nativeElement?.value);
   }
 
-  onOptionClick($event) {
+  onOptionClick($event): void {
     this.optionClicked.emit($event);
   }
 
-  deleteOption($event) {
+  deleteOption($event): void {
     this.deleteOptionClicked.emit($event);
   }
 }

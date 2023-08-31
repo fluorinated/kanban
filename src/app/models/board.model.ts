@@ -1,4 +1,4 @@
-import { Ticket } from './ticket.model';
+import { Ticket } from '@models/ticket.model';
 
 export interface Board {
   _id: string;

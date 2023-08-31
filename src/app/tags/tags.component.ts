@@ -29,8 +29,6 @@ export class TagsComponent implements AfterViewInit {
 
   @ViewChild('tagsContainer', { static: false }) tagsContainer: ElementRef;
 
-  constructor() {}
-
   ngAfterViewInit(): void {
     this.tagsList.changes.subscribe(() => {
       this.updateTagPositions();
@@ -49,12 +47,12 @@ export class TagsComponent implements AfterViewInit {
     });
   }
 
-  close($event: Event, tag: string) {
+  close($event: Event, tag: string): void {
     $event.stopPropagation();
     this.closeClicked.emit(tag);
   }
 
-  onTagClick($event: Event) {
+  onTagClick($event: Event): void {
     $event.stopPropagation();
     this.tagClicked.emit();
   }

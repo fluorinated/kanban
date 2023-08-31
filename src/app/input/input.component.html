@@ -28,6 +28,7 @@
   *ngIf="isTextarea"
   #textarea
   [ngClass]="h2 ? 'h2' : 'regular'"
+  [ngClass]="showTextareaMarginTop ? 'textarea-margin' : ''"
   class="textarea"
   [placeholder]="placeholder"
   [value]="value"

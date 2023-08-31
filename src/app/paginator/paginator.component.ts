@@ -16,20 +16,20 @@ export class PaginatorComponent implements AfterViewChecked {
   constructor(private swimlaneStore: SwimlaneStore) {}
 
   ngAfterViewChecked(): void {
-    this.showTotalPagesCaretBefore = Number(this.pageNumber) > 1;
-    this.showTotalPagesCaretAfter =
-      Number(this.pageNumber) < Number(this.totalPages);
+    this.getUpdatedShowTotalPages();
   }
 
-  pageBack() {
+  pageBack(): void {
     this.swimlaneStore.pageBack(this.title);
-    this.showTotalPagesCaretBefore = Number(this.pageNumber) > 1;
-    this.showTotalPagesCaretAfter =
-      Number(this.pageNumber) < Number(this.totalPages);
+    this.getUpdatedShowTotalPages();
   }
 
-  pageForward() {
+  pageForward(): void {
     this.swimlaneStore.pageForward(this.title);
+    this.getUpdatedShowTotalPages();
+  }
+
+  getUpdatedShowTotalPages(): void {
     this.showTotalPagesCaretBefore = Number(this.pageNumber) > 1;
     this.showTotalPagesCaretAfter =
       Number(this.pageNumber) < Number(this.totalPages);

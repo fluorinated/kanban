@@ -21,7 +21,7 @@ export class ReadyToStartLaneComponent {
     this.rdy2StartLaneMaxPages$ = this.swimlaneStore.rdy2StartLaneMaxPages$;
   }
 
-  drop(event: CdkDragDrop<string[]>) {
+  drop(event: CdkDragDrop<string[]>): void {
     this.swimlaneStore.dropUpdateTicketSwimlane(event);
   }
 

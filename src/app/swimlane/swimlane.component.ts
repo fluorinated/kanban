@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input } from '@angular/core';
 
 import { Ticket } from '@models/ticket.model';
 import { BoardStore } from '../board/store/board-store.service';
@@ -9,7 +9,7 @@ import { SwimlaneStore } from './store/swimlane-store.service';
   templateUrl: './swimlane.component.html',
   styleUrls: ['./swimlane.component.scss'],
 })
-export class SwimlaneComponent implements OnInit {
+export class SwimlaneComponent {
   @Input() title: string;
   @Input() tickets: Ticket[];
   @Input() currentBoardCollapsedLanes: string[];
@@ -19,17 +19,15 @@ export class SwimlaneComponent implements OnInit {
     private swimlaneStore: SwimlaneStore
   ) {}
 
-  ngOnInit(): void {}
-
-  addCollapsedLaneToCurrentBoard(lane: string) {
+  addCollapsedLaneToCurrentBoard(lane: string): void {
     this.boardStore.addCollapsedLaneToCurrentBoardSave(lane);
   }
 
-  removeCollapsedLaneToCurrentBoard(lane: string) {
+  removeCollapsedLaneToCurrentBoard(lane: string): void {
     this.boardStore.removeCollapsedLaneFromCurrentBoardSave(lane);
   }
 
-  addNewTicket() {
+  addNewTicket(): void {
     this.swimlaneStore.addNewTicketToSwimlane(this.title);
   }
 }

@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input } from '@angular/core';
 import { Observable } from 'rxjs';
 import { BoardStore } from '../board/store/board-store.service';
 
@@ -7,7 +7,7 @@ import { BoardStore } from '../board/store/board-store.service';
   templateUrl: './search.component.html',
   styleUrls: ['./search.component.scss'],
 })
-export class SearchComponent implements OnInit {
+export class SearchComponent {
   @Input() placeholder: string;
 
   searchTerm$: Observable<string>;
@@ -16,9 +16,7 @@ export class SearchComponent implements OnInit {
     this.searchTerm$ = this.boardStore.searchTerm$;
   }
 
-  ngOnInit(): void {}
-
-  onKeyUp($event) {
+  onKeyUp($event): void {
     this.boardStore.setSearchTerm($event?.target?.value);
   }
 }

@@ -8,117 +8,116 @@
     </app-button>
   </div>
 
-  <div class="container">
-    <div class="ticket-number-container">
-      <p class="ticket-number">
-        <span class="ticket-number-span">{{ ticket?.ticketNumber }}</span>
-      </p>
-    </div>
-    <h2
-      class="title"
-      *ngIf="(isEditingTitle$ | async) === false"
-      (click)="startEditing('title')"
-    >
-      {{ ticket?.title }}
-    </h2>
-
-    <app-input
-      *ngIf="isEditingTitle$ | async"
-      [h2]="true"
-      class="textarea"
-      placeholder="ticket title"
-      [value]="ticket?.title"
-      [isTextarea]="true"
-      (onBlur)="saveEditField('title', $event)"
-    ></app-input>
-
-    <p
-      *ngIf="(isEditingDescription$ | async) === false"
-      class="description"
-      (click)="startEditing('description')"
-    >
-      {{ ticket?.description }}
+  <div class="ticket-number-container">
+    <p class="ticket-number">
+      <span class="ticket-number-span">{{ ticket?.ticketNumber }}</span>
     </p>
-
-    <app-input
-      *ngIf="isEditingDescription$ | async"
-      [h2]="false"
-      class="textarea"
-      placeholder="ticket description"
-      [value]="ticket?.description"
-      [isTextarea]="true"
-      (onBlur)="saveEditField('description', $event)"
-    ></app-input>
-
-    <div class="tags">
-      <app-tags
-        [tags]="ticket?.tags"
-        [showCloseButton]="isEditingTags$ | async"
-        (closeClicked)="removeTag($event)"
-        [noScroll]="true"
-        (tagClicked)="toggleSaveStartEditingTags()"
-      ></app-tags>
-    </div>
-
-    <div class="tags-input-container" *ngIf="isEditingTagsOrNoTagsYet$ | async">
-      <div class="tags-input-plus-btn">
-        <app-input
-          [h2]="false"
-          class="input"
-          placeholder="ticket tags"
-          [isTextarea]="false"
-          [options]="currentBoardTags$ | async"
-          (optionClicked)="tagClicked($event)"
-          (deleteOptionClicked)="deleteCurrentBoardTag($event)"
-        ></app-input>
-
-        <app-button
-          class="new-tag-plus-btn"
-          (buttonClicked)="startEditing('newTag')"
-        >
-          <app-icon class="icon" icon="faPlus" color="pink-1"></app-icon>
-        </app-button>
-      </div>
-
-      <div *ngIf="isEditingNewTag$ | async" class="new-tag-input-btns">
-        <app-input
-          [h2]="false"
-          class="input new-tag-input"
-          placeholder="new tag name"
-          [isTextarea]="false"
-          (onBlur)="saveEditField('newTag', $event)"
-        ></app-input>
-
-        <app-button
-          class="check-btn"
-          (buttonClicked)="saveEditField('newTag', $event)"
-        >
-          <app-icon class="icon" icon="faCheck" color="pink-1"></app-icon>
-        </app-button>
-        <app-button (buttonClicked)="cancelNewTag()">
-          <app-icon class="icon" icon="faClose" color="pink-1"></app-icon>
-        </app-button>
-      </div>
-    </div>
-
-    <p
-      *ngIf="(isEditingDueDate$ | async) === false"
-      class="due-date"
-      (click)="startEditing('dueDate')"
-    >
-      due {{ ticket?.dueDate }}
-    </p>
-
-    <app-input
-      *ngIf="isEditingDueDate$ | async"
-      [h2]="false"
-      class="textarea"
-      placeholder="ticket due date"
-      [value]="ticket?.dueDate"
-      [isTextarea]="true"
-      (onBlur)="saveEditField('dueDate', $event)"
-    ></app-input>
-
-    <p class="created-date">created {{ ticket?.createdDate }}</p>
   </div>
+  <h2
+    class="title"
+    *ngIf="(isEditingTitle$ | async) === false"
+    (click)="startEditing('title')"
+  >
+    {{ ticket?.title }}
+  </h2>
+
+  <app-input
+    *ngIf="isEditingTitle$ | async"
+    [h2]="true"
+    class="textarea"
+    placeholder="ticket title"
+    [value]="ticket?.title"
+    [isTextarea]="true"
+    (onBlur)="saveEditField('title', $event)"
+  ></app-input>
+
+  <p
+    *ngIf="(isEditingDescription$ | async) === false"
+    class="description"
+    (click)="startEditing('description')"
+  >
+    {{ ticket?.description }}
+  </p>
+
+  <app-input
+    *ngIf="isEditingDescription$ | async"
+    [h2]="false"
+    class="textarea"
+    placeholder="ticket description"
+    [value]="ticket?.description"
+    [isTextarea]="true"
+    (onBlur)="saveEditField('description', $event)"
+  ></app-input>
+
+  <div class="tags">
+    <app-tags
+      [tags]="ticket?.tags"
+      [showCloseButton]="isEditingTags$ | async"
+      (closeClicked)="removeTag($event)"
+      [noScroll]="true"
+      (tagClicked)="toggleSaveStartEditingTags()"
+    ></app-tags>
+  </div>
+
+  <div class="tags-input-container" *ngIf="isEditingTagsOrNoTagsYet$ | async">
+    <div class="tags-input-plus-btn">
+      <app-input
+        [h2]="false"
+        class="input"
+        placeholder="ticket tags"
+        [isTextarea]="false"
+        [options]="currentBoardTags$ | async"
+        (optionClicked)="tagClicked($event)"
+        (deleteOptionClicked)="deleteCurrentBoardTag($event)"
+      ></app-input>
+
+      <app-button
+        class="new-tag-plus-btn"
+        (buttonClicked)="startEditing('newTag')"
+      >
+        <app-icon class="icon" icon="faPlus" color="pink-1"></app-icon>
+      </app-button>
+    </div>
+
+    <div *ngIf="isEditingNewTag$ | async" class="new-tag-input-btns">
+      <app-input
+        [h2]="false"
+        class="input new-tag-input"
+        placeholder="new tag name"
+        [isTextarea]="false"
+        (onBlur)="saveEditField('newTag', $event)"
+      ></app-input>
+
+      <app-button
+        class="check-btn"
+        (buttonClicked)="saveEditField('newTag', $event)"
+      >
+        <app-icon class="icon" icon="faCheck" color="pink-1"></app-icon>
+      </app-button>
+      <app-button (buttonClicked)="cancelNewTag()">
+        <app-icon class="icon" icon="faClose" color="pink-1"></app-icon>
+      </app-button>
+    </div>
+  </div>
+
+  <p
+    *ngIf="(isEditingDueDate$ | async) === false"
+    class="due-date"
+    (click)="startEditing('dueDate')"
+  >
+    due {{ ticket?.dueDate }}
+  </p>
+
+  <app-input
+    *ngIf="isEditingDueDate$ | async"
+    [h2]="false"
+    class="textarea"
+    placeholder="ticket due date"
+    [value]="ticket?.dueDate"
+    [isTextarea]="true"
+    [showTextareaMarginTop]="true"
+    (onBlur)="saveEditField('dueDate', $event)"
+  ></app-input>
+
+  <p class="created-date">created {{ ticket?.createdDate }}</p>
 </div>

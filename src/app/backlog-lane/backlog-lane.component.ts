@@ -20,7 +20,7 @@ export class BacklogLaneComponent {
     this.backlogLaneMaxPages$ = this.swimlaneStore.backlogLaneMaxPages$;
   }
 
-  drop(event: CdkDragDrop<string[]>) {
+  drop(event: CdkDragDrop<string[]>): void {
     this.swimlaneStore.dropUpdateTicketSwimlane(event);
   }
 

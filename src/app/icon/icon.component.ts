@@ -53,7 +53,7 @@ export class IconComponent implements OnInit {
     ['default', 'fa-2x'],
   ]);
 
-  ngOnInit() {
+  ngOnInit(): void {
     if (!this.iconSize) {
       this.iconSize = this.sizeMap.get('default');
     }

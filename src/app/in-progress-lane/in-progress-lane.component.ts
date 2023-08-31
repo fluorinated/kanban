@@ -20,7 +20,7 @@ export class InProgressLaneComponent {
     this.inProgressLaneMaxPages$ = this.swimlaneStore.inProgressLaneMaxPages$;
   }
 
-  drop(event: CdkDragDrop<string[]>) {
+  drop(event: CdkDragDrop<string[]>): void {
     this.swimlaneStore.dropUpdateTicketSwimlane(event);
   }
 
