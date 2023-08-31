@@ -34,17 +34,17 @@ export class BoardComponent implements OnInit {
   ) {
     this.currentBoard$ = this.boardStore.currentBoard$;
     this.boards$ = this.boardStore.boards$;
-    this.backlogTickets$ = this.boardStore.backlogTickets$;
-    this.rdy2StartTickets$ = this.boardStore.rdy2StartTickets$;
-    this.blockedTickets$ = this.boardStore.blockedTickets$;
-    this.inProgressTickets$ = this.boardStore.inProgressTickets$;
-    this.doneTickets$ = this.boardStore.doneTickets$;
+    this.backlogTickets$ = this.swimlaneStore.backlogTickets$;
+    this.rdy2StartTickets$ = this.swimlaneStore.rdy2StartTickets$;
+    this.blockedTickets$ = this.swimlaneStore.blockedTickets$;
+    this.inProgressTickets$ = this.swimlaneStore.inProgressTickets$;
+    this.doneTickets$ = this.swimlaneStore.doneTickets$;
     this.isTicketOpen$ = this.boardStore.isTicketOpen$;
     this.isBoardsListOpen$ = this.boardStore.isBoardsListOpen$;
     this.isFiltersListOpen$ = this.boardStore.isFiltersListOpen$;
-    this.isDueTodayFilterOn$ = this.boardStore.isDueTodayFilterOn$;
-    this.isDueThisWeekFilterOn$ = this.boardStore.isDueThisWeekFilterOn$;
-    this.isDueThisMonthFilterOn$ = this.boardStore.isDueThisMonthFilterOn$;
+    this.isDueTodayFilterOn$ = this.swimlaneStore.isDueTodayFilterOn$;
+    this.isDueThisWeekFilterOn$ = this.swimlaneStore.isDueThisWeekFilterOn$;
+    this.isDueThisMonthFilterOn$ = this.swimlaneStore.isDueThisMonthFilterOn$;
     this.currentTicket$ = this.boardStore.currentTicket$;
     this.isEditingCurrentBoardTitle$ =
       this.boardStore.isEditingCurrentBoardTitle$;
@@ -106,15 +106,15 @@ export class BoardComponent implements OnInit {
   }
 
   setIsDueTodayFilterOn() {
-    this.boardStore.setIsDueTodayFilter();
+    this.swimlaneStore.setIsDueTodayFilter();
   }
 
   setIsDueThisWeekFilterOn() {
-    this.boardStore.setIsDueThisWeekFilter();
+    this.swimlaneStore.setIsDueThisWeekFilter();
   }
 
   setIsDueThisMonthFilterOn() {
-    this.boardStore.setIsDueThisMonthFilter();
+    this.swimlaneStore.setIsDueThisMonthFilter();
   }
 
   handleDeleteCurrentBoard() {

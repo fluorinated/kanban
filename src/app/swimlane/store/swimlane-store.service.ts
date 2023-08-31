@@ -18,6 +18,12 @@ import {
   getLanePageNumberTitleFromLane,
   getLanePageNumberFromLane,
   swimlaneTitles,
+  dueTodayTickets,
+  dueThisWeekTickets,
+  dueThisMonthTickets,
+  filterTicketsBySearch,
+  filterTicketsByMatchingActiveTags,
+  sortTickets,
 } from '@utils/swimlane.utils';
 
 export interface SwimlaneStoreState {
@@ -31,6 +37,9 @@ export interface SwimlaneStoreState {
   rdy2StartLaneMaxPages: string;
   inProgressLaneMaxPages: string;
   doneLaneMaxPages: string;
+  isDueTodayFilterOn: boolean;
+  isDueThisWeekFilterOn: boolean;
+  isDueThisMonthFilterOn: boolean;
 }
 
 @Injectable()
@@ -51,6 +60,9 @@ export class SwimlaneStore extends ComponentStore<SwimlaneStoreState> {
       rdy2StartLaneMaxPages: '1',
       inProgressLaneMaxPages: '1',
       doneLaneMaxPages: '1',
+      isDueTodayFilterOn: false,
+      isDueThisWeekFilterOn: false,
+      isDueThisMonthFilterOn: false,
     });
   }
 
@@ -93,6 +105,129 @@ export class SwimlaneStore extends ComponentStore<SwimlaneStoreState> {
   readonly doneLaneMaxPages$: Observable<string> = this.select(
     (state) => state.doneLaneMaxPages
   );
+
+  readonly isDueTodayFilterOn$: Observable<boolean> = this.select(
+    (state) => state.isDueTodayFilterOn
+  );
+
+  readonly isDueThisWeekFilterOn$: Observable<boolean> = this.select(
+    (state) => state.isDueThisWeekFilterOn
+  );
+
+  readonly isDueThisMonthFilterOn$: Observable<boolean> = this.select(
+    (state) => state.isDueThisMonthFilterOn
+  );
+
+  readonly filteredTickets$: Observable<Ticket[]> = this.select(
+    this.boardStore.currentBoardActiveTags$,
+    this.boardStore.searchTerm$,
+    this.boardStore.currentBoardTickets$,
+    this.isDueTodayFilterOn$,
+    this.isDueThisWeekFilterOn$,
+    this.isDueThisMonthFilterOn$,
+    (
+      activeTags,
+      searchTerm,
+      currentBoardTickets,
+      isDueTodayFilterOn,
+      isDueThisWeekFilterOn,
+      isDueThisMonthFilterOn
+    ) => {
+      let newTickets = currentBoardTickets;
+      if (isDueTodayFilterOn) {
+        newTickets = dueTodayTickets(newTickets);
+      } else if (isDueThisWeekFilterOn) {
+        newTickets = dueThisWeekTickets(newTickets);
+      } else if (isDueThisMonthFilterOn) {
+        newTickets = dueThisMonthTickets(newTickets);
+      }
+      newTickets = filterTicketsBySearch(searchTerm, newTickets);
+
+      if (activeTags?.length > 0) {
+        newTickets = filterTicketsByMatchingActiveTags(activeTags, newTickets);
+      }
+
+      return newTickets;
+    }
+  );
+
+  readonly backlogTickets$: Observable<Ticket[]> = this.select(
+    this.filteredTickets$,
+    (filteredTickets) => {
+      filteredTickets = filteredTickets?.filter(
+        (ticket) => ticket?.swimlaneTitle === 'backlog'
+      );
+      return sortTickets(filteredTickets);
+    }
+  );
+
+  readonly rdy2StartTickets$: Observable<Ticket[]> = this.select(
+    this.filteredTickets$,
+    (filteredTickets) => {
+      filteredTickets = filteredTickets?.filter(
+        (ticket) => ticket?.swimlaneTitle === 'rdy 2 start'
+      );
+      return sortTickets(filteredTickets);
+    }
+  );
+
+  readonly blockedTickets$: Observable<Ticket[]> = this.select(
+    this.filteredTickets$,
+    (filteredTickets) => {
+      filteredTickets = filteredTickets?.filter(
+        (ticket) => ticket?.swimlaneTitle === 'blocked'
+      );
+      return sortTickets(filteredTickets);
+    }
+  );
+
+  readonly inProgressTickets$: Observable<Ticket[]> = this.select(
+    this.filteredTickets$,
+    (filteredTickets) => {
+      filteredTickets = filteredTickets?.filter(
+        (ticket) => ticket?.swimlaneTitle === 'in progress'
+      );
+      return sortTickets(filteredTickets);
+    }
+  );
+
+  readonly doneTickets$: Observable<Ticket[]> = this.select(
+    this.filteredTickets$,
+    (filteredTickets) => {
+      filteredTickets = filteredTickets?.filter(
+        (ticket) => ticket?.swimlaneTitle === 'done'
+      );
+      return sortTickets(filteredTickets);
+    }
+  );
+
+  readonly setIsDueTodayFilterOn = this.updater(
+    (state: SwimlaneStoreState, isDueTodayFilterOn: boolean) => ({
+      ...state,
+      isDueTodayFilterOn,
+    })
+  );
+
+  readonly setIsDueThisWeekFilterOn = this.updater(
+    (state: SwimlaneStoreState, isDueThisWeekFilterOn: boolean) => ({
+      ...state,
+      isDueThisWeekFilterOn,
+    })
+  );
+
+  readonly setIsDueThisMonthFilterOn = this.updater(
+    (state: SwimlaneStoreState, isDueThisMonthFilterOn: boolean) => ({
+      ...state,
+      isDueThisMonthFilterOn,
+    })
+  );
+
+  readonly turnOffMainFilters = this.updater((state: SwimlaneStoreState) => ({
+    ...state,
+    isDueTodayFilterOn: false,
+    isDueThisWeekFilterOn: false,
+    isDueThisMonthFilterOn: false,
+  }));
 
   readonly setLanePageNumber = this.updater(
     (
@@ -430,5 +565,45 @@ export class SwimlaneStore extends ComponentStore<SwimlaneStoreState> {
         }
       )
     )
+  );
+
+  readonly setIsDueTodayFilter = this.effect(
+    (setIsDueTodayFilter$: Observable<void>) => {
+      return setIsDueTodayFilter$.pipe(
+        withLatestFrom(this.isDueTodayFilterOn$),
+        tap(() => this.turnOffMainFilters()),
+        tap(([, isDueTodayFilterOn]) => {
+          if (!isDueTodayFilterOn) {
+            this.setIsDueTodayFilterOn(true);
+          }
+        })
+      );
+    }
+  );
+
+  readonly setIsDueThisWeekFilter = this.effect(
+    (setIsDueThisWeekFilter$: Observable<void>) =>
+      setIsDueThisWeekFilter$.pipe(
+        withLatestFrom(this.isDueThisWeekFilterOn$),
+        tap(() => this.turnOffMainFilters()),
+        tap(([, isDueThisWeekFilterOn]) => {
+          if (!isDueThisWeekFilterOn) {
+            this.setIsDueThisWeekFilterOn(true);
+          }
+        })
+      )
+  );
+
+  readonly setIsDueThisMonthFilter = this.effect(
+    (setIsDueThisMonthFilter$: Observable<void>) =>
+      setIsDueThisMonthFilter$.pipe(
+        withLatestFrom(this.isDueThisMonthFilterOn$),
+        tap(() => this.turnOffMainFilters()),
+        tap(([, isDueThisMonthFilterOn]) => {
+          if (!isDueThisMonthFilterOn) {
+            this.setIsDueThisMonthFilterOn(true);
+          }
+        })
+      )
   );
 }
