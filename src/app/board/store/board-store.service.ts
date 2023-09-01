@@ -702,7 +702,7 @@ export class BoardStore extends ComponentStore<BoardStoreState> {
           return this.boardService
             .updateCurrentBoardTitle(title, currentBoard._id)
             .pipe(
-              tap((res) => this.updateBoards(res)),
+              tap(() => this.updateBoards()),
               catchError((error: string) => {
                 console.log('err updateCurrentBoardTitle', error);
                 return throwError(error);
@@ -716,7 +716,7 @@ export class BoardStore extends ComponentStore<BoardStoreState> {
   readonly updateBoards = this.effect((updateBoards$: Observable<void>) =>
     updateBoards$.pipe(
       switchMap(() => {
-        return this.boardService.getBoardsOnlyTen().pipe(
+        return this.boardService.getBoardsOnlyTenInEachSwimlane().pipe(
           tapResponse(
             (res) => {
               if (res.length > 0) {

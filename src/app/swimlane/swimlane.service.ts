@@ -23,14 +23,16 @@ export class SwimlaneService {
 
   constructor(private http: HttpClient) {}
 
-  getSwimlaneTicketsAtFirstPage(swimlaneTitle: string): Observable<any> {
-    return this.http.get<any>(
+  getSwimlaneTicketsAtFirstPage(swimlaneTitle: string): Observable<Ticket[]> {
+    return this.http.get<Ticket[]>(
       `${baseUrl}/getSwimlaneTicketsAtFirstPage?swimlaneTitle=${swimlaneTitle}`
     );
   }
 
-  getMaxPagesForSwimlane(swimlaneTitle: string): Observable<any> {
-    return this.http.get<any>(
+  getMaxPagesForSwimlane(
+    swimlaneTitle: string
+  ): Observable<{ maxPages: string }> {
+    return this.http.get<{ maxPages: string }>(
       `${baseUrl}/getMaxPagesForSwimlane?swimlaneTitle=${swimlaneTitle}`
     );
   }
@@ -38,15 +40,15 @@ export class SwimlaneService {
   getCurrentBoardSwimlaneTicketsPaginated(
     pageNumber: string,
     swimlaneTitle: string
-  ): Observable<any> {
-    return this.http.get<any>(
+  ): Observable<Ticket[]> {
+    return this.http.get<Ticket[]>(
       `${baseUrl}/getCurrentBoardSwimlaneTicketsPaginated?pageNumber=${pageNumber}&swimlaneTitle=${swimlaneTitle}`
     );
   }
 
-  addTicketToCurrentBoard(newTicket: Ticket): Observable<any> {
+  addTicketToCurrentBoard(newTicket: Ticket): Observable<Object> {
     const body = JSON.stringify(newTicket);
-    return this.http.post(
+    return this.http.post<Object>(
       `${baseUrl}/addTicketToCurrentBoard`,
       body,
       this.httpOptions
@@ -60,8 +62,8 @@ export class SwimlaneService {
     previousIndex?: number,
     previousSwimlaneTitle?: string,
     lanePageNumber?: string
-  ): Observable<any> {
-    return this.http.post(
+  ): Observable<Object> {
+    return this.http.post<Object>(
       `${baseUrl}/updateTicketSwimlane`,
       JSON.stringify({
         title,

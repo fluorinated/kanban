@@ -351,7 +351,6 @@ export class SwimlaneStore extends ComponentStore<SwimlaneStoreState> {
         )
       )
   );
-
   readonly addNewTicketToSwimlane = this.effect(
     (addNewTicketToBoard$: Observable<string>) =>
       addNewTicketToBoard$.pipe(
@@ -403,18 +402,15 @@ export class SwimlaneStore extends ComponentStore<SwimlaneStoreState> {
                   }
                 }
 
-                const nextTicketNumber = highestTicketNumber + 1;
-                const newIndex = 0;
-
                 const newTicket: Ticket = {
                   title: 'ticket title',
-                  ticketNumber: `MD-${nextTicketNumber}`,
+                  ticketNumber: `MD-${highestTicketNumber + 1}`,
                   description: 'ticket description',
                   tags: [],
                   dueDate: getFormattedDate(new Date()),
                   createdDate: getFormattedDate(new Date()),
                   swimlaneTitle,
-                  index: newIndex,
+                  index: 0,
                 };
 
                 for (let i = 1; i < lanePageNumber; i++) {
@@ -429,11 +425,11 @@ export class SwimlaneStore extends ComponentStore<SwimlaneStoreState> {
                         swimlaneTitle
                       )
                     ),
-                    map((updatedSwimlaneTickets) => {
+                    map((updatedTickets) => {
                       const payload = {
                         newTicket,
                         swimlaneTitle,
-                        updatedTickets: updatedSwimlaneTickets,
+                        updatedTickets,
                       };
                       return this.boardStore.updateCurrentBoardSwimlaneTicketsWithNewTicket(
                         payload

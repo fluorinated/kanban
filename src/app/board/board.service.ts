@@ -1,14 +1,8 @@
-import {
-  CdkDragDrop,
-  moveItemInArray,
-  transferArrayItem,
-} from '@angular/cdk/drag-drop';
 import { Injectable } from '@angular/core';
 
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { Board } from '../models/board.model';
-import { Ticket } from '../models/ticket.model';
 
 const baseUrl = 'http://localhost:8080';
 
@@ -27,14 +21,14 @@ export class BoardService {
   getBoardsPaginated(
     pageNumber: string,
     swimlaneTitle: string
-  ): Observable<any> {
-    return this.http.get<any>(
+  ): Observable<Board[]> {
+    return this.http.get<Board[]>(
       `${baseUrl}/getBoardsPaginated?pageNumber=${pageNumber}&swimlaneTitle=${swimlaneTitle}`
     );
   }
 
-  getBoardsOnlyTen(): Observable<any> {
-    return this.http.get<any>(`${baseUrl}/getBoardsOnlyTen`);
+  getBoardsOnlyTenInEachSwimlane(): Observable<Board[]> {
+    return this.http.get<Board[]>(`${baseUrl}/getBoardsOnlyTenInEachSwimlane`);
   }
 
   getBoards(): Observable<Board[]> {
@@ -45,54 +39,60 @@ export class BoardService {
     return this.http.post(`${baseUrl}/addNewBoardToBoards`, this.httpOptions);
   }
 
-  updateCurrentBoardTitle(title?: string, _id?: string): Observable<any> {
-    return this.http.post(
+  updateCurrentBoardTitle(title?: string, _id?: string): Observable<Object> {
+    return this.http.post<Object>(
       `${baseUrl}/updateCurrentBoardTitle`,
       JSON.stringify({ title, _id }),
       this.httpOptions
     );
   }
 
-  setBoards(boards: Board[]): Observable<any> {
-    return this.http.post(
+  setBoards(boards: Board[]): Observable<Object> {
+    return this.http.post<Object>(
       `${baseUrl}/setBoards`,
       JSON.stringify({ boards }),
       this.httpOptions
     );
   }
 
-  deleteCurrentBoard(): Observable<any> {
-    return this.http.delete(`${baseUrl}/deleteCurrentBoard`, this.httpOptions);
+  deleteCurrentBoard(): Observable<Object> {
+    return this.http.delete<Object>(
+      `${baseUrl}/deleteCurrentBoard`,
+      this.httpOptions
+    );
   }
 
-  deleteBoard(id: string): Observable<any> {
-    return this.http.delete(`${baseUrl}/deleteBoard/${id}`, this.httpOptions);
+  deleteBoard(id: string): Observable<Object> {
+    return this.http.delete<Object>(
+      `${baseUrl}/deleteBoard/${id}`,
+      this.httpOptions
+    );
   }
 
-  deleteCurrentBoardTag(tag: string): Observable<any> {
-    return this.http.delete(
+  deleteCurrentBoardTag(tag: string): Observable<Object> {
+    return this.http.delete<Object>(
       `${baseUrl}/deleteCurrentBoardTag/${tag}`,
       this.httpOptions
     );
   }
 
-  deleteTicket(ticketNumber: string): Observable<any> {
-    return this.http.delete(
+  deleteTicket(ticketNumber: string): Observable<Object> {
+    return this.http.delete<Object>(
       `${baseUrl}/deleteTicket/${ticketNumber}`,
       this.httpOptions
     );
   }
 
-  addCollapsedLaneToCurrentBoardSave(lane: string): Observable<any> {
-    return this.http.post(
+  addCollapsedLaneToCurrentBoardSave(lane: string): Observable<Object> {
+    return this.http.post<Object>(
       `${baseUrl}/addCollapsedLaneToCurrentBoardSave`,
       JSON.stringify({ lane }),
       this.httpOptions
     );
   }
 
-  removeCollapsedLaneFromCurrentBoardSave(lane: string): Observable<any> {
-    return this.http.post(
+  removeCollapsedLaneFromCurrentBoardSave(lane: string): Observable<Object> {
+    return this.http.post<Object>(
       `${baseUrl}/removeCollapsedLaneFromCurrentBoardSave`,
       JSON.stringify({ lane }),
       this.httpOptions
