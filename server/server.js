@@ -152,7 +152,6 @@ const getMaxPagesForSwimlane = async (req) => {
 
   const currentBoard = boards.find((board) => board.isCurrentBoard);
 
-  console.log('currentBoard', currentBoard.title);
   if (!currentBoard) {
     return { maxPages: '0' };
   }
