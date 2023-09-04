@@ -5,7 +5,6 @@ import { Observable, throwError } from 'rxjs';
 import {
   catchError,
   filter,
-  map,
   switchMap,
   tap,
   withLatestFrom,
@@ -550,21 +549,6 @@ export class BoardStore extends ComponentStore<BoardStoreState> {
           );
         }),
         tap(() => this.ticketStore.setIsEditingNewTag(false))
-      )
-  );
-
-  readonly addNewBoardToBoardsUpdate = this.effect(
-    (addNewBoardToBoardsUpdate$: Observable<void>) =>
-      addNewBoardToBoardsUpdate$.pipe(
-        switchMap(() => {
-          return this.boardService.addNewBoardToBoards().pipe(
-            tap(() => this.updateBoards()),
-            catchError((error: string) => {
-              console.log('err addNewBoardToBoardsUpdate', error);
-              return throwError(error);
-            })
-          );
-        })
       )
   );
 

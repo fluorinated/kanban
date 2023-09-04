@@ -467,6 +467,7 @@ app.post('/updateCurrentBoardTitle', async function (req, res) {
     return res.status(500).send(err);
   }
 });
+
 app.post('/addNewBoardToBoards', async (req, res) => {
   try {
     const existingBoards = await getBoards();
