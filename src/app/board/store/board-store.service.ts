@@ -542,7 +542,6 @@ export class BoardStore extends ComponentStore<BoardStoreState> {
   readonly addNewBoardToBoardsUpdate = this.effect(
     (addNewBoardToBoardsUpdate$: Observable<void>) =>
       addNewBoardToBoardsUpdate$.pipe(
-        tap(() => this.setAllBoardsCurrentBoardToFalse()),
         switchMap(() => {
           return this.boardService.addNewBoardToBoards().pipe(
             tap(() => this.updateBoards()),
@@ -728,29 +727,6 @@ export class BoardStore extends ComponentStore<BoardStoreState> {
         );
       })
     )
-  );
-
-  readonly setAllBoardsCurrentBoardToFalse = this.effect(
-    (setAllBoardsCurrentBoardToFalse$: Observable<void>) =>
-      setAllBoardsCurrentBoardToFalse$.pipe(
-        withLatestFrom(this.boards$),
-        map(([, boards]) => {
-          const updatedBoards = boards?.map((board) => ({
-            ...board,
-            isCurrentBoard: false,
-          }));
-          return updatedBoards;
-        }),
-        switchMap((updatedBoards) => {
-          return this.boardService.setBoards(updatedBoards).pipe(
-            tap(() => this.setBoards(updatedBoards)),
-            catchError((error) => {
-              console.log('err setAllBoardsCurrentBoardToFalse', error);
-              return throwError(error);
-            })
-          );
-        })
-      )
   );
 
   readonly changeCurrentBoard = this.effect(

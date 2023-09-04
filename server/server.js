@@ -467,7 +467,6 @@ app.post('/updateCurrentBoardTitle', async function (req, res) {
     return res.status(500).send(err);
   }
 });
-
 app.post('/addNewBoardToBoards', async (req, res) => {
   try {
     const collection = await client.db('kanban').collection('users');
@@ -475,26 +474,41 @@ app.post('/addNewBoardToBoards', async (req, res) => {
     const query = {
       username: 'admin',
     };
+
+    const existingBoards = await getBoards();
+
+    const updatedBoards = existingBoards.map((board) => ({
+      ...board,
+      isCurrentBoard: false,
+    }));
+
+    await setBoards(updatedBoards);
+
     const options = { upsert: true };
+
+    const newBoard = {
+      title: 'board title',
+      tickets: [],
+      tags: [],
+      activeTags: [],
+      index: 0,
+      collapsedLanes: [],
+      _id: uuidv4(),
+      isCurrentBoard: true,
+    };
+
     const update = {
       $push: {
-        boards: {
-          title: 'board title',
-          tickets: [],
-          tags: [],
-          activeTags: [],
-          index: 0,
-          collapsedLanes: [],
-          _id: uuidv4(),
-          isCurrentBoard: true,
-        },
+        boards: newBoard,
       },
     };
-    collection.updateOne(query, update, options);
+
+    await collection.updateOne(query, update, options);
 
     return res.status(200).send({ status: 'OK' });
   } catch (err) {
-    return res.status(500).send(err);
+    console.error('Error adding new board:', err);
+    return res.status(500).send({ error: 'Internal server error' });
   }
 });
 
