@@ -46,6 +46,13 @@ export class BoardService {
       this.httpOptions
     );
   }
+  updateCurrentBoardStatus(title?: string): Observable<Object> {
+    return this.http.post<Object>(
+      `${baseUrl}/updateCurrentBoardStatus`,
+      JSON.stringify({ title }),
+      this.httpOptions
+    );
+  }
 
   setBoards(boards: Board[]): Observable<Object> {
     return this.http.post<Object>(

@@ -1,10 +1,12 @@
 import { CdkDragDrop } from '@angular/cdk/drag-drop';
 import { Injectable } from '@angular/core';
 import { ComponentStore } from '@ngrx/component-store';
-import { EMPTY, Observable, forkJoin, throwError } from 'rxjs';
+import { EMPTY, Observable, forkJoin, of, throwError } from 'rxjs';
 import {
   catchError,
+  filter,
   map,
+  mergeMap,
   switchMap,
   tap,
   withLatestFrom,
@@ -25,6 +27,7 @@ import {
   filterTicketsByMatchingActiveTags,
   sortTickets,
 } from '@utils/swimlane.utils';
+import { Board } from '@models/board.model';
 
 export interface SwimlaneStoreState {
   backlogLanePageNumber: string;
@@ -261,17 +264,20 @@ export class SwimlaneStore extends ComponentStore<SwimlaneStoreState> {
     }
   );
 
-  readonly getLaneMaxPagesUpdate = this.effect(
+  readonly getMaxPagesForSwimlaneInit = this.effect(
     (getLaneMaxPagesUpdate$: Observable<void>) => {
       return getLaneMaxPagesUpdate$.pipe(
-        switchMap(() => {
+        withLatestFrom(this.boardStore.currentBoard$),
+        switchMap(([, currentBoard]) => {
           const maxPagesObservables = swimlaneTitles.map((lane) =>
-            this.swimlaneService.getMaxPagesForSwimlane(lane).pipe(
-              map((maxPages) => ({
-                lane,
-                maxPages: maxPages?.maxPages.toString(),
-              }))
-            )
+            this.swimlaneService
+              .getMaxPagesForSwimlane(currentBoard, lane)
+              .pipe(
+                map((maxPages) => ({
+                  lane,
+                  maxPages: maxPages?.maxPages.toString(),
+                }))
+              )
           );
 
           return forkJoin(maxPagesObservables);
@@ -283,6 +289,110 @@ export class SwimlaneStore extends ComponentStore<SwimlaneStoreState> {
         })
       );
     }
+  );
+
+  readonly getLaneMaxPagesUpdate = this.effect(
+    (getLaneMaxPagesUpdate$: Observable<Board>) => {
+      return getLaneMaxPagesUpdate$.pipe(
+        switchMap((currentBoard) => {
+          return currentBoard
+            ? forkJoin(
+                swimlaneTitles.map((lane) =>
+                  this.swimlaneService.getMaxPagesForSwimlane(
+                    currentBoard,
+                    lane
+                  )
+                )
+              ).pipe(
+                map((maxPagesArray) =>
+                  maxPagesArray.map((maxPages, index) => ({
+                    lane: swimlaneTitles[index],
+                    maxPages: maxPages?.maxPages.toString(),
+                  }))
+                )
+              )
+            : of([]);
+        }),
+        tap((results: { lane: string; maxPages: string }[]) => {
+          results.forEach((result) => {
+            this.setLaneMaxPages(result);
+          });
+        })
+      );
+    }
+  );
+
+  readonly changeCurrentBoardUpdatePagination = this.effect(
+    (changeCurrentBoardUpdatePagination$: Observable<Board>) =>
+      changeCurrentBoardUpdatePagination$.pipe(
+        filter((currentBoard) => !!currentBoard),
+        switchMap((currentBoard) => {
+          this.boardStore.changeCurrentBoard(currentBoard);
+
+          this.resetPagination();
+
+          const paginatedTicketsBoards$ =
+            this.swimlaneService.getTicketsPaginatedWithinBoards();
+
+          return paginatedTicketsBoards$.pipe(
+            mergeMap((boardsArray) => {
+              this.boardStore.setBoards(boardsArray);
+              this.getLaneMaxPagesUpdate(currentBoard);
+              return [];
+            }),
+            catchError((error) => {
+              console.log('err changeCurrentBoardUpdatePagination', error);
+              return throwError(error);
+            })
+          );
+        })
+      )
+  );
+
+  readonly resetPagination = this.effect(
+    (resetPagination$: Observable<void>) => {
+      return resetPagination$.pipe(
+        switchMap(() => {
+          const resetPageObservables = swimlaneTitles.map((swimlaneTitle) => {
+            return this.getTicketsPaginated('1', swimlaneTitle).pipe(
+              catchError((error) => {
+                console.error('Error in resetPagination:', error);
+                return of(null);
+              })
+            );
+          });
+
+          return forkJoin(resetPageObservables);
+        })
+      );
+    }
+  );
+
+  readonly getLaneMaxPagesUpdateInit = this.effect(
+    (getLaneMaxPagesUpdate$: Observable<void>) =>
+      getLaneMaxPagesUpdate$.pipe(
+        withLatestFrom(this.boardStore.currentBoard$),
+        filter(([, currentBoard]) => !!currentBoard),
+        switchMap(([, currentBoard]) =>
+          currentBoard
+            ? swimlaneTitles.map((lane) =>
+                this.swimlaneService
+                  .getMaxPagesForSwimlane(currentBoard, lane)
+                  .pipe(
+                    map((maxPages) => ({
+                      lane,
+                      maxPages: maxPages?.maxPages.toString(),
+                    }))
+                  )
+              )
+            : of([])
+        ),
+        tap((results: { lane: string; maxPages: string }[]) => {
+          results.forEach((result) => {
+            this.setLaneMaxPages(result);
+          });
+        })
+      )
   );
 
   readonly dropUpdateTicketSwimlane = this.effect(
@@ -351,6 +461,13 @@ export class SwimlaneStore extends ComponentStore<SwimlaneStoreState> {
         )
       )
   );
+
+  goBackToFirstPage = (lanePageNumber: number, swimlaneTitle: string): void => {
+    for (let i = 1; i < lanePageNumber; i++) {
+      this.pageBack(swimlaneTitle);
+    }
+  };
+
   readonly addNewTicketToSwimlane = this.effect(
     (addNewTicketToBoard$: Observable<string>) =>
       addNewTicketToBoard$.pipe(
@@ -413,9 +530,7 @@ export class SwimlaneStore extends ComponentStore<SwimlaneStoreState> {
                   index: 0,
                 };
 
-                for (let i = 1; i < lanePageNumber; i++) {
-                  this.pageBack(swimlaneTitle);
-                }
+                this.goBackToFirstPage(lanePageNumber, swimlaneTitle);
 
                 return this.swimlaneService
                   .addTicketToCurrentBoard(newTicket)
@@ -454,6 +569,30 @@ export class SwimlaneStore extends ComponentStore<SwimlaneStoreState> {
       )
   );
 
+  getTicketsPaginated = (
+    pageNumber: string,
+    swimlaneTitle: string
+  ): Observable<Ticket[]> => {
+    return this.swimlaneService
+      .getCurrentBoardSwimlaneTicketsPaginated(pageNumber, swimlaneTitle)
+      .pipe(
+        tap((newSwimlaneTickets: Ticket[]) => {
+          this.boardStore.setCurrentBoardSwimlaneTickets({
+            swimlaneTitle,
+            newSwimlaneTickets,
+          });
+          this.setLanePageNumber({
+            lanePageNumber: pageNumber,
+            lane: swimlaneTitle,
+          });
+        }),
+        catchError((error) => {
+          console.error('Error in getTicketsPaginated:', error);
+          return throwError(error);
+        })
+      );
+  };
+
   readonly pageBack = this.effect((pageBack$: Observable<string>) =>
     pageBack$.pipe(
       withLatestFrom(
@@ -488,29 +627,11 @@ export class SwimlaneStore extends ComponentStore<SwimlaneStoreState> {
 
           const pageNumber = (parseInt(lanePageNumber) - 1).toString();
 
-          return this.swimlaneService
-            .getCurrentBoardSwimlaneTicketsPaginated(pageNumber, swimlaneTitle)
-            .pipe(
-              tap((newSwimlaneTickets: Ticket[]) => {
-                this.boardStore.setCurrentBoardSwimlaneTickets({
-                  swimlaneTitle,
-                  newSwimlaneTickets,
-                });
-                this.setLanePageNumber({
-                  lanePageNumber: pageNumber,
-                  lane: swimlaneTitle,
-                });
-              }),
-              catchError((error) => {
-                console.error('err pageBack', error);
-                return throwError(error);
-              })
-            );
+          return this.getTicketsPaginated(pageNumber, swimlaneTitle);
         }
       )
     )
   );
-
   readonly pageForward = this.effect((pageForward$: Observable<string>) =>
     pageForward$.pipe(
       withLatestFrom(
@@ -529,35 +650,19 @@ export class SwimlaneStore extends ComponentStore<SwimlaneStoreState> {
           inProgressLanePageNumber,
           doneLanePageNumber,
         ]) => {
-          let lanePageNumber;
-          lanePageNumber = getLanePageNumberFromLane(
+          const lanePageNumbers = getLanePageNumberFromLane(
             backlogLanePageNumber,
             rdy2StartLanePageNumber,
             blockedLanePageNumber,
             inProgressLanePageNumber,
             doneLanePageNumber
-          )[swimlaneTitle];
+          );
+          const currentLanePageNumber = parseInt(
+            lanePageNumbers[swimlaneTitle]
+          );
+          const nextPageNumber = (currentLanePageNumber + 1).toString();
 
-          const pageNumber = (parseInt(lanePageNumber) + 1).toString();
-
-          return this.swimlaneService
-            .getCurrentBoardSwimlaneTicketsPaginated(pageNumber, swimlaneTitle)
-            .pipe(
-              tap((newSwimlaneTickets: Ticket[]) => {
-                this.boardStore.setCurrentBoardSwimlaneTickets({
-                  swimlaneTitle,
-                  newSwimlaneTickets,
-                });
-                this.setLanePageNumber({
-                  lanePageNumber: pageNumber,
-                  lane: swimlaneTitle,
-                });
-              }),
-              catchError((error) => {
-                console.error('err pageForward', error);
-                return throwError(error);
-              })
-            );
+          return this.getTicketsPaginated(nextPageNumber, swimlaneTitle);
         }
       )
     )

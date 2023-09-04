@@ -5,9 +5,10 @@ import {
 } from '@angular/cdk/drag-drop';
 import { Injectable } from '@angular/core';
 
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { Ticket } from '@models/ticket.model';
+import { Board } from '@models/board.model';
 
 const baseUrl = 'http://localhost:8080';
 
@@ -30,10 +31,16 @@ export class SwimlaneService {
   }
 
   getMaxPagesForSwimlane(
+    currentBoard: Board,
     swimlaneTitle: string
   ): Observable<{ maxPages: string }> {
+    const params = new HttpParams()
+      .set('swimlaneTitle', swimlaneTitle)
+      .set('currentBoard', JSON.stringify(currentBoard));
+
     return this.http.get<{ maxPages: string }>(
-      `${baseUrl}/getMaxPagesForSwimlane?swimlaneTitle=${swimlaneTitle}`
+      `${baseUrl}/getMaxPagesForSwimlane`,
+      { params }
     );
   }
 
@@ -44,6 +51,10 @@ export class SwimlaneService {
     return this.http.get<Ticket[]>(
       `${baseUrl}/getCurrentBoardSwimlaneTicketsPaginated?pageNumber=${pageNumber}&swimlaneTitle=${swimlaneTitle}`
     );
+  }
+
+  getTicketsPaginatedWithinBoards(): Observable<Board[]> {
+    return this.http.get<Board[]>(`${baseUrl}/getTicketsPaginatedWithinBoards`);
   }
 
   addTicketToCurrentBoard(newTicket: Ticket): Observable<Object> {

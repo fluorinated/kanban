@@ -53,12 +53,12 @@ export class BoardComponent implements OnInit {
   }
 
   changeCurrentBoard(board: Board): void {
-    this.boardStore.changeCurrentBoard(board);
+    this.swimlaneStore.changeCurrentBoardUpdatePagination(board);
   }
 
   ngOnInit(): void {
-    this.swimlaneStore.getLaneMaxPagesUpdate();
     this.boardStore.updateBoards();
+    this.swimlaneStore.getMaxPagesForSwimlaneInit();
   }
 
   openTicket($event: Ticket): void {

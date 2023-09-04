@@ -169,10 +169,52 @@ const getMaxPagesForSwimlane = async (req) => {
 
 app.get('/getMaxPagesForSwimlane', async (req, res) => {
   try {
-    return res.json(await getMaxPagesForSwimlane(req));
+    const result = await getMaxPagesForSwimlane(req);
+    return res.json(result);
   } catch (err) {
     return res.status(500).send(err);
   }
+});
+
+app.get('/getTicketsPaginatedWithinBoards', async function (req, res) {
+  const pageSize = 10;
+
+  const boards = await getBoards();
+  const currentBoard = boards.find((board) => board.isCurrentBoard);
+
+  if (!currentBoard) {
+    return res.status(400).send('No current board found.');
+  }
+
+  function paginateSwimlaneTickets(swimlane, tickets) {
+    const startIndex = 0;
+    const endIndex = startIndex + pageSize;
+
+    const paginatedSwimlaneTickets = tickets.slice(startIndex, endIndex);
+
+    return {
+      ...swimlane,
+      tickets: paginatedSwimlaneTickets,
+    };
+  }
+
+  const boardsWithPaginatedSwimlanes = boards.map((board) => {
+    if (board._id === currentBoard._id) {
+      const swimlanes = currentBoard.swimlanes || [];
+      const paginatedSwimlanes = swimlanes.map((swimlane) =>
+        paginateSwimlaneTickets(swimlane, currentBoard.tickets)
+      );
+
+      return {
+        ...currentBoard,
+        swimlanes: paginatedSwimlanes,
+      };
+    } else {
+      return board;
+    }
+  });
+
+  return res.status(200).send(boardsWithPaginatedSwimlanes);
 });
 
 app.get('/getCurrentBoardSwimlaneTicketsPaginated', async function (req, res) {
@@ -365,6 +407,38 @@ app.post('/updateTicketSwimlane', async function (req, res) {
     return res
       .status(500)
       .send({ error: 'An error occurred while updating the ticket' });
+  }
+});
+
+app.post('/updateCurrentBoardStatus', async function (req, res) {
+  try {
+    const boards = await getBoards();
+    const updatedTitle = req.body.title;
+
+    boards.forEach((board) => {
+      if (board.title === updatedTitle) {
+        board.isCurrentBoard = true;
+      } else {
+        board.isCurrentBoard = false;
+      }
+    });
+
+    const collection = await client.db('kanban').collection('users');
+    const query = {
+      username: 'admin',
+    };
+    const update = {
+      $set: {
+        boards: boards,
+      },
+    };
+    const options = { upsert: true };
+
+    await collection.updateOne(query, update, options);
+
+    return res.status(200).send({ status: 'OK' });
+  } catch (err) {
+    return res.status(500).send(err);
   }
 });
 

@@ -756,15 +756,9 @@ export class BoardStore extends ComponentStore<BoardStoreState> {
   readonly changeCurrentBoard = this.effect(
     (changeCurrentBoard$: Observable<Board>) =>
       changeCurrentBoard$.pipe(
-        withLatestFrom(this.boards$),
-        switchMap(([board, boards]) => {
-          const updatedBoards = boards.map((b) => ({
-            ...b,
-            isCurrentBoard: b._id === board._id,
-          }));
-
-          return this.boardService.setBoards(updatedBoards).pipe(
-            tap(() => this.setBoards(updatedBoards)),
+        switchMap((board) => {
+          return this.boardService.updateCurrentBoardStatus(board.title).pipe(
+            tap(() => this.updateBoards()),
             catchError((error) => {
               console.log('err changeCurrentBoard', error);
               return throwError(error);
