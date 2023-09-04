@@ -439,7 +439,21 @@ export class BoardStore extends ComponentStore<BoardStoreState> {
                 }
               : ticket
           );
-          updatedTickets.push(payload.newTicket);
+
+          // find the index of the topmost ticket in the swimlane
+          const topmostIndex = updatedTickets.reduce(
+            (minIndex, ticket) =>
+              ticket.swimlaneTitle === payload.swimlaneTitle &&
+              ticket.index < minIndex
+                ? ticket.index
+                : minIndex,
+            Infinity
+          );
+
+          payload.newTicket.index = topmostIndex - 1;
+
+          updatedTickets.unshift(payload.newTicket);
+
           return {
             ...board,
             tickets: updatedTickets,
