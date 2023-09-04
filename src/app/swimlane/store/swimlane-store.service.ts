@@ -462,6 +462,25 @@ export class SwimlaneStore extends ComponentStore<SwimlaneStoreState> {
       )
   );
 
+  readonly addNewBoardToBoardsUpdate = this.effect(
+    (addNewBoardToBoardsUpdate$: Observable<void>) =>
+      addNewBoardToBoardsUpdate$.pipe(
+        switchMap(() => {
+          return this.boardService.addNewBoardToBoards().pipe(
+            tap(() => {
+              this.boardStore.updateBoards();
+              this.getMaxPagesForSwimlaneInit();
+              this.resetPagination();
+            }),
+            catchError((error: string) => {
+              console.log('err addNewBoardToBoardsUpdate', error);
+              return throwError(error);
+            })
+          );
+        })
+      )
+  );
+
   goBackToFirstPage = (lanePageNumber: number, swimlaneTitle: string): void => {
     for (let i = 1; i < lanePageNumber; i++) {
       this.pageBack(swimlaneTitle);

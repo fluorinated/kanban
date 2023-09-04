@@ -46,10 +46,11 @@ export class BoardService {
       this.httpOptions
     );
   }
-  updateCurrentBoardStatus(title?: string): Observable<Object> {
+
+  updateCurrentBoardStatus(id?: string): Observable<Object> {
     return this.http.post<Object>(
       `${baseUrl}/updateCurrentBoardStatus`,
-      JSON.stringify({ title }),
+      JSON.stringify({ id }),
       this.httpOptions
     );
   }

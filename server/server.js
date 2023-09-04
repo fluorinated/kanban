@@ -413,10 +413,10 @@ app.post('/updateTicketSwimlane', async function (req, res) {
 app.post('/updateCurrentBoardStatus', async function (req, res) {
   try {
     const boards = await getBoards();
-    const updatedTitle = req.body.title;
+    const updatedId = req.body.id;
 
     boards.forEach((board) => {
-      if (board.title === updatedTitle) {
+      if (board._id === updatedId) {
         board.isCurrentBoard = true;
       } else {
         board.isCurrentBoard = false;
@@ -469,22 +469,13 @@ app.post('/updateCurrentBoardTitle', async function (req, res) {
 });
 app.post('/addNewBoardToBoards', async (req, res) => {
   try {
-    const collection = await client.db('kanban').collection('users');
-
-    const query = {
-      username: 'admin',
-    };
-
     const existingBoards = await getBoards();
 
-    const updatedBoards = existingBoards.map((board) => ({
-      ...board,
-      isCurrentBoard: false,
-    }));
+    const currentBoard = existingBoards.find((board) => board.isCurrentBoard);
 
-    await setBoards(updatedBoards);
-
-    const options = { upsert: true };
+    if (currentBoard) {
+      currentBoard.isCurrentBoard = false;
+    }
 
     const newBoard = {
       title: 'board title',
@@ -497,13 +488,9 @@ app.post('/addNewBoardToBoards', async (req, res) => {
       isCurrentBoard: true,
     };
 
-    const update = {
-      $push: {
-        boards: newBoard,
-      },
-    };
+    existingBoards.push(newBoard);
 
-    await collection.updateOne(query, update, options);
+    await setBoards(existingBoards);
 
     return res.status(200).send({ status: 'OK' });
   } catch (err) {

@@ -97,7 +97,7 @@ export class BoardComponent implements OnInit {
   }
 
   addNewBoardToBoards(): void {
-    this.boardStore.addNewBoardToBoardsUpdate();
+    this.swimlaneStore.addNewBoardToBoardsUpdate();
   }
 
   deleteBoard($event: Board): void {

@@ -747,7 +747,7 @@ export class BoardStore extends ComponentStore<BoardStoreState> {
     (changeCurrentBoard$: Observable<Board>) =>
       changeCurrentBoard$.pipe(
         switchMap((board) => {
-          return this.boardService.updateCurrentBoardStatus(board.title).pipe(
+          return this.boardService.updateCurrentBoardStatus(board._id).pipe(
             tap(() => this.updateBoards()),
             catchError((error) => {
               console.log('err changeCurrentBoard', error);
