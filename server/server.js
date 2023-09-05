@@ -1,12 +1,7 @@
 var express = require('express');
 const app = express();
-const cors = require('cors');
 var bodyParser = require('body-parser');
 const { v4: uuidv4 } = require('uuid');
-
-var corsOptions = {
-  origin: ['http://localhost:8080', 'http://localhost:4200'],
-};
 
 app.use(
   bodyParser.urlencoded({
@@ -14,7 +9,6 @@ app.use(
   })
 );
 
-app.use(cors(corsOptions));
 app.use(express.json());
 
 app.use(express.static('.'));
