@@ -8,6 +8,7 @@ var corsOptions = {
     'https://kanban-service-heeh.onrender.com',
     'http://localhost:8080',
     'http://localhost:4200',
+    'https://fluorinated.github.io',
   ],
 };
 
