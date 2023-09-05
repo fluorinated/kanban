@@ -10,7 +10,7 @@ import { Observable } from 'rxjs';
 import { Ticket } from '@models/ticket.model';
 import { Board } from '@models/board.model';
 
-const baseUrl = 'https://kanban-service-heeh.onrender.com/';
+const baseUrl = 'https://kanban-service-heeh.onrender.com';
 
 @Injectable({
   providedIn: 'root',
