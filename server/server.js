@@ -1,7 +1,17 @@
 var express = require('express');
+const cors = require('cors');
 const app = express();
 const { v4: uuidv4 } = require('uuid');
 
+var corsOptions = {
+  origin: [
+    'https://kanban-service-heeh.onrender.com',
+    'http://localhost:8080',
+    'http://localhost:4200',
+  ],
+};
+
+app.use(cors(corsOptions));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(express.static('.'));
