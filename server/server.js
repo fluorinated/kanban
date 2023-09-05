@@ -1,14 +1,8 @@
 var express = require('express');
 const app = express();
-// var bodyParser = require('body-parser');
 const { v4: uuidv4 } = require('uuid');
 
 app.use(express.json());
-// app.use(
-//   bodyParser.urlencoded({
-//     extended: false,
-//   })
-// );
 app.use(express.urlencoded({ extended: false }));
 app.use(express.static('.'));
 
