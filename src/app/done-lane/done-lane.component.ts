@@ -15,9 +15,12 @@ export class DoneLaneComponent {
 
   pageNumber$: Observable<string>;
   doneLaneMaxPages$: Observable<string>;
+  isAnyFilterOn$: Observable<boolean>;
+
   constructor(private swimlaneStore: SwimlaneStore) {
     this.pageNumber$ = this.swimlaneStore.doneLanePageNumber$;
     this.doneLaneMaxPages$ = this.swimlaneStore.doneLaneMaxPages$;
+    this.isAnyFilterOn$ = this.swimlaneStore.isAnyFilterOn$;
   }
 
   drop(event: CdkDragDrop<string[]>): void {

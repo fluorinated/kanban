@@ -15,10 +15,12 @@ export class ReadyToStartLaneComponent {
 
   pageNumber$: Observable<string>;
   rdy2StartLaneMaxPages$: Observable<string>;
+  isAnyFilterOn$: Observable<boolean>;
 
   constructor(private swimlaneStore: SwimlaneStore) {
     this.pageNumber$ = this.swimlaneStore.rdy2StartLanePageNumber$;
     this.rdy2StartLaneMaxPages$ = this.swimlaneStore.rdy2StartLaneMaxPages$;
+    this.isAnyFilterOn$ = this.swimlaneStore.isAnyFilterOn$;
   }
 
   drop(event: CdkDragDrop<string[]>): void {

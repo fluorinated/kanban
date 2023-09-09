@@ -112,6 +112,118 @@ app.get('/getBoardsPaginated', async (req, res) => {
   }
 });
 
+dueThisWeekTickets = (filteredTickets) => {
+  var startOfWeek = moment().startOf('week');
+  var endOfWeek = moment().endOf('week');
+
+  filteredTickets = filteredTickets.filter((ticket) => {
+    let ticketDueDate = new Date(ticket.dueDate);
+    return moment(ticketDueDate).isBetween(startOfWeek, endOfWeek, null, '[]');
+  });
+
+  return filteredTickets;
+};
+
+dueThisMonthTickets = (filteredTickets) => {
+  var startOfMonth = moment().startOf('month');
+  var endOfMonth = moment().endOf('month');
+
+  filteredTickets = filteredTickets.filter((ticket) => {
+    let ticketDueDate = new Date(ticket.dueDate);
+    return moment(ticketDueDate).isBetween(
+      startOfMonth,
+      endOfMonth,
+      null,
+      '[]'
+    );
+  });
+
+  return filteredTickets;
+};
+
+dueTodayTickets = (filteredTickets) => {
+  const date = new Date();
+
+  let currentDay = String(date.getDate()).padStart(2, '0');
+  let currentMonth = String(date.getMonth() + 1).padStart(2, '0');
+  let currentYear = date.getFullYear();
+
+  // DD-MM-YYYY
+  let currentDate = `${currentDay}-${currentMonth}-${currentYear}`;
+  filteredTickets = filteredTickets.filter((ticket) => {
+    let ticketDueDate = new Date(ticket.dueDate);
+    let ticketCurrentDay = String(ticketDueDate.getDate()).padStart(2, '0');
+    let ticketCurrentMonth = String(ticketDueDate.getMonth() + 1).padStart(
+      2,
+      '0'
+    );
+    let ticketCurrentYear = ticketDueDate.getFullYear();
+    let ticketCurrentDate = `${ticketCurrentDay}-${ticketCurrentMonth}-${ticketCurrentYear}`;
+
+    return currentDate === ticketCurrentDate;
+  });
+  return filteredTickets;
+};
+
+const getBoardsPaginatedWithFilters = async (req) => {
+  const searchTerm = req.query.searchTerm;
+  const isDueTodayFilterOn = req.query.isDueTodayFilterOn === true;
+  const isDueThisWeekFilterOn = req.query.isDueThisWeek === true;
+  const isDueThisMonthFilterOn = req.query.isDueThisMonth === true;
+  const paginatedBoards = await getBoards(req);
+
+  const filteredBoards = paginatedBoards.map((board) => {
+    if (!board.tickets) {
+      return board;
+    }
+
+    if (board.tickets.length === 0) {
+      return board;
+    }
+
+    if (board.isCurrentBoard) {
+      const filteredTickets = board.tickets.filter((ticket) => {
+        const hasMatchingTags =
+          board.activeTags.length === 0 ||
+          ticket.tags.some((tag) => board.activeTags.includes(tag));
+
+        const isDueToday =
+          isDueTodayFilterOn && dueTodayTickets([ticket]).length > 0;
+        const isDueThisWeek =
+          isDueThisWeekFilterOn && dueThisWeekTickets([ticket]).length > 0;
+        const isDueThisMonth =
+          isDueThisMonthFilterOn && dueThisMonthTickets([ticket]).length > 0;
+
+        return (
+          (ticket.description.includes(searchTerm) ||
+            ticket.title.includes(searchTerm)) &&
+          hasMatchingTags &&
+          (!isDueTodayFilterOn || isDueToday) &&
+          (!isDueThisWeekFilterOn || isDueThisWeek) &&
+          (!isDueThisMonthFilterOn || isDueThisMonth)
+        );
+      });
+
+      return {
+        ...board,
+        tickets: filteredTickets,
+      };
+    } else {
+      return board;
+    }
+  });
+
+  return filteredBoards;
+};
+
+app.get('/getBoardsPaginatedWithFilters', async (req, res) => {
+  try {
+    return res.json(await getBoardsPaginatedWithFilters(req));
+  } catch (err) {
+    return res.status(500).send(err);
+  }
+});
+
 const getBoardsOnlyTenInEachSwimlane = async () => {
   const boards = await getBoards();
 
@@ -306,6 +418,37 @@ app.post('/setBoards', async function (req, res) {
     return res.status(200).send({ status: 'OK' });
   } catch (err) {
     return res.status(500).send(err);
+  }
+});
+
+app.post('/setActiveTags', async (req, res) => {
+  try {
+    const collection = client.db('kanban').collection('users');
+
+    const query = {
+      username: 'admin',
+    };
+
+    const options = { upsert: true };
+
+    const activeTags = req.body.activeTags;
+
+    await collection.updateOne(
+      query,
+      {
+        $set: {
+          'boards.$[board].activeTags': activeTags,
+        },
+      },
+      {
+        arrayFilters: [{ 'board._id': req.body.boardId }],
+        ...options,
+      }
+    );
+
+    res.status(200).send({ status: 'OK' });
+  } catch (err) {
+    res.status(500).send(err);
   }
 });
 

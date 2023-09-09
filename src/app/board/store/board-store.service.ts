@@ -14,7 +14,6 @@ import { TicketStore } from 'src/app/ticket/store/ticket-store.service';
 import { BoardService } from '../board.service';
 
 export interface BoardStoreState {
-  currentBoard: Board;
   boards: Board[];
   isTicketOpen: boolean;
   isBoardsListOpen: boolean;
@@ -34,7 +33,6 @@ export class BoardStore extends ComponentStore<BoardStoreState> {
     private boardService: BoardService
   ) {
     super({
-      currentBoard: null,
       boards: [],
       isTicketOpen: false,
       isBoardsListOpen: false,
@@ -164,13 +162,6 @@ export class BoardStore extends ComponentStore<BoardStoreState> {
     (state: BoardStoreState, pair: { field: string; value: any }) => ({
       ...state,
       currentTicket: { ...state.currentTicket, [pair?.field]: pair?.value },
-    })
-  );
-
-  readonly updateCurrentBoardField = this.updater(
-    (state: BoardStoreState, pair: { field: string; value: any }) => ({
-      ...state,
-      currentBoard: { ...state.currentBoard, [pair?.field]: pair?.value },
     })
   );
 
@@ -691,9 +682,6 @@ export class BoardStore extends ComponentStore<BoardStoreState> {
   readonly updateCurrentBoardTitle = this.effect(
     (updateCurrentBoardTitle$: Observable<string>) =>
       updateCurrentBoardTitle$.pipe(
-        tap((title) =>
-          this.updateCurrentBoardField({ field: 'title', value: title })
-        ),
         withLatestFrom(this.currentBoard$),
         switchMap(([title, currentBoard]) => {
           return this.boardService

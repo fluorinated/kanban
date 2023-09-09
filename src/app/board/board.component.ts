@@ -58,7 +58,7 @@ export class BoardComponent implements OnInit {
 
   ngOnInit(): void {
     this.boardStore.updateBoards();
-    this.swimlaneStore.getMaxPagesForSwimlaneInit();
+    this.swimlaneStore.getBoardsPaginatedWithFiltersInit();
   }
 
   openTicket($event: Ticket): void {

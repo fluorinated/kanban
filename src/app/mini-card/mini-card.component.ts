@@ -9,6 +9,7 @@ import { Ticket } from '@models/ticket.model';
 })
 export class MiniCardComponent {
   @Input() ticket: Ticket;
+  @Input() noDrag: boolean = false;
   @Output() ticketClicked: EventEmitter<void> = new EventEmitter<void>();
 
   openTicket(): void {

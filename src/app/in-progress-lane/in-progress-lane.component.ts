@@ -15,9 +15,12 @@ export class InProgressLaneComponent {
 
   pageNumber$: Observable<string>;
   inProgressLaneMaxPages$: Observable<string>;
+  isAnyFilterOn$: Observable<boolean>;
+
   constructor(private swimlaneStore: SwimlaneStore) {
     this.pageNumber$ = this.swimlaneStore.inProgressLanePageNumber$;
     this.inProgressLaneMaxPages$ = this.swimlaneStore.inProgressLaneMaxPages$;
+    this.isAnyFilterOn$ = this.swimlaneStore.isAnyFilterOn$;
   }
 
   drop(event: CdkDragDrop<string[]>): void {

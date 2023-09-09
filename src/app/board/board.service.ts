@@ -4,7 +4,8 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { Board } from '../models/board.model';
 
-const baseUrl = 'https://kanban-service-heeh.onrender.com';
+// const baseUrl = 'https://kanban-service-heeh.onrender.com';
+const baseUrl = 'http://localhost:8080';
 
 @Injectable({
   providedIn: 'root',
@@ -24,6 +25,18 @@ export class BoardService {
   ): Observable<Board[]> {
     return this.http.get<Board[]>(
       `${baseUrl}/getBoardsPaginated?pageNumber=${pageNumber}&swimlaneTitle=${swimlaneTitle}`
+    );
+  }
+
+  getBoardsPaginatedWithFilters(
+    searchTerm: string,
+    boardId: string,
+    isDueTodayFilterOn: boolean,
+    isDueThisWeekFilterOn: boolean,
+    isDueThisMonthFilterOn: boolean
+  ): Observable<Board[]> {
+    return this.http.get<Board[]>(
+      `${baseUrl}/getBoardsPaginatedWithFilters?searchTerm=${searchTerm}&boardId=${boardId}&isDueTodayFilterOn=${isDueTodayFilterOn}&isDueThisWeekFilterOn=${isDueThisWeekFilterOn}&isDueThisMonthFilterOn=${isDueThisMonthFilterOn}`
     );
   }
 
@@ -59,6 +72,14 @@ export class BoardService {
     return this.http.post<Object>(
       `${baseUrl}/setBoards`,
       JSON.stringify({ boards }),
+      this.httpOptions
+    );
+  }
+
+  setActiveTags(activeTags: string[], boardId: string): Observable<Object> {
+    return this.http.post<Object>(
+      `${baseUrl}/setActiveTags`,
+      JSON.stringify({ activeTags, boardId }),
       this.httpOptions
     );
   }

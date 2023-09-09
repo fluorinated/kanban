@@ -1,25 +1,37 @@
-<div
-  #doneLane
-  cdkDropList
-  [cdkDropListConnectedTo]="[
-    'rdy2startLane',
-    'inProgressLane',
-    'backlogLane',
-    'blockedLane'
-  ]"
-  [cdkDropListData]="tickets"
-  class="list"
-  (cdkDropListDropped)="drop($event)"
->
-  <div class="card-container" *ngFor="let ticket of tickets">
+<ng-container *ngIf="(isAnyFilterOn$ | async) === false">
+  <div
+    #doneLane
+    cdkDropList
+    [cdkDropListConnectedTo]="[
+      'rdy2startLane',
+      'inProgressLane',
+      'backlogLane',
+      'blockedLane'
+    ]"
+    [cdkDropListData]="tickets"
+    class="list"
+    (cdkDropListDropped)="drop($event)"
+  >
+    <div class="card-container" *ngFor="let ticket of tickets?.slice(0, 10)">
+      <app-mini-card
+        [ticket]="ticket"
+        [cdkDragData]="ticket"
+        cdkDrag
+        (ticketClicked)="openTicket(ticket)"
+      ></app-mini-card>
+    </div>
+  </div>
+</ng-container>
+
+<ng-container *ngIf="isAnyFilterOn$ | async">
+  <div class="card-container" *ngFor="let ticket of tickets?.slice(0, 10)">
     <app-mini-card
       [ticket]="ticket"
-      [cdkDragData]="ticket"
-      cdkDrag
+      [noDrag]="true"
       (ticketClicked)="openTicket(ticket)"
     ></app-mini-card>
   </div>
-</div>
+</ng-container>
 
 <app-paginator
   title="done"

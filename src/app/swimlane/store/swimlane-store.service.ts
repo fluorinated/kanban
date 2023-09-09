@@ -121,6 +121,20 @@ export class SwimlaneStore extends ComponentStore<SwimlaneStoreState> {
     (state) => state.isDueThisMonthFilterOn
   );
 
+  readonly isAnyFilterOn$: Observable<boolean> = this.select(
+    this.boardStore.searchTerm$,
+    this.boardStore.currentBoardActiveTags$,
+    this.isDueTodayFilterOn$,
+    this.isDueThisWeekFilterOn$,
+    this.isDueThisMonthFilterOn$,
+    (searchTerm, activeTags, isDueTodayOn, isDueThisWeekOn, isDueThisMonthOn) =>
+      searchTerm !== '' ||
+      (activeTags && activeTags.length > 0) ||
+      isDueTodayOn ||
+      isDueThisWeekOn ||
+      isDueThisMonthOn
+  );
+
   readonly filteredTickets$: Observable<Ticket[]> = this.select(
     this.boardStore.currentBoardActiveTags$,
     this.boardStore.searchTerm$,
@@ -264,6 +278,306 @@ export class SwimlaneStore extends ComponentStore<SwimlaneStoreState> {
     }
   );
 
+  readonly getBoardsPaginatedWithFiltersInit = this.effect(
+    (setSearchTermUpdatePagination$: Observable<void>) => {
+      return setSearchTermUpdatePagination$.pipe(
+        tap(() => this.resetPagination()),
+        withLatestFrom(
+          this.boardStore.searchTerm$,
+          this.boardStore.currentBoard$,
+          this.isDueTodayFilterOn$,
+          this.isDueThisWeekFilterOn$,
+          this.isDueThisMonthFilterOn$
+        ),
+        switchMap(
+          ([
+            ,
+            searchTerm,
+            currentBoard,
+            isDueTodayFilterOn,
+            isDueThisWeekFilterOn,
+            isDueThisMonthFilterOn,
+          ]) => {
+            return this.boardService
+              .getBoardsPaginatedWithFilters(
+                searchTerm,
+                currentBoard?._id,
+                isDueTodayFilterOn,
+                isDueThisWeekFilterOn,
+                isDueThisMonthFilterOn
+              )
+              .pipe(
+                tap((boards) => {
+                  this.boardStore.setBoards(boards);
+                })
+              );
+          }
+        ),
+        tap((boards) => {
+          const currentBoard = (boards as Board[]).find(
+            (board) => board.isCurrentBoard
+          );
+          if (currentBoard?.tickets) {
+            this.getLaneMaxPagesFromTickets(currentBoard?.tickets);
+          }
+        })
+      );
+    }
+  );
+
+  readonly setSearchTermUpdatePagination = this.effect(
+    (setSearchTermUpdatePagination$: Observable<string>) => {
+      return setSearchTermUpdatePagination$.pipe(
+        tap((value) => this.boardStore.setSearchTerm(value)),
+        withLatestFrom(
+          this.boardStore.currentBoard$,
+          this.isDueTodayFilterOn$,
+          this.isDueThisWeekFilterOn$,
+          this.isDueThisMonthFilterOn$
+        ),
+        switchMap(
+          ([
+            searchTerm,
+            currentBoard,
+            isDueTodayFilterOn,
+            isDueThisWeekFilterOn,
+            isDueThisMonthFilterOn,
+          ]) => {
+            return this.resetPaginationAndFetchBoards(
+              searchTerm,
+              currentBoard,
+              isDueTodayFilterOn,
+              isDueThisWeekFilterOn,
+              isDueThisMonthFilterOn
+            );
+          }
+        )
+      );
+    }
+  );
+
+  readonly addTagToCurrentBoardActiveTagsUpdatePagination = this.effect(
+    (addTagToCurrentBoardActiveTagsUpdatePagination$: Observable<string>) => {
+      return addTagToCurrentBoardActiveTagsUpdatePagination$.pipe(
+        tap((tag) => this.boardStore.addTagToCurrentBoardActiveTags(tag)),
+        withLatestFrom(
+          this.boardStore.currentBoardActiveTags$,
+          this.boardStore.searchTerm$,
+          this.boardStore.currentBoard$,
+          this.isDueTodayFilterOn$,
+          this.isDueThisWeekFilterOn$,
+          this.isDueThisMonthFilterOn$
+        ),
+        switchMap(
+          ([
+            ,
+            activeTags,
+            searchTerm,
+            currentBoard,
+            isDueTodayFilterOn,
+            isDueThisWeekFilterOn,
+            isDueThisMonthFilterOn,
+          ]) => {
+            return this.boardService
+              .setActiveTags(activeTags, currentBoard._id)
+              .pipe(
+                switchMap(() => {
+                  return this.resetPaginationAndFetchBoards(
+                    searchTerm,
+                    currentBoard,
+                    isDueTodayFilterOn,
+                    isDueThisWeekFilterOn,
+                    isDueThisMonthFilterOn
+                  );
+                })
+              );
+          }
+        )
+      );
+    }
+  );
+
+  readonly removeTagFromCurrentBoardActiveTagsUpdatePagination = this.effect(
+    (
+      removeTagFromCurrentBoardActiveTagsUpdatePagination$: Observable<string>
+    ) => {
+      return removeTagFromCurrentBoardActiveTagsUpdatePagination$.pipe(
+        tap((tag) => this.boardStore.removeTagFromCurrentBoardActiveTags(tag)),
+        withLatestFrom(
+          this.boardStore.currentBoardActiveTags$,
+          this.boardStore.searchTerm$,
+          this.boardStore.currentBoard$,
+          this.isDueTodayFilterOn$,
+          this.isDueThisWeekFilterOn$,
+          this.isDueThisMonthFilterOn$
+        ),
+        switchMap(
+          ([
+            ,
+            activeTags,
+            searchTerm,
+            currentBoard,
+            isDueTodayFilterOn,
+            isDueThisWeekFilterOn,
+            isDueThisMonthFilterOn,
+          ]) => {
+            return this.boardService
+              .setActiveTags(activeTags, currentBoard._id)
+              .pipe(
+                switchMap(() => {
+                  return this.resetPaginationAndFetchBoards(
+                    searchTerm,
+                    currentBoard,
+                    isDueTodayFilterOn,
+                    isDueThisWeekFilterOn,
+                    isDueThisMonthFilterOn
+                  );
+                })
+              );
+          }
+        )
+      );
+    }
+  );
+
+  private resetPaginationAndFetchBoards(
+    searchTerm: string,
+    currentBoard: Board,
+    isDueTodayFilterOn: boolean,
+    isDueThisWeekFilterOn: boolean,
+    isDueThisMonthFilterOn: boolean
+  ): Observable<Board[]> {
+    this.resetPagination();
+    return this.boardService
+      .getBoardsPaginatedWithFilters(
+        searchTerm,
+        currentBoard._id,
+        isDueTodayFilterOn,
+        isDueThisWeekFilterOn,
+        isDueThisMonthFilterOn
+      )
+      .pipe(
+        tap((boards) => {
+          this.boardStore.setBoards(boards);
+          const currentBoard = (boards as Board[]).find(
+            (board) => board.isCurrentBoard
+          );
+          if (currentBoard?.tickets) {
+            this.getLaneMaxPagesFromTickets(currentBoard?.tickets);
+          }
+        })
+      );
+  }
+
+  readonly setIsDueTodayFilter = this.effect(
+    (setIsDueTodayFilter$: Observable<void>) => {
+      return setIsDueTodayFilter$.pipe(
+        withLatestFrom(
+          this.boardStore.searchTerm$,
+          this.boardStore.currentBoard$,
+          this.isDueTodayFilterOn$,
+          this.isDueThisWeekFilterOn$,
+          this.isDueThisMonthFilterOn$
+        ),
+        switchMap(
+          ([
+            ,
+            searchTerm,
+            currentBoard,
+            isDueTodayFilterOn,
+            isDueThisWeekFilterOn,
+            isDueThisMonthFilterOn,
+          ]) => {
+            this.turnOffMainFilters();
+
+            if (!isDueTodayFilterOn) {
+              this.setIsDueTodayFilterOn(true);
+            }
+            return this.resetPaginationAndFetchBoards(
+              searchTerm,
+              currentBoard,
+              isDueTodayFilterOn,
+              isDueThisWeekFilterOn,
+              isDueThisMonthFilterOn
+            );
+          }
+        )
+      );
+    }
+  );
+
+  readonly setIsDueThisWeekFilter = this.effect(
+    (setIsDueThisWeekFilter$: Observable<void>) =>
+      setIsDueThisWeekFilter$.pipe(
+        withLatestFrom(
+          this.boardStore.searchTerm$,
+          this.boardStore.currentBoard$,
+          this.isDueTodayFilterOn$,
+          this.isDueThisWeekFilterOn$,
+          this.isDueThisMonthFilterOn$
+        ),
+        switchMap(
+          ([
+            ,
+            searchTerm,
+            currentBoard,
+            isDueTodayFilterOn,
+            isDueThisWeekFilterOn,
+            isDueThisMonthFilterOn,
+          ]) => {
+            this.turnOffMainFilters();
+
+            if (!isDueThisWeekFilterOn) {
+              this.setIsDueThisWeekFilterOn(true);
+            }
+            return this.resetPaginationAndFetchBoards(
+              searchTerm,
+              currentBoard,
+              isDueTodayFilterOn,
+              isDueThisWeekFilterOn,
+              isDueThisMonthFilterOn
+            );
+          }
+        )
+      )
+  );
+
+  readonly setIsDueThisMonthFilter = this.effect(
+    (setIsDueThisMonthFilter$: Observable<void>) =>
+      setIsDueThisMonthFilter$.pipe(
+        withLatestFrom(
+          this.boardStore.searchTerm$,
+          this.boardStore.currentBoard$,
+          this.isDueTodayFilterOn$,
+          this.isDueThisWeekFilterOn$,
+          this.isDueThisMonthFilterOn$
+        ),
+        switchMap(
+          ([
+            ,
+            searchTerm,
+            currentBoard,
+            isDueTodayFilterOn,
+            isDueThisWeekFilterOn,
+            isDueThisMonthFilterOn,
+          ]) => {
+            this.turnOffMainFilters();
+
+            if (!isDueThisMonthFilterOn) {
+              this.setIsDueThisMonthFilterOn(true);
+            }
+            return this.resetPaginationAndFetchBoards(
+              searchTerm,
+              currentBoard,
+              isDueTodayFilterOn,
+              isDueThisWeekFilterOn,
+              isDueThisMonthFilterOn
+            );
+          }
+        )
+      )
+  );
+
   readonly getMaxPagesForSwimlaneInit = this.effect(
     (getLaneMaxPagesUpdate$: Observable<void>) => {
       return getLaneMaxPagesUpdate$.pipe(
@@ -287,6 +601,60 @@ export class SwimlaneStore extends ComponentStore<SwimlaneStoreState> {
             this.setLaneMaxPages(result);
           });
         })
+      );
+    }
+  );
+
+  readonly getLaneMaxPagesFromTickets = this.effect(
+    (getLaneMaxPagesFromTickets$: Observable<Ticket[]>) => {
+      return getLaneMaxPagesFromTickets$.pipe(
+        map((tickets) => {
+          const swimlaneMaxPagesMap = new Map<string, number>();
+
+          if (!tickets || tickets.length === 0) {
+            swimlaneTitles.forEach((swimlaneTitle) =>
+              swimlaneMaxPagesMap.set(swimlaneTitle, 1)
+            );
+          } else {
+            swimlaneTitles.forEach((swimlaneTitle) =>
+              swimlaneMaxPagesMap.set(swimlaneTitle, 1)
+            );
+
+            // calculate maxPages based on the number of tickets in each swimlane
+            tickets.forEach((ticket) => {
+              const swimlane = ticket.swimlaneTitle;
+
+              if (!swimlaneMaxPagesMap.has(swimlane)) {
+                swimlaneMaxPagesMap.set(swimlane, 1);
+              }
+
+              const currentPageCount = swimlaneMaxPagesMap.get(swimlane) || 1;
+              const ticketsPerPage = 10;
+              const swimlaneTickets = tickets.filter(
+                (t) => t.swimlaneTitle === swimlane
+              );
+              const ticketPageCount = Math.ceil(
+                swimlaneTickets.length / ticketsPerPage
+              );
+
+              if (ticketPageCount > currentPageCount) {
+                swimlaneMaxPagesMap.set(swimlane, ticketPageCount);
+              }
+            });
+          }
+
+          const maxPagesResults = Array.from(swimlaneMaxPagesMap.entries()).map(
+            ([lane, maxPages]) => ({
+              lane,
+              maxPages: maxPages.toString(),
+            })
+          );
+
+          return maxPagesResults;
+        }),
+        tap((results: { lane: string; maxPages: string }[]) =>
+          results.forEach((result) => this.setLaneMaxPages(result))
+        )
       );
     }
   );
@@ -481,42 +849,25 @@ export class SwimlaneStore extends ComponentStore<SwimlaneStoreState> {
       )
   );
 
-  goBackToFirstPage = (lanePageNumber: number, swimlaneTitle: string): void => {
-    for (let i = 1; i < lanePageNumber; i++) {
-      this.pageBack(swimlaneTitle);
-    }
-  };
-
   readonly addNewTicketToSwimlane = this.effect(
     (addNewTicketToBoard$: Observable<string>) =>
       addNewTicketToBoard$.pipe(
         withLatestFrom(
-          this.backlogLanePageNumber$,
-          this.rdy2StartLanePageNumber$,
-          this.blockedLanePageNumber$,
-          this.inProgressLanePageNumber$,
-          this.doneLanePageNumber$
+          this.boardStore.searchTerm$,
+          this.isDueTodayFilterOn$,
+          this.isDueThisWeekFilterOn$,
+          this.isDueThisMonthFilterOn$
         ),
         switchMap(
           ([
             swimlaneTitle,
-            backlogLanePageNumber,
-            rdy2StartLanePageNumber,
-            blockedLanePageNumber,
-            inProgressLanePageNumber,
-            doneLanePageNumber,
+            searchTerm,
+            isDueTodayFilterOn,
+            isDueThisWeekFilterOn,
+            isDueThisMonthFilterOn,
           ]) => {
             return this.boardService.getBoards().pipe(
               switchMap((boards) => {
-                let lanePageNumber;
-                lanePageNumber = getLanePageNumberFromLane(
-                  backlogLanePageNumber,
-                  rdy2StartLanePageNumber,
-                  blockedLanePageNumber,
-                  inProgressLanePageNumber,
-                  doneLanePageNumber
-                )[swimlaneTitle];
-
                 const currentBoard = boards.find(
                   (board) => board.isCurrentBoard
                 );
@@ -549,26 +900,18 @@ export class SwimlaneStore extends ComponentStore<SwimlaneStoreState> {
                   index: 0,
                 };
 
-                this.goBackToFirstPage(lanePageNumber, swimlaneTitle);
-
                 return this.swimlaneService
                   .addTicketToCurrentBoard(newTicket)
                   .pipe(
                     switchMap(() =>
-                      this.swimlaneService.getSwimlaneTicketsAtFirstPage(
-                        swimlaneTitle
+                      this.resetPaginationAndFetchBoards(
+                        searchTerm,
+                        currentBoard,
+                        isDueTodayFilterOn,
+                        isDueThisWeekFilterOn,
+                        isDueThisMonthFilterOn
                       )
                     ),
-                    map((updatedTickets) => {
-                      const payload = {
-                        newTicket,
-                        swimlaneTitle,
-                        updatedTickets,
-                      };
-                      return this.boardStore.updateCurrentBoardSwimlaneTicketsWithNewTicket(
-                        payload
-                      );
-                    }),
                     catchError((error) => {
                       console.log(
                         'err addNewTicketToBoard addTicketToCurrentBoard',
@@ -685,45 +1028,5 @@ export class SwimlaneStore extends ComponentStore<SwimlaneStoreState> {
         }
       )
     )
-  );
-
-  readonly setIsDueTodayFilter = this.effect(
-    (setIsDueTodayFilter$: Observable<void>) => {
-      return setIsDueTodayFilter$.pipe(
-        withLatestFrom(this.isDueTodayFilterOn$),
-        tap(() => this.turnOffMainFilters()),
-        tap(([, isDueTodayFilterOn]) => {
-          if (!isDueTodayFilterOn) {
-            this.setIsDueTodayFilterOn(true);
-          }
-        })
-      );
-    }
-  );
-
-  readonly setIsDueThisWeekFilter = this.effect(
-    (setIsDueThisWeekFilter$: Observable<void>) =>
-      setIsDueThisWeekFilter$.pipe(
-        withLatestFrom(this.isDueThisWeekFilterOn$),
-        tap(() => this.turnOffMainFilters()),
-        tap(([, isDueThisWeekFilterOn]) => {
-          if (!isDueThisWeekFilterOn) {
-            this.setIsDueThisWeekFilterOn(true);
-          }
-        })
-      )
-  );
-
-  readonly setIsDueThisMonthFilter = this.effect(
-    (setIsDueThisMonthFilter$: Observable<void>) =>
-      setIsDueThisMonthFilter$.pipe(
-        withLatestFrom(this.isDueThisMonthFilterOn$),
-        tap(() => this.turnOffMainFilters()),
-        tap(([, isDueThisMonthFilterOn]) => {
-          if (!isDueThisMonthFilterOn) {
-            this.setIsDueThisMonthFilterOn(true);
-          }
-        })
-      )
   );
 }

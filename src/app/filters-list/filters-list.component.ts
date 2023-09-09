@@ -1,6 +1,7 @@
 import { Component, EventEmitter, Output } from '@angular/core';
 import { BoardStore } from '../board/store/board-store.service';
 import { Observable } from 'rxjs';
+import { SwimlaneStore } from '../swimlane/store/swimlane-store.service';
 
 @Component({
   selector: 'app-filters-list',
@@ -13,7 +14,10 @@ export class FiltersListComponent {
   currentBoardTags$: Observable<string[]>;
   currentBoardActiveTags$: Observable<string[]>;
 
-  constructor(private boardStore: BoardStore) {
+  constructor(
+    private boardStore: BoardStore,
+    private swimlaneStore: SwimlaneStore
+  ) {
     this.currentBoardTags$ = this.boardStore.currentBoardTags$;
     this.currentBoardActiveTags$ = this.boardStore.currentBoardActiveTags$;
   }
@@ -23,10 +27,10 @@ export class FiltersListComponent {
   }
 
   removeTag(tag: string): void {
-    this.boardStore.removeTagFromCurrentBoardActiveTags(tag);
+    this.swimlaneStore.removeTagFromCurrentBoardActiveTagsUpdatePagination(tag);
   }
 
   tagClicked(tag: string): void {
-    this.boardStore.addTagToCurrentBoardActiveTags(tag);
+    this.swimlaneStore.addTagToCurrentBoardActiveTagsUpdatePagination(tag);
   }
 }

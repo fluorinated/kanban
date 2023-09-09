@@ -15,10 +15,12 @@ export class BlockedLaneComponent {
 
   pageNumber$: Observable<string>;
   blockedLaneMaxPages$: Observable<string>;
+  isAnyFilterOn$: Observable<boolean>;
 
   constructor(private swimlaneStore: SwimlaneStore) {
     this.pageNumber$ = this.swimlaneStore.blockedLanePageNumber$;
     this.blockedLaneMaxPages$ = this.swimlaneStore.blockedLaneMaxPages$;
+    this.isAnyFilterOn$ = this.swimlaneStore.isAnyFilterOn$;
   }
 
   drop(event: CdkDragDrop<string[]>): void {
