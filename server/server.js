@@ -641,6 +641,42 @@ app.post('/addNewBoardToBoards', async (req, res) => {
   }
 });
 
+app.post('/updateTicket', async function (req, res) {
+  try {
+    const { ticketNumber, field, value } = req.body;
+    const boards = await getBoards();
+
+    const currentBoard = boards.find((board) => board.isCurrentBoard);
+
+    if (!currentBoard) {
+      return res.status(400).send('No current board found.');
+    }
+
+    const ticketToUpdate = currentBoard.tickets.find(
+      (ticket) => ticket.ticketNumber === ticketNumber
+    );
+
+    if (!ticketToUpdate) {
+      return res
+        .status(404)
+        .send(`Ticket with ticketNumber ${ticketNumber} not found.`);
+    }
+
+    if (field in ticketToUpdate) {
+      ticketToUpdate[field] = value;
+    } else {
+      return res.status(400).send(`Invalid field: ${field}`);
+    }
+
+    await setBoards(boards);
+
+    return res.status(200).send({ status: 'OK' });
+  } catch (err) {
+    console.error('Error updating ticket:', err);
+    return res.status(500).send(err);
+  }
+});
+
 app.post('/addTicketToCurrentBoard', async function (req, res) {
   try {
     const newTicket = req.body;

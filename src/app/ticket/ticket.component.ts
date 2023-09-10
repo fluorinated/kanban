@@ -4,6 +4,7 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { Ticket } from '@models/ticket.model';
 import { BoardStore } from '../board/store/board-store.service';
 import { TicketStore } from './store/ticket-store.service';
+import { SwimlaneStore } from '../swimlane/store/swimlane-store.service';
 
 @Component({
   selector: 'app-ticket',
@@ -24,7 +25,8 @@ export class TicketComponent {
 
   constructor(
     private boardStore: BoardStore,
-    private ticketStore: TicketStore
+    private ticketStore: TicketStore,
+    private swimlaneStore: SwimlaneStore
   ) {
     this.isEditingTitle$ = this.ticketStore.isEditingTitle$;
     this.isEditingDescription$ = this.ticketStore.isEditingDescription$;
@@ -80,7 +82,10 @@ export class TicketComponent {
 
   saveEditField(field: string, $event: string): void {
     if (field !== 'newTag') {
-      this.boardStore.saveUpdatedCurrentTicketField({ field, value: $event });
+      this.swimlaneStore.saveUpdatedCurrentTicketField({
+        field,
+        value: $event,
+      });
     }
     switch (field) {
       case 'title':

@@ -1171,4 +1171,53 @@ export class SwimlaneStore extends ComponentStore<SwimlaneStoreState> {
       )
     )
   );
+
+  readonly saveUpdatedCurrentTicketField = this.effect(
+    (
+      saveUpdatedCurrentTicketField$: Observable<{ field: string; value: any }>
+    ) =>
+      saveUpdatedCurrentTicketField$.pipe(
+        tap((vals) =>
+          this.boardStore.updateCurrentTicketField({
+            field: vals.field,
+            value: vals.value,
+          })
+        ),
+        withLatestFrom(this.boardStore.currentTicket$),
+        switchMap(([vals, currentTicket]) => {
+          return this.swimlaneService
+            .updateTicket(currentTicket.ticketNumber, vals.field, vals.value)
+            .pipe(
+              withLatestFrom(
+                this.boardStore.currentBoard$,
+                this.boardStore.searchTerm$,
+                this.isDueTodayFilterOn$,
+                this.isDueThisWeekFilterOn$,
+                this.isDueThisMonthFilterOn$
+              ),
+              switchMap(
+                ([
+                  ,
+                  currentBoard,
+                  searchTerm,
+                  isDueTodayFilterOn,
+                  isDueThisWeekFilterOn,
+                  isDueThisMonthFilterOn,
+                ]) =>
+                  this.resetPaginationAndFetchBoards(
+                    searchTerm,
+                    currentBoard,
+                    isDueTodayFilterOn,
+                    isDueThisWeekFilterOn,
+                    isDueThisMonthFilterOn
+                  )
+              ),
+              catchError((error) => {
+                console.log('err saveUpdatedCurrentTicketField', error);
+                return throwError(error);
+              })
+            );
+        })
+      )
+  );
 }
