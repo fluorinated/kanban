@@ -22,7 +22,7 @@ export class DeleteModalComponent {
   }
 
   checkClicked(): void {
-    this.swimlaneStore.determineDeleteCurrentBoardUpdatePagination();
+    this.swimlaneStore.determineDeleteItem();
   }
 
   xClicked(): void {

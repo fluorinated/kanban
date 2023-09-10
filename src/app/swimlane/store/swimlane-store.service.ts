@@ -278,44 +278,6 @@ export class SwimlaneStore extends ComponentStore<SwimlaneStoreState> {
     }
   );
 
-  readonly determineDeleteCurrentBoardUpdatePagination = this.effect(
-    (determineDeleteCurrentBoardUpdatePagination$: Observable<void>) => {
-      return determineDeleteCurrentBoardUpdatePagination$.pipe(
-        tap(() => {
-          this.determineDeleteItem();
-        }),
-        withLatestFrom(
-          this.boardStore.searchTerm$,
-          this.boardStore.currentBoard$,
-          this.isDueTodayFilterOn$,
-          this.isDueThisWeekFilterOn$,
-          this.isDueThisMonthFilterOn$
-        ),
-        filter(([, , currentBoard, , , ,]) => !!currentBoard),
-        switchMap(
-          ([
-            ,
-            searchTerm,
-            currentBoard,
-            isDueTodayFilterOn,
-            isDueThisWeekFilterOn,
-            isDueThisMonthFilterOn,
-          ]) => {
-            this.changeCurrentBoardUpdatePagination(currentBoard);
-
-            return this.resetPaginationAndFetchBoards(
-              searchTerm,
-              currentBoard,
-              isDueTodayFilterOn,
-              isDueThisWeekFilterOn,
-              isDueThisMonthFilterOn
-            );
-          }
-        )
-      );
-    }
-  );
-
   readonly determineDeleteItem = this.effect(
     (determineDeleteItem$: Observable<void>) =>
       determineDeleteItem$.pipe(
@@ -380,6 +342,34 @@ export class SwimlaneStore extends ComponentStore<SwimlaneStoreState> {
                 this.changeCurrentBoard(boards[0]);
               }
             }),
+            withLatestFrom(
+              this.boardStore.searchTerm$,
+              this.boardStore.currentBoard$,
+              this.isDueTodayFilterOn$,
+              this.isDueThisWeekFilterOn$,
+              this.isDueThisMonthFilterOn$
+            ),
+            filter(([, , currentBoard, , , ,]) => !!currentBoard),
+            switchMap(
+              ([
+                ,
+                searchTerm,
+                currentBoard,
+                isDueTodayFilterOn,
+                isDueThisWeekFilterOn,
+                isDueThisMonthFilterOn,
+              ]) => {
+                this.changeCurrentBoardUpdatePagination(currentBoard);
+
+                return this.resetPaginationAndFetchBoards(
+                  searchTerm,
+                  currentBoard,
+                  isDueTodayFilterOn,
+                  isDueThisWeekFilterOn,
+                  isDueThisMonthFilterOn
+                );
+              }
+            ),
             catchError((error: string) => {
               console.log('err deleteCurrentBoardUpdate', error);
               return throwError(error);
@@ -405,6 +395,34 @@ export class SwimlaneStore extends ComponentStore<SwimlaneStoreState> {
                 this.changeCurrentBoard(boards[0]);
               }
             }),
+            withLatestFrom(
+              this.boardStore.searchTerm$,
+              this.boardStore.currentBoard$,
+              this.isDueTodayFilterOn$,
+              this.isDueThisWeekFilterOn$,
+              this.isDueThisMonthFilterOn$
+            ),
+            filter(([, , currentBoard, , , ,]) => !!currentBoard),
+            switchMap(
+              ([
+                ,
+                searchTerm,
+                currentBoard,
+                isDueTodayFilterOn,
+                isDueThisWeekFilterOn,
+                isDueThisMonthFilterOn,
+              ]) => {
+                this.changeCurrentBoardUpdatePagination(currentBoard);
+
+                return this.resetPaginationAndFetchBoards(
+                  searchTerm,
+                  currentBoard,
+                  isDueTodayFilterOn,
+                  isDueThisWeekFilterOn,
+                  isDueThisMonthFilterOn
+                );
+              }
+            ),
             catchError((error: string) => {
               console.log('err deleteBoardUpdate', error);
               return throwError(error);
