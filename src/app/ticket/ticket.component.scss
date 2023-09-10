@@ -22,6 +22,7 @@
 .title {
   color: var(--pink-1);
   padding-left: 1rem;
+  word-break: break-word;
 }
 
 .ticket-number {
@@ -43,6 +44,7 @@
   margin: 0 0.5rem;
   margin-bottom: 1rem;
   color: var(--neutral-1);
+  word-break: break-word;
 }
 
 .tags,
