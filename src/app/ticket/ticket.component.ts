@@ -98,8 +98,7 @@ export class TicketComponent {
         this.ticketStore.setIsEditingDueDate(false);
         break;
       case 'newTag':
-        this.ticketStore.setNewTagName($event);
-        this.boardStore.addNewTagToCurrentBoardTags();
+        this.boardStore.addNewTagToCurrentBoardTags($event);
         break;
     }
   }

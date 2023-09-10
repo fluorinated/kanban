@@ -224,37 +224,6 @@ app.get('/getBoardsPaginatedWithFilters', async (req, res) => {
   }
 });
 
-const getBoardsOnlyTenInEachSwimlane = async () => {
-  const boards = await getBoards();
-
-  for (const board of boards) {
-    for (const swimlane of SWIMLANE_TITLES) {
-      const ticketsInSwimlane = board.tickets.filter(
-        (ticket) => ticket.swimlaneTitle === swimlane
-      );
-
-      ticketsInSwimlane.sort((a, b) => a.index - b.index);
-
-      const first10Tickets = ticketsInSwimlane.slice(0, 10);
-
-      board.tickets = board.tickets.filter(
-        (ticket) => ticket.swimlaneTitle !== swimlane
-      );
-      board.tickets.push(...first10Tickets);
-    }
-  }
-
-  return boards;
-};
-
-app.get('/getBoardsOnlyTenInEachSwimlane', async (req, res) => {
-  try {
-    return res.json(await getBoardsOnlyTenInEachSwimlane());
-  } catch (err) {
-    return res.status(500).send(err);
-  }
-});
-
 const getMaxPagesForSwimlane = async (req) => {
   const swimlaneTitle = req.query.swimlaneTitle;
   const pageSize = 10;

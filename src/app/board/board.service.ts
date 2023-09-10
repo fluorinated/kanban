@@ -40,10 +40,6 @@ export class BoardService {
     );
   }
 
-  getBoardsOnlyTenInEachSwimlane(): Observable<Board[]> {
-    return this.http.get<Board[]>(`${baseUrl}/getBoardsOnlyTenInEachSwimlane`);
-  }
-
   getBoards(): Observable<Board[]> {
     return this.http.get<Board[]>(`${baseUrl}/getBoards`);
   }
