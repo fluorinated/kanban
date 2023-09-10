@@ -737,6 +737,7 @@ export class BoardStore extends ComponentStore<BoardStoreState> {
     ) =>
       saveUpdatedCurrentTicketField$.pipe(
         withLatestFrom(this.currentTicket$),
+        filter(([vals]) => vals.value !== ''),
         tap(([vals, currentTicket]) => {
           this.updateCurrentTicketField({
             field: vals.field,
