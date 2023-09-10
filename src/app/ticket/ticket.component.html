@@ -85,7 +85,7 @@
         class="input new-tag-input"
         placeholder="new tag name"
         [isTextarea]="false"
-        (onBlur)="saveEditField('newTag', $event)"
+        (onKeyUp)="saveNewTagOnKeyUp($event)"
       ></app-input>
 
       <app-button

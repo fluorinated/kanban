@@ -580,11 +580,11 @@ export class BoardStore extends ComponentStore<BoardStoreState> {
   );
 
   readonly addNewTagToCurrentBoardTags = this.effect(
-    (addNewTagToCurrentBoardTags$: Observable<string>) =>
+    (addNewTagToCurrentBoardTags$: Observable<void>) =>
       addNewTagToCurrentBoardTags$.pipe(
-        tap((tagName) => this.ticketStore.setNewTagName(tagName)),
-        tap((tag) => this.addTagToCurrentBoard(tag)),
-        switchMap((tag) => {
+        withLatestFrom(this.ticketStore.newTagName$),
+        switchMap(([, tag]) => {
+          this.addTagToCurrentBoard(tag);
           return this.boardService.addTagToCurrentBoard(tag).pipe(
             catchError((error: string) => {
               console.log('err addNewTagToCurrentBoardTags', error);
@@ -599,8 +599,8 @@ export class BoardStore extends ComponentStore<BoardStoreState> {
   readonly deleteCurrentBoardTagUpdate = this.effect(
     (deleteCurrentBoardTag$: Observable<string>) =>
       deleteCurrentBoardTag$.pipe(
-        tap((tag) => this.deleteCurrentBoardTag(tag)),
         switchMap((tag) => {
+          this.deleteCurrentBoardTag(tag);
           return this.boardService.deleteCurrentBoardTag(tag).pipe(
             catchError((error: string) => {
               console.log('err deleteCurrentBoardTagUpdate', error);

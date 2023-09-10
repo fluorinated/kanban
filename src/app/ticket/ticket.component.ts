@@ -98,9 +98,13 @@ export class TicketComponent {
         this.ticketStore.setIsEditingDueDate(false);
         break;
       case 'newTag':
-        this.boardStore.addNewTagToCurrentBoardTags($event);
+        this.boardStore.addNewTagToCurrentBoardTags();
         break;
     }
+  }
+
+  saveNewTagOnKeyUp(value: string): void {
+    this.ticketStore.setNewTagName(value);
   }
 
   cancelNewTag(): void {

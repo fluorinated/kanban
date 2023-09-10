@@ -25,12 +25,6 @@ export class SwimlaneService {
 
   constructor(private http: HttpClient) {}
 
-  getSwimlaneTicketsAtFirstPage(swimlaneTitle: string): Observable<Ticket[]> {
-    return this.http.get<Ticket[]>(
-      `${baseUrl}/getSwimlaneTicketsAtFirstPage?swimlaneTitle=${swimlaneTitle}`
-    );
-  }
-
   getMaxPagesForSwimlane(
     currentBoard: Board,
     swimlaneTitle: string

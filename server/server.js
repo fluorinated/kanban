@@ -324,41 +324,6 @@ app.get('/getCurrentBoardSwimlaneTicketsPaginated', async function (req, res) {
   return res.status(200).send(paginatedTickets);
 });
 
-const getSwimlaneTicketsAtFirstPage = async (req) => {
-  const swimlaneTitle = req.query.swimlaneTitle;
-  const boards = await getBoards();
-
-  const selectedSwimlane = SWIMLANE_TITLES.find(
-    (lane) => lane === swimlaneTitle
-  );
-
-  if (selectedSwimlane) {
-    const allTickets = boards.reduce((acc, board) => {
-      const ticketsInSwimlane = board.tickets.filter(
-        (ticket) => ticket.swimlaneTitle === selectedSwimlane
-      );
-
-      ticketsInSwimlane.sort((a, b) => a.index - b.index);
-
-      acc.push(...ticketsInSwimlane);
-      return acc;
-    }, []);
-
-    const first10Tickets = allTickets.slice(0, 10);
-
-    return first10Tickets;
-  }
-  return [];
-};
-
-app.get('/getSwimlaneTicketsAtFirstPage', async (req, res) => {
-  try {
-    return res.json(await getSwimlaneTicketsAtFirstPage(req));
-  } catch (err) {
-    return res.status(500).send(err);
-  }
-});
-
 // post
 setBoards = async (boards) => {
   try {
