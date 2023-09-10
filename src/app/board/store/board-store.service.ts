@@ -543,74 +543,6 @@ export class BoardStore extends ComponentStore<BoardStoreState> {
       )
   );
 
-  readonly determineDeleteItem = this.effect(
-    (determineDeleteItem$: Observable<void>) =>
-      determineDeleteItem$.pipe(
-        tap(() => this.setHasAnsweredYesToDelete(true)),
-        withLatestFrom(this.itemToDelete$),
-        tap(([, itemToDelete]) => {
-          if (itemToDelete.hasOwnProperty('_id')) {
-            this.deleteBoardUpdate(itemToDelete as Board);
-          } else if (itemToDelete === 'currentBoard') {
-            this.deleteCurrentBoardUpdate();
-          } else if (itemToDelete.hasOwnProperty('ticketNumber')) {
-            this.deleteTicketUpdate(itemToDelete as Ticket);
-          } else {
-            this.deleteCurrentBoardTagUpdate(itemToDelete as string);
-          }
-        }),
-        tap(() => {
-          this.setHasAnsweredYesToDelete(false);
-          this.setIsDeleteModalOpen(false);
-        })
-      )
-  );
-
-  readonly deleteCurrentBoardUpdate = this.effect(
-    (deleteCurrentBoardUpdate$: Observable<void>) =>
-      deleteCurrentBoardUpdate$.pipe(
-        withLatestFrom(this.hasAnsweredYesToDelete$),
-        filter(([, hasAnsweredYesToDelete]) => hasAnsweredYesToDelete),
-        tap(() => this.deleteCurrentBoard()),
-        withLatestFrom(this.boards$),
-        switchMap(([, boards]) => {
-          return this.boardService.deleteCurrentBoard().pipe(
-            tap(() => {
-              if (boards[0]) {
-                this.changeCurrentBoard(boards[0]);
-              }
-            }),
-            catchError((error: string) => {
-              console.log('err deleteCurrentBoardUpdate', error);
-              return throwError(error);
-            })
-          );
-        })
-      )
-  );
-
-  readonly deleteBoardUpdate = this.effect(
-    (deleteBoardUpdate$: Observable<Board>) =>
-      deleteBoardUpdate$.pipe(
-        withLatestFrom(this.hasAnsweredYesToDelete$, this.boards$),
-        filter(([, hasAnsweredYesToDelete]) => hasAnsweredYesToDelete),
-        tap(([board]) => this.deleteBoard(board)),
-        switchMap(([board, , boards]) => {
-          return this.boardService.deleteBoard(board._id).pipe(
-            tap(() => {
-              if (boards[0]) {
-                this.changeCurrentBoard(boards[0]);
-              }
-            }),
-            catchError((error: string) => {
-              console.log('err deleteBoardUpdate', error);
-              return throwError(error);
-            })
-          );
-        })
-      )
-  );
-
   readonly deleteCurrentBoardTagUpdate = this.effect(
     (deleteCurrentBoardTag$: Observable<string>) =>
       deleteCurrentBoardTag$.pipe(
@@ -713,21 +645,6 @@ export class BoardStore extends ComponentStore<BoardStoreState> {
         );
       })
     )
-  );
-
-  readonly changeCurrentBoard = this.effect(
-    (changeCurrentBoard$: Observable<Board>) =>
-      changeCurrentBoard$.pipe(
-        switchMap((board) => {
-          return this.boardService.updateCurrentBoardStatus(board._id).pipe(
-            tap(() => this.updateBoards()),
-            catchError((error) => {
-              console.log('err changeCurrentBoard', error);
-              return throwError(error);
-            })
-          );
-        })
-      )
   );
 
   readonly saveUpdatedCurrentTicketField = this.effect(

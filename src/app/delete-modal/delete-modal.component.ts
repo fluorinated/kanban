@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { BoardStore } from '../board/store/board-store.service';
 import { Observable } from 'rxjs';
+import { SwimlaneStore } from '../swimlane/store/swimlane-store.service';
 
 @Component({
   selector: 'app-delete-modal',
@@ -10,7 +11,10 @@ import { Observable } from 'rxjs';
 export class DeleteModalComponent {
   isDeleteModalOpen$: Observable<boolean>;
 
-  constructor(private boardStore: BoardStore) {
+  constructor(
+    private boardStore: BoardStore,
+    private swimlaneStore: SwimlaneStore
+  ) {
     this.isDeleteModalOpen$ = this.boardStore.isDeleteModalOpen$;
   }
   closeModal(): void {
@@ -18,7 +22,7 @@ export class DeleteModalComponent {
   }
 
   checkClicked(): void {
-    this.boardStore.determineDeleteItem();
+    this.swimlaneStore.determineDeleteCurrentBoardUpdatePagination();
   }
 
   xClicked(): void {

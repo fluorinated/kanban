@@ -278,6 +278,157 @@ export class SwimlaneStore extends ComponentStore<SwimlaneStoreState> {
     }
   );
 
+  readonly determineDeleteCurrentBoardUpdatePagination = this.effect(
+    (determineDeleteCurrentBoardUpdatePagination$: Observable<void>) => {
+      return determineDeleteCurrentBoardUpdatePagination$.pipe(
+        tap(() => {
+          this.determineDeleteItem();
+        }),
+        withLatestFrom(
+          this.boardStore.searchTerm$,
+          this.boardStore.currentBoard$,
+          this.isDueTodayFilterOn$,
+          this.isDueThisWeekFilterOn$,
+          this.isDueThisMonthFilterOn$
+        ),
+        filter(([, , currentBoard, , , ,]) => !!currentBoard),
+        switchMap(
+          ([
+            ,
+            searchTerm,
+            currentBoard,
+            isDueTodayFilterOn,
+            isDueThisWeekFilterOn,
+            isDueThisMonthFilterOn,
+          ]) => {
+            this.changeCurrentBoardUpdatePagination(currentBoard);
+
+            return this.resetPaginationAndFetchBoards(
+              searchTerm,
+              currentBoard,
+              isDueTodayFilterOn,
+              isDueThisWeekFilterOn,
+              isDueThisMonthFilterOn
+            );
+          }
+        )
+      );
+    }
+  );
+
+  readonly determineDeleteItem = this.effect(
+    (determineDeleteItem$: Observable<void>) =>
+      determineDeleteItem$.pipe(
+        tap(() => this.boardStore.setHasAnsweredYesToDelete(true)),
+        withLatestFrom(this.boardStore.itemToDelete$),
+        tap(([, itemToDelete]) => {
+          if (itemToDelete.hasOwnProperty('_id')) {
+            this.deleteBoardUpdate(itemToDelete as Board);
+          } else if (itemToDelete === 'currentBoard') {
+            this.deleteCurrentBoardUpdate();
+          } else if (itemToDelete.hasOwnProperty('ticketNumber')) {
+            this.boardStore.deleteTicketUpdate(itemToDelete as Ticket);
+          } else {
+            this.boardStore.deleteCurrentBoardTagUpdate(itemToDelete as string);
+          }
+        }),
+        tap(() => {
+          this.boardStore.setHasAnsweredYesToDelete(false);
+          this.boardStore.setIsDeleteModalOpen(false);
+        })
+      )
+  );
+
+  readonly changeCurrentBoardUpdatePagination = this.effect(
+    (changeCurrentBoardUpdatePagination$: Observable<Board>) =>
+      changeCurrentBoardUpdatePagination$.pipe(
+        filter((currentBoard) => !!currentBoard),
+        switchMap((currentBoard) => {
+          this.changeCurrentBoard(currentBoard);
+
+          this.resetPagination();
+
+          const paginatedTicketsBoards$ =
+            this.swimlaneService.getTicketsPaginatedWithinBoards();
+
+          return paginatedTicketsBoards$.pipe(
+            mergeMap((boardsArray) => {
+              this.boardStore.setBoards(boardsArray);
+              this.getLaneMaxPagesUpdateInit();
+              return [];
+            }),
+            catchError((error) => {
+              console.log('err changeCurrentBoardUpdatePagination', error);
+              return throwError(error);
+            })
+          );
+        })
+      )
+  );
+
+  readonly deleteCurrentBoardUpdate = this.effect(
+    (deleteCurrentBoardUpdate$: Observable<void>) =>
+      deleteCurrentBoardUpdate$.pipe(
+        withLatestFrom(this.boardStore.hasAnsweredYesToDelete$),
+        filter(([, hasAnsweredYesToDelete]) => hasAnsweredYesToDelete),
+        tap(() => this.boardStore.deleteCurrentBoard()),
+        switchMap(() => {
+          return this.boardService.deleteCurrentBoard().pipe(
+            withLatestFrom(this.boardStore.boards$),
+            tap(([, boards]) => {
+              if (boards[0]) {
+                this.changeCurrentBoard(boards[0]);
+              }
+            }),
+            catchError((error: string) => {
+              console.log('err deleteCurrentBoardUpdate', error);
+              return throwError(error);
+            })
+          );
+        })
+      )
+  );
+
+  readonly deleteBoardUpdate = this.effect(
+    (deleteBoardUpdate$: Observable<Board>) =>
+      deleteBoardUpdate$.pipe(
+        withLatestFrom(
+          this.boardStore.hasAnsweredYesToDelete$,
+          this.boardStore.boards$
+        ),
+        filter(([, hasAnsweredYesToDelete]) => hasAnsweredYesToDelete),
+        tap(([board]) => this.boardStore.deleteBoard(board)),
+        switchMap(([board, , boards]) => {
+          return this.boardService.deleteBoard(board._id).pipe(
+            tap(() => {
+              if (boards[0]) {
+                this.changeCurrentBoard(boards[0]);
+              }
+            }),
+            catchError((error: string) => {
+              console.log('err deleteBoardUpdate', error);
+              return throwError(error);
+            })
+          );
+        })
+      )
+  );
+
+  readonly changeCurrentBoard = this.effect(
+    (changeCurrentBoard$: Observable<Board>) =>
+      changeCurrentBoard$.pipe(
+        switchMap((board) => {
+          return this.boardService.updateCurrentBoardStatus(board._id).pipe(
+            tap(() => this.getBoardsPaginatedWithFiltersInit()),
+            catchError((error) => {
+              console.log('err changeCurrentBoard', error);
+              return throwError(error);
+            })
+          );
+        })
+      )
+  );
+
   readonly getBoardsPaginatedWithFiltersInit = this.effect(
     (setSearchTermUpdatePagination$: Observable<void>) => {
       return setSearchTermUpdatePagination$.pipe(
@@ -688,33 +839,6 @@ export class SwimlaneStore extends ComponentStore<SwimlaneStoreState> {
         })
       );
     }
-  );
-
-  readonly changeCurrentBoardUpdatePagination = this.effect(
-    (changeCurrentBoardUpdatePagination$: Observable<Board>) =>
-      changeCurrentBoardUpdatePagination$.pipe(
-        filter((currentBoard) => !!currentBoard),
-        switchMap((currentBoard) => {
-          this.boardStore.changeCurrentBoard(currentBoard);
-
-          this.resetPagination();
-
-          const paginatedTicketsBoards$ =
-            this.swimlaneService.getTicketsPaginatedWithinBoards();
-
-          return paginatedTicketsBoards$.pipe(
-            mergeMap((boardsArray) => {
-              this.boardStore.setBoards(boardsArray);
-              this.getLaneMaxPagesUpdate(currentBoard);
-              return [];
-            }),
-            catchError((error) => {
-              console.log('err changeCurrentBoardUpdatePagination', error);
-              return throwError(error);
-            })
-          );
-        })
-      )
   );
 
   readonly resetPagination = this.effect(
