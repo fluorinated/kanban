@@ -60,6 +60,19 @@ export class BoardService {
     );
   }
 
+  updateTicket(
+    ticketNumber: string,
+    field: string,
+    value: any
+  ): Observable<Object> {
+    const body = JSON.stringify({ ticketNumber, field, value });
+    return this.http.post<Object>(
+      `${baseUrl}/updateTicket`,
+      body,
+      this.httpOptions
+    );
+  }
+
   addTagToCurrentTicket(
     ticketNumber: string,
     tag?: string

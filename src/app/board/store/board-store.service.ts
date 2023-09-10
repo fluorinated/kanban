@@ -259,6 +259,41 @@ export class BoardStore extends ComponentStore<BoardStoreState> {
     }
   );
 
+  readonly updateTicketFieldInCurrentBoard = this.updater(
+    (
+      state: BoardStoreState,
+      {
+        ticketNumber,
+        field,
+        value,
+      }: { ticketNumber: string; field: string; value: any }
+    ) => {
+      const updatedBoards = state.boards.map((board) => {
+        if (board.isCurrentBoard) {
+          const updatedTickets = board.tickets.map((ticket) => {
+            if (ticket.ticketNumber === ticketNumber) {
+              return {
+                ...ticket,
+                [field]: value,
+              };
+            }
+            return ticket;
+          });
+          return {
+            ...board,
+            tickets: updatedTickets,
+          };
+        }
+        return board;
+      });
+
+      return {
+        ...state,
+        boards: updatedBoards,
+      };
+    }
+  );
+
   readonly addTagToCurrentBoardActiveTags = this.updater(
     (state: BoardStoreState, tag: string) => {
       const updatedBoards = state.boards.map((board) => {
@@ -689,6 +724,36 @@ export class BoardStore extends ComponentStore<BoardStoreState> {
             .pipe(
               catchError((error: string) => {
                 console.log('err removeTagFromCurrentTicketSave', error);
+                return throwError(error);
+              })
+            );
+        })
+      )
+  );
+
+  readonly saveUpdatedCurrentTicketField = this.effect(
+    (
+      saveUpdatedCurrentTicketField$: Observable<{ field: string; value: any }>
+    ) =>
+      saveUpdatedCurrentTicketField$.pipe(
+        withLatestFrom(this.currentTicket$),
+        tap(([vals, currentTicket]) => {
+          this.updateCurrentTicketField({
+            field: vals.field,
+            value: vals.value,
+          });
+          this.updateTicketFieldInCurrentBoard({
+            field: vals.field,
+            value: vals.value,
+            ticketNumber: currentTicket.ticketNumber,
+          });
+        }),
+        switchMap(([vals, currentTicket]) => {
+          return this.boardService
+            .updateTicket(currentTicket.ticketNumber, vals.field, vals.value)
+            .pipe(
+              catchError((error) => {
+                console.log('err saveUpdatedCurrentTicketField', error);
                 return throwError(error);
               })
             );

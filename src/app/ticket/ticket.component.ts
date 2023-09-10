@@ -82,7 +82,7 @@ export class TicketComponent {
 
   saveEditField(field: string, $event: string): void {
     if (field !== 'newTag') {
-      this.swimlaneStore.saveUpdatedCurrentTicketField({
+      this.boardStore.saveUpdatedCurrentTicketField({
         field,
         value: $event,
       });
