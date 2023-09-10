@@ -57,7 +57,6 @@ export class BoardComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.boardStore.updateBoards();
     this.swimlaneStore.getBoardsPaginatedWithFiltersInit();
   }
 
@@ -89,7 +88,7 @@ export class BoardComponent implements OnInit {
   }
 
   saveCurrentBoardTitle($event: string) {
-    this.boardStore.updateCurrentBoardTitle($event);
+    this.boardStore.updateCurrentBoardTitleSave($event);
   }
 
   editBoardTitle(): void {

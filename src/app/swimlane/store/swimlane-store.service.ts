@@ -977,11 +977,7 @@ export class SwimlaneStore extends ComponentStore<SwimlaneStoreState> {
       addNewBoardToBoardsUpdate$.pipe(
         switchMap(() => {
           return this.boardService.addNewBoardToBoards().pipe(
-            tap(() => {
-              this.boardStore.updateBoards();
-              this.getMaxPagesForSwimlaneInit();
-              this.resetPagination();
-            }),
+            tap(() => this.getBoardsPaginatedWithFiltersInit()),
             catchError((error: string) => {
               console.log('err addNewBoardToBoardsUpdate', error);
               return throwError(error);

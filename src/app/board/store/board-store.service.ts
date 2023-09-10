@@ -241,6 +241,24 @@ export class BoardStore extends ComponentStore<BoardStoreState> {
     })
   );
 
+  readonly updateCurrentBoardTitle = this.updater(
+    (state: BoardStoreState, newTitle: string) => {
+      const updatedBoards = state.boards.map((board) => {
+        if (board.isCurrentBoard) {
+          return {
+            ...board,
+            title: newTitle,
+          };
+        }
+        return board;
+      });
+      return {
+        ...state,
+        boards: updatedBoards,
+      };
+    }
+  );
+
   readonly addTagToCurrentBoardActiveTags = this.updater(
     (state: BoardStoreState, tag: string) => {
       const updatedBoards = state.boards.map((board) => {
@@ -309,6 +327,74 @@ export class BoardStore extends ComponentStore<BoardStoreState> {
         tags: [...new Set([...state.currentTicket.tags, tag])],
       },
     })
+  );
+
+  readonly addTagToCurrentTicketWithinBoards = this.updater(
+    (
+      state: BoardStoreState,
+      { ticketNumber, tag }: { ticketNumber: string; tag: string }
+    ) => {
+      const updatedBoards = state.boards.map((board) => {
+        if (board.isCurrentBoard) {
+          const updatedTickets = board.tickets.map((ticket) => {
+            if (ticket.ticketNumber === ticketNumber) {
+              return {
+                ...ticket,
+                tags: [...new Set([...ticket.tags, tag])],
+              };
+            }
+            return ticket;
+          });
+          return {
+            ...board,
+            tickets: updatedTickets,
+          };
+        }
+        return board;
+      });
+
+      return {
+        ...state,
+        boards: updatedBoards,
+      };
+    }
+  );
+
+  readonly removeTagFromCurrentTicketWithinBoards = this.updater(
+    (
+      state: BoardStoreState,
+      {
+        ticketNumber,
+        tagToRemove,
+      }: { ticketNumber: string; tagToRemove: string }
+    ) => {
+      const updatedBoards = state.boards.map((board) => {
+        if (board.isCurrentBoard) {
+          const updatedTickets = board.tickets.map((ticket) => {
+            if (ticket.ticketNumber === ticketNumber) {
+              const updatedTags = ticket.tags.filter(
+                (tag) => tag !== tagToRemove
+              );
+              return {
+                ...ticket,
+                tags: updatedTags,
+              };
+            }
+            return ticket;
+          });
+          return {
+            ...board,
+            tickets: updatedTickets,
+          };
+        }
+        return board;
+      });
+
+      return {
+        ...state,
+        boards: updatedBoards,
+      };
+    }
   );
 
   readonly addTagToCurrentBoard = this.updater(
@@ -458,81 +544,13 @@ export class BoardStore extends ComponentStore<BoardStoreState> {
     }
   );
 
-  readonly addTagToCurrentTicketSave = this.effect(
-    (addTagToCurrentTicketSave$: Observable<string>) =>
-      addTagToCurrentTicketSave$.pipe(
-        withLatestFrom(this.boards$, this.currentTicket$),
-        tap(([tag]) => this.addTagToCurrentTicket(tag)),
-        switchMap(([tag, boards, currentTicket]) => {
-          const updatedBoards = boards.map((board) => {
-            if (board.isCurrentBoard && board.tickets?.length > 0) {
-              const updatedTickets = board.tickets.map((ticket) => {
-                if (ticket.ticketNumber === currentTicket.ticketNumber) {
-                  return {
-                    ...ticket,
-                    tags: [...new Set([...ticket.tags, tag])],
-                  };
-                }
-                return ticket;
-              });
-              return { ...board, tickets: updatedTickets };
-            }
-            return board;
-          });
-
-          return this.boardService.setBoards(updatedBoards).pipe(
-            tap(() => this.updateBoards()),
-            catchError((error: string) => {
-              console.log('err addTagToCurrentTicketSave', error);
-              return throwError(error);
-            })
-          );
-        })
-      )
-  );
-
-  readonly removeTagFromCurrentTicketSave = this.effect(
-    (removeTagFromCurrentTicketSave$: Observable<string>) =>
-      removeTagFromCurrentTicketSave$.pipe(
-        withLatestFrom(this.boards$, this.currentTicket$),
-        tap(([tag]) => this.removeTagFromCurrentTicket(tag)),
-        switchMap(([tag, boards, currentTicket]) => {
-          const updatedBoards = boards.map((board) => {
-            if (board.isCurrentBoard && board.tickets?.length > 0) {
-              const updatedTickets = board.tickets.map((ticket) => {
-                if (ticket.ticketNumber === currentTicket.ticketNumber) {
-                  return {
-                    ...ticket,
-                    tags: ticket.tags.filter((ticketTag) => ticketTag !== tag),
-                  };
-                }
-                return ticket;
-              });
-              return { ...board, tickets: updatedTickets };
-            }
-            return board;
-          });
-
-          return this.boardService.setBoards(updatedBoards).pipe(
-            tap(() => this.updateBoards()),
-            catchError((error: string) => {
-              console.log('err removeTagFromCurrentTicketSave', error);
-              return throwError(error);
-            })
-          );
-        })
-      )
-  );
-
   readonly addNewTagToCurrentBoardTags = this.effect(
     (addNewTagToCurrentBoardTags$: Observable<void>) =>
       addNewTagToCurrentBoardTags$.pipe(
         withLatestFrom(this.ticketStore.newTagName$),
         tap(([, newTagName]) => this.addTagToCurrentBoard(newTagName)),
-        withLatestFrom(this.boards$),
-        switchMap(([, boards]) => {
-          return this.boardService.setBoards(boards).pipe(
-            tap(() => this.updateBoards()),
+        switchMap(([, newTagName]) => {
+          return this.boardService.addTagToCurrentBoard(newTagName).pipe(
             catchError((error: string) => {
               console.log('err addNewTagToCurrentBoardTags', error);
               return throwError(error);
@@ -611,15 +629,15 @@ export class BoardStore extends ComponentStore<BoardStoreState> {
       )
   );
 
-  readonly updateCurrentBoardTitle = this.effect(
+  readonly updateCurrentBoardTitleSave = this.effect(
     (updateCurrentBoardTitle$: Observable<string>) =>
       updateCurrentBoardTitle$.pipe(
         withLatestFrom(this.currentBoard$),
         switchMap(([title, currentBoard]) => {
+          this.updateCurrentBoardTitle(title);
           return this.boardService
             .updateCurrentBoardTitle(title, currentBoard._id)
             .pipe(
-              tap(() => this.updateBoards()),
               catchError((error: string) => {
                 console.log('err updateCurrentBoardTitle', error);
                 return throwError(error);
@@ -630,20 +648,51 @@ export class BoardStore extends ComponentStore<BoardStoreState> {
       )
   );
 
-  readonly updateBoards = this.effect((updateBoards$: Observable<void>) =>
-    updateBoards$.pipe(
-      switchMap(() => {
-        return this.boardService.getBoardsOnlyTenInEachSwimlane().pipe(
-          tapResponse(
-            (res) => {
-              if (res.length > 0) {
-                this.setBoards(res);
-              }
-            },
-            (error: string) => console.log('err updateBoards', error)
-          )
-        );
-      })
-    )
+  readonly addTagToCurrentTicketSave = this.effect(
+    (addTagToCurrentTicketSave$: Observable<string>) =>
+      addTagToCurrentTicketSave$.pipe(
+        withLatestFrom(this.currentTicket$),
+        tap(([tag]) => this.addTagToCurrentTicket(tag)),
+        tap(([tag, currentTicket]) =>
+          this.addTagToCurrentTicketWithinBoards({
+            tag,
+            ticketNumber: currentTicket.ticketNumber,
+          })
+        ),
+        switchMap(([tag, currentTicket]) => {
+          return this.boardService
+            .addTagToCurrentTicket(currentTicket.ticketNumber, tag)
+            .pipe(
+              catchError((error: string) => {
+                console.log('err addTagToCurrentTicketSave', error);
+                return throwError(error);
+              })
+            );
+        })
+      )
+  );
+
+  readonly removeTagFromCurrentTicketSave = this.effect(
+    (removeTagFromCurrentTicketSave$: Observable<string>) =>
+      removeTagFromCurrentTicketSave$.pipe(
+        withLatestFrom(this.currentTicket$),
+        tap(([tag]) => this.removeTagFromCurrentTicket(tag)),
+        tap(([tag, currentTicket]) =>
+          this.removeTagFromCurrentTicketWithinBoards({
+            ticketNumber: currentTicket.ticketNumber,
+            tagToRemove: tag,
+          })
+        ),
+        switchMap(([tag, currentTicket]) => {
+          return this.boardService
+            .removeTagFromCurrentTicket(currentTicket.ticketNumber, tag)
+            .pipe(
+              catchError((error: string) => {
+                console.log('err removeTagFromCurrentTicketSave', error);
+                return throwError(error);
+              })
+            );
+        })
+      )
   );
 }

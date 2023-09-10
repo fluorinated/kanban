@@ -52,6 +52,36 @@ export class BoardService {
     return this.http.post(`${baseUrl}/addNewBoardToBoards`, this.httpOptions);
   }
 
+  addTagToCurrentBoard(tag?: string): Observable<Object> {
+    return this.http.post<Object>(
+      `${baseUrl}/addTagToCurrentBoard`,
+      JSON.stringify({ tag }),
+      this.httpOptions
+    );
+  }
+
+  addTagToCurrentTicket(
+    ticketNumber: string,
+    tag?: string
+  ): Observable<Object> {
+    return this.http.post<Object>(
+      `${baseUrl}/addTagToCurrentTicket`,
+      JSON.stringify({ ticketNumber, tag }),
+      this.httpOptions
+    );
+  }
+
+  removeTagFromCurrentTicket(
+    ticketNumber: string,
+    tagToRemove?: string
+  ): Observable<Object> {
+    return this.http.post<Object>(
+      `${baseUrl}/removeTagFromCurrentTicket`,
+      JSON.stringify({ ticketNumber, tagToRemove }),
+      this.httpOptions
+    );
+  }
+
   updateCurrentBoardTitle(title?: string, _id?: string): Observable<Object> {
     return this.http.post<Object>(
       `${baseUrl}/updateCurrentBoardTitle`,

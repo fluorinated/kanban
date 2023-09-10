@@ -641,6 +641,99 @@ app.post('/addNewBoardToBoards', async (req, res) => {
   }
 });
 
+app.post('/addTagToCurrentTicket', async (req, res) => {
+  try {
+    const { tag, ticketNumber } = req.body;
+    const boards = await getBoards();
+
+    const updatedBoards = boards.map((board) => {
+      if (board.isCurrentBoard && board.tickets?.length > 0) {
+        const updatedTickets = board.tickets.map((ticket) => {
+          if (ticket.ticketNumber === ticketNumber) {
+            return {
+              ...ticket,
+              tags: [...new Set([...ticket.tags, tag])],
+            };
+          }
+          return ticket;
+        });
+        return { ...board, tickets: updatedTickets };
+      }
+      return board;
+    });
+
+    await setBoards(updatedBoards);
+
+    return res.status(200).send({ status: 'OK' });
+  } catch (err) {
+    console.error('Error adding tag to current ticket:', err);
+    return res.status(500).send({ error: 'Internal server error' });
+  }
+});
+
+app.post('/removeTagFromCurrentTicket', async (req, res) => {
+  try {
+    const { tagToRemove, ticketNumber } = req.body;
+    const boards = await getBoards();
+
+    const updatedBoards = boards.map((board) => {
+      if (board.isCurrentBoard && board.tickets?.length > 0) {
+        const updatedTickets = board.tickets.map((ticket) => {
+          if (ticket.ticketNumber === ticketNumber) {
+            const updatedTags = ticket.tags.filter(
+              (tag) => tag !== tagToRemove
+            );
+            return {
+              ...ticket,
+              tags: updatedTags,
+            };
+          }
+          return ticket;
+        });
+        return { ...board, tickets: updatedTickets };
+      }
+      return board;
+    });
+
+    await setBoards(updatedBoards);
+
+    return res.status(200).send({ status: 'OK' });
+  } catch (err) {
+    console.error('Error removing tag from current ticket:', err);
+    return res.status(500).send({ error: 'Internal server error' });
+  }
+});
+
+app.post('/addTagToCurrentBoard', async function (req, res) {
+  try {
+    const newTag = req.body.tag;
+    const boards = await getBoards();
+
+    const currentBoard = boards.find((board) => board.isCurrentBoard);
+
+    if (!currentBoard) {
+      return res.status(400).send('No current board found.');
+    }
+
+    if (!currentBoard.tags) {
+      currentBoard.tags = [];
+    }
+
+    if (currentBoard.tags.includes(newTag)) {
+      return res.status(400).send('Tag already exists in the current board.');
+    }
+
+    currentBoard.tags.push(newTag);
+
+    await setBoards(boards);
+
+    return res.status(200).send({ status: 'OK' });
+  } catch (err) {
+    console.error('Error adding tag:', err);
+    return res.status(500).send(err);
+  }
+});
+
 app.post('/updateTicket', async function (req, res) {
   try {
     const { ticketNumber, field, value } = req.body;
