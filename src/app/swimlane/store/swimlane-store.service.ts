@@ -747,33 +747,6 @@ export class SwimlaneStore extends ComponentStore<SwimlaneStoreState> {
       )
   );
 
-  readonly getMaxPagesForSwimlaneInit = this.effect(
-    (getLaneMaxPagesUpdate$: Observable<void>) => {
-      return getLaneMaxPagesUpdate$.pipe(
-        withLatestFrom(this.boardStore.currentBoard$),
-        switchMap(([, currentBoard]) => {
-          const maxPagesObservables = swimlaneTitles.map((lane) =>
-            this.swimlaneService
-              .getMaxPagesForSwimlane(currentBoard, lane)
-              .pipe(
-                map((maxPages) => ({
-                  lane,
-                  maxPages: maxPages?.maxPages.toString(),
-                }))
-              )
-          );
-
-          return forkJoin(maxPagesObservables);
-        }),
-        tap((results: { lane: string; maxPages: string }[]) => {
-          results.forEach((result) => {
-            this.setLaneMaxPages(result);
-          });
-        })
-      );
-    }
-  );
-
   readonly getLaneMaxPagesFromTickets = this.effect(
     (getLaneMaxPagesFromTickets$: Observable<Ticket[]>) => {
       return getLaneMaxPagesFromTickets$.pipe(
