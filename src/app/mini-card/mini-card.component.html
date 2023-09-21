@@ -3,9 +3,10 @@
   [ngClass]="noDrag ? 'cursor-pointer' : 'mini-card-cursor'"
   (click)="openTicket()"
 >
+  <p class="ticket-number">{{ ticket?.ticketNumber }}</p>
+
   <h3 class="title">{{ ticket?.title }}</h3>
   <div class="tags">
     <app-tags [tags]="ticket?.tags" width="17rem"></app-tags>
   </div>
-  <p class="ticket-number">{{ ticket?.ticketNumber }}</p>
 </div>

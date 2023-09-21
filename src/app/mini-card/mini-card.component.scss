@@ -26,8 +26,9 @@
   -webkit-box-orient: vertical;
   overflow: hidden;
   text-overflow: ellipsis;
-  padding-left: 1rem;
+  padding-left: 0.25rem;
   padding-top: 1rem;
+  font-size: 1rem;
 }
 
 .ticket-number {
@@ -36,10 +37,11 @@
   width: fit-content;
   border-radius: 0.25rem;
   padding: 0.125rem;
-  margin: 1rem;
-  margin-left: 13rem;
+  margin: 6rem 1rem 1rem 0.25rem;
+  position: absolute;
+  font-size: 0.875rem;
 }
 
 .tags {
-  margin-left: 1rem;
+  margin-left: 0.25rem;
 }
