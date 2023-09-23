@@ -808,10 +808,7 @@ export class SwimlaneStore extends ComponentStore<SwimlaneStoreState> {
           return currentBoard
             ? forkJoin(
                 swimlaneTitles.map((lane) =>
-                  this.swimlaneService.getMaxPagesForSwimlane(
-                    currentBoard,
-                    lane
-                  )
+                  this.swimlaneService.getMaxPagesForSwimlane(lane)
                 )
               ).pipe(
                 map((maxPagesArray) =>
@@ -854,26 +851,23 @@ export class SwimlaneStore extends ComponentStore<SwimlaneStoreState> {
   readonly getLaneMaxPagesUpdateInit = this.effect(
     (getLaneMaxPagesUpdate$: Observable<void>) =>
       getLaneMaxPagesUpdate$.pipe(
-        withLatestFrom(this.boardStore.currentBoard$),
-        filter(([, currentBoard]) => !!currentBoard),
-        switchMap(([, currentBoard]) =>
-          currentBoard
-            ? swimlaneTitles.map((lane) =>
-                this.swimlaneService
-                  .getMaxPagesForSwimlane(currentBoard, lane)
-                  .pipe(
-                    map((maxPages) => ({
-                      lane,
-                      maxPages: maxPages?.maxPages.toString(),
-                    }))
-                  )
-              )
-            : of([])
-        ),
-        tap((results: { lane: string; maxPages: string }[]) => {
-          results.forEach((result) => {
-            this.setLaneMaxPages(result);
-          });
+        switchMap(() => {
+          const requests = swimlaneTitles.map((lane) =>
+            this.swimlaneService.getMaxPagesForSwimlane(lane).pipe(
+              map((maxPages) => ({
+                lane,
+                maxPages: maxPages?.maxPages.toString(),
+              }))
+            )
+          );
+
+          return forkJoin(requests).pipe(
+            tap((results: { lane: string; maxPages: string }[]) => {
+              results.forEach((result) => {
+                this.setLaneMaxPages(result);
+              });
+            })
+          );
         })
       )
   );
@@ -935,6 +929,30 @@ export class SwimlaneStore extends ComponentStore<SwimlaneStoreState> {
                 lanePageNumber
               )
               .pipe(
+                withLatestFrom(
+                  this.boardStore.searchTerm$,
+                  this.boardStore.currentBoard$,
+                  this.isDueTodayFilterOn$,
+                  this.isDueThisWeekFilterOn$,
+                  this.isDueThisMonthFilterOn$
+                ),
+                tap(
+                  ([
+                    ,
+                    searchTerm,
+                    currentBoard,
+                    isDueTodayFilterOn,
+                    isDueThisWeekFilterOn,
+                    isDueThisMonthFilterOn,
+                  ]) =>
+                    this.resetPaginationAndFetchBoards(
+                      searchTerm,
+                      currentBoard,
+                      isDueTodayFilterOn,
+                      isDueThisWeekFilterOn,
+                      isDueThisMonthFilterOn
+                    )
+                ),
                 catchError((error) => {
                   console.log('err dropUpdateTicketSwimlane', error);
                   return throwError(error);
@@ -963,81 +981,31 @@ export class SwimlaneStore extends ComponentStore<SwimlaneStoreState> {
   readonly addNewTicketToSwimlane = this.effect(
     (addNewTicketToBoard$: Observable<string>) =>
       addNewTicketToBoard$.pipe(
-        withLatestFrom(
-          this.boardStore.searchTerm$,
-          this.isDueTodayFilterOn$,
-          this.isDueThisWeekFilterOn$,
-          this.isDueThisMonthFilterOn$
-        ),
-        switchMap(
-          ([
-            swimlaneTitle,
-            searchTerm,
-            isDueTodayFilterOn,
-            isDueThisWeekFilterOn,
-            isDueThisMonthFilterOn,
-          ]) => {
-            return this.boardService.getBoards().pipe(
-              switchMap((boards) => {
-                const currentBoard = boards.find(
+        switchMap((swimlaneTitle) => {
+          return this.swimlaneService
+            .addTicketToCurrentBoard(swimlaneTitle)
+            .pipe(
+              tap((boards) => {
+                const currentBoardTickets = boards['boards'].find(
                   (board) => board.isCurrentBoard
+                )?.tickets;
+                swimlaneTitles.map((swimlaneTitle) =>
+                  this.setLanePageNumber({
+                    lanePageNumber: '1',
+                    lane: swimlaneTitle,
+                  })
                 );
-
-                if (!currentBoard) {
-                  return EMPTY;
-                }
-
-                let highestTicketNumber = 0;
-                for (const ticket of currentBoard.tickets) {
-                  const ticketNumber = parseInt(
-                    ticket?.ticketNumber?.split('-')[1]
-                  );
-                  if (
-                    !isNaN(ticketNumber) &&
-                    ticketNumber > highestTicketNumber
-                  ) {
-                    highestTicketNumber = ticketNumber;
-                  }
-                }
-
-                const newTicket: Ticket = {
-                  title: 'ticket title',
-                  ticketNumber: `MD-${highestTicketNumber + 1}`,
-                  description: 'ticket description',
-                  tags: [],
-                  dueDate: getFormattedDate(new Date()),
-                  createdDate: getFormattedDate(new Date()),
-                  swimlaneTitle,
-                  index: 0,
-                };
-
-                return this.swimlaneService
-                  .addTicketToCurrentBoard(newTicket)
-                  .pipe(
-                    switchMap(() =>
-                      this.resetPaginationAndFetchBoards(
-                        searchTerm,
-                        currentBoard,
-                        isDueTodayFilterOn,
-                        isDueThisWeekFilterOn,
-                        isDueThisMonthFilterOn
-                      )
-                    ),
-                    catchError((error) => {
-                      console.log(
-                        'err addNewTicketToBoard addTicketToCurrentBoard',
-                        error
-                      );
-                      return throwError(error);
-                    })
-                  );
+                this.boardStore.setBoards(boards['boards']);
+                this.getLaneMaxPagesFromTickets(currentBoardTickets);
+              }),
+              catchError((error) => {
+                console.log(
+                  'err addNewTicketToBoard addTicketToCurrentBoard',
+                  error
+                );
+                return throwError(error);
               })
             );
-          }
-        ),
-        catchError((error) => {
-          console.log('err addNewTicketToBoard getBoards', error);
-          return throwError(error);
         })
       )
   );

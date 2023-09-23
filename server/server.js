@@ -455,7 +455,9 @@ app.post('/updateTicketSwimlane', async function (req, res) {
         ticket.swimlaneTitle === previousSwimlaneTitle &&
         ticket.ticketNumber !== draggedTicketObject.ticketNumber
       ) {
-        ticket.index = ticket.index - 1;
+        if (ticket.index !== 0) {
+          ticket.index = ticket.index - 1;
+        }
       }
     });
 
@@ -704,9 +706,26 @@ app.post('/updateTicket', async function (req, res) {
   }
 });
 
+const getFormattedDate = (date) => {
+  const daysOfWeek = [
+    'Sunday',
+    'Monday',
+    'Tuesday',
+    'Wednesday',
+    'Thursday',
+    'Friday',
+    'Saturday',
+  ];
+  const dayOfWeek = daysOfWeek[date.getDay()];
+  const day = date.getDate();
+  const month = date.toLocaleString('default', { month: 'long' });
+  const year = date.getFullYear();
+
+  return `${dayOfWeek}, ${month} ${day}, ${year}`.toLowerCase();
+};
+
 app.post('/addTicketToCurrentBoard', async function (req, res) {
   try {
-    const newTicket = req.body;
     const boards = await getBoards();
 
     const currentBoard = boards.find((board) => board.isCurrentBoard);
@@ -718,6 +737,25 @@ app.post('/addTicketToCurrentBoard', async function (req, res) {
     if (!currentBoard.tickets) {
       currentBoard.tickets = [];
     }
+
+    let highestTicketNumber = 0;
+    for (const ticket of currentBoard.tickets) {
+      const ticketNumber = parseInt(ticket?.ticketNumber?.split('-')[1]);
+      if (!isNaN(ticketNumber) && ticketNumber > highestTicketNumber) {
+        highestTicketNumber = ticketNumber;
+      }
+    }
+
+    const newTicket = {
+      title: 'ticket title',
+      ticketNumber: `MD-${highestTicketNumber + 1}`,
+      description: 'ticket description',
+      tags: [],
+      dueDate: getFormattedDate(new Date()),
+      createdDate: getFormattedDate(new Date()),
+      swimlaneTitle: req.body.swimlaneTitle,
+      index: 0,
+    };
 
     // shift the indices for the rest of the tickets in the swimlane
     currentBoard.tickets.forEach((ticket) => {
@@ -733,7 +771,7 @@ app.post('/addTicketToCurrentBoard', async function (req, res) {
 
     await setBoards(boards);
 
-    return res.status(200).send({ status: 'OK' });
+    return res.status(200).send({ boards });
   } catch (err) {
     console.error('Error adding ticket:', err);
     return res.status(500).send(err);

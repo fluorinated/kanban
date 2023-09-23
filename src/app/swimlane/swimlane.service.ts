@@ -26,12 +26,9 @@ export class SwimlaneService {
   constructor(private http: HttpClient) {}
 
   getMaxPagesForSwimlane(
-    currentBoard: Board,
     swimlaneTitle: string
   ): Observable<{ maxPages: string }> {
-    const params = new HttpParams()
-      .set('swimlaneTitle', swimlaneTitle)
-      .set('currentBoard', JSON.stringify(currentBoard));
+    const params = new HttpParams().set('swimlaneTitle', swimlaneTitle);
 
     return this.http.get<{ maxPages: string }>(
       `${baseUrl}/getMaxPagesForSwimlane`,
@@ -52,8 +49,8 @@ export class SwimlaneService {
     return this.http.get<Board[]>(`${baseUrl}/getTicketsPaginatedWithinBoards`);
   }
 
-  addTicketToCurrentBoard(newTicket: Ticket): Observable<Object> {
-    const body = JSON.stringify(newTicket);
+  addTicketToCurrentBoard(swimlaneTitle: string): Observable<Object> {
+    const body = JSON.stringify({ swimlaneTitle });
     return this.http.post<Object>(
       `${baseUrl}/addTicketToCurrentBoard`,
       body,
