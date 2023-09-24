@@ -1,5 +1,11 @@
 import { Observable } from 'rxjs';
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import {
+  Component,
+  EventEmitter,
+  Input,
+  OnChanges,
+  Output,
+} from '@angular/core';
 
 import { Ticket } from '@models/ticket.model';
 import { BoardStore } from '../board/store/board-store.service';
@@ -11,7 +17,7 @@ import { SwimlaneStore } from '../swimlane/store/swimlane-store.service';
   templateUrl: './ticket.component.html',
   styleUrls: ['./ticket.component.scss'],
 })
-export class TicketComponent {
+export class TicketComponent implements OnChanges {
   @Input() ticket: Ticket;
 
   @Output() closeButtonClicked: EventEmitter<void> = new EventEmitter<void>();
@@ -22,6 +28,7 @@ export class TicketComponent {
   isEditingTags$: Observable<boolean>;
   isEditingNewTag$: Observable<boolean>;
   currentBoardTags$: Observable<string[]>;
+  ticketFormattedDescription: string;
 
   constructor(
     private boardStore: BoardStore,
@@ -35,6 +42,15 @@ export class TicketComponent {
     this.isEditingTags$ = this.ticketStore.isEditingTags$;
     this.isEditingNewTag$ = this.ticketStore.isEditingNewTag$;
     this.currentBoardTags$ = this.boardStore.currentBoardTags$;
+  }
+
+  ngOnChanges() {
+    if (this.ticket?.description) {
+      this.ticketFormattedDescription = this.ticket?.description.replace(
+        /\n/g,
+        '<br>'
+      );
+    }
   }
 
   tagClicked(tag: string): void {

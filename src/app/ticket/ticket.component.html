@@ -35,9 +35,8 @@
     *ngIf="(isEditingDescription$ | async) === false"
     class="description"
     (click)="startEditing('description')"
-  >
-    {{ ticket?.description }}
-  </p>
+    [innerHTML]="ticketFormattedDescription"
+  ></p>
 
   <app-input
     *ngIf="isEditingDescription$ | async"
