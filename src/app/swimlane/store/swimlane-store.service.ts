@@ -316,6 +316,7 @@ export class SwimlaneStore extends ComponentStore<SwimlaneStoreState> {
           return paginatedTicketsBoards$.pipe(
             mergeMap((boardsArray) => {
               this.boardStore.setBoards(boardsArray);
+              this.turnOffMainFilters();
               this.getLaneMaxPagesUpdateInit();
               return [];
             }),
@@ -350,7 +351,7 @@ export class SwimlaneStore extends ComponentStore<SwimlaneStoreState> {
               this.isDueThisMonthFilterOn$
             ),
             filter(([, , currentBoard, , , ,]) => !!currentBoard),
-            switchMap(
+            tap(
               ([
                 ,
                 searchTerm,
@@ -361,13 +362,14 @@ export class SwimlaneStore extends ComponentStore<SwimlaneStoreState> {
               ]) => {
                 this.changeCurrentBoardUpdatePagination(currentBoard);
 
-                return this.resetPaginationAndFetchBoards(
+                this.resetPaginationAndFetchBoards({
                   searchTerm,
                   currentBoard,
                   isDueTodayFilterOn,
                   isDueThisWeekFilterOn,
-                  isDueThisMonthFilterOn
-                );
+                  isDueThisMonthFilterOn,
+                  useFilteredTickets: false,
+                });
               }
             ),
             catchError((error: string) => {
@@ -403,7 +405,7 @@ export class SwimlaneStore extends ComponentStore<SwimlaneStoreState> {
               this.isDueThisMonthFilterOn$
             ),
             filter(([, , currentBoard, , , ,]) => !!currentBoard),
-            switchMap(
+            tap(
               ([
                 ,
                 searchTerm,
@@ -414,13 +416,14 @@ export class SwimlaneStore extends ComponentStore<SwimlaneStoreState> {
               ]) => {
                 this.changeCurrentBoardUpdatePagination(currentBoard);
 
-                return this.resetPaginationAndFetchBoards(
+                this.resetPaginationAndFetchBoards({
                   searchTerm,
                   currentBoard,
                   isDueTodayFilterOn,
                   isDueThisWeekFilterOn,
-                  isDueThisMonthFilterOn
-                );
+                  isDueThisMonthFilterOn,
+                  useFilteredTickets: false,
+                });
               }
             ),
             catchError((error: string) => {
@@ -504,22 +507,22 @@ export class SwimlaneStore extends ComponentStore<SwimlaneStoreState> {
           this.isDueThisWeekFilterOn$,
           this.isDueThisMonthFilterOn$
         ),
-        switchMap(
+        tap(
           ([
             searchTerm,
             currentBoard,
             isDueTodayFilterOn,
             isDueThisWeekFilterOn,
             isDueThisMonthFilterOn,
-          ]) => {
-            return this.resetPaginationAndFetchBoards(
+          ]) =>
+            this.resetPaginationAndFetchBoards({
               searchTerm,
               currentBoard,
               isDueTodayFilterOn,
               isDueThisWeekFilterOn,
-              isDueThisMonthFilterOn
-            );
-          }
+              isDueThisMonthFilterOn,
+              useFilteredTickets: true,
+            })
         )
       );
     }
@@ -550,15 +553,16 @@ export class SwimlaneStore extends ComponentStore<SwimlaneStoreState> {
             return this.boardService
               .setActiveTags(activeTags, currentBoard._id)
               .pipe(
-                switchMap(() => {
-                  return this.resetPaginationAndFetchBoards(
+                tap(() =>
+                  this.resetPaginationAndFetchBoards({
                     searchTerm,
                     currentBoard,
                     isDueTodayFilterOn,
                     isDueThisWeekFilterOn,
-                    isDueThisMonthFilterOn
-                  );
-                })
+                    isDueThisMonthFilterOn,
+                    useFilteredTickets: true,
+                  })
+                )
               );
           }
         )
@@ -593,15 +597,16 @@ export class SwimlaneStore extends ComponentStore<SwimlaneStoreState> {
             return this.boardService
               .setActiveTags(activeTags, currentBoard._id)
               .pipe(
-                switchMap(() => {
-                  return this.resetPaginationAndFetchBoards(
+                tap(() =>
+                  this.resetPaginationAndFetchBoards({
                     searchTerm,
                     currentBoard,
                     isDueTodayFilterOn,
                     isDueThisWeekFilterOn,
-                    isDueThisMonthFilterOn
-                  );
-                })
+                    isDueThisMonthFilterOn,
+                    useFilteredTickets: true,
+                  })
+                )
               );
           }
         )
@@ -609,34 +614,53 @@ export class SwimlaneStore extends ComponentStore<SwimlaneStoreState> {
     }
   );
 
-  private resetPaginationAndFetchBoards(
-    searchTerm: string,
-    currentBoard: Board,
-    isDueTodayFilterOn: boolean,
-    isDueThisWeekFilterOn: boolean,
-    isDueThisMonthFilterOn: boolean
-  ): Observable<Board[]> {
-    this.resetPagination();
-    return this.boardService
-      .getBoardsPaginatedWithFilters(
-        searchTerm,
-        currentBoard._id,
-        isDueTodayFilterOn,
-        isDueThisWeekFilterOn,
-        isDueThisMonthFilterOn
-      )
-      .pipe(
-        tap((boards) => {
-          this.boardStore.setBoards(boards);
-          const currentBoard = (boards as Board[]).find(
-            (board) => board.isCurrentBoard
-          );
-          if (currentBoard?.tickets) {
-            this.getLaneMaxPagesFromTickets(currentBoard?.tickets);
-          }
+  readonly resetPaginationAndFetchBoards = this.effect(
+    (
+      resetPaginationAndFetchBoards$: Observable<{
+        searchTerm: string;
+        currentBoard: Board;
+        isDueTodayFilterOn: boolean;
+        isDueThisWeekFilterOn: boolean;
+        isDueThisMonthFilterOn: boolean;
+        useFilteredTickets: boolean;
+      }>
+    ) => {
+      return resetPaginationAndFetchBoards$.pipe(
+        mergeMap((vals) => {
+          const {
+            searchTerm,
+            currentBoard,
+            isDueTodayFilterOn,
+            isDueThisWeekFilterOn,
+            isDueThisMonthFilterOn,
+            useFilteredTickets,
+          } = vals;
+
+          this.resetPagination();
+
+          return this.boardService
+            .getBoardsPaginatedWithFilters(
+              searchTerm,
+              currentBoard._id,
+              isDueTodayFilterOn,
+              isDueThisWeekFilterOn,
+              isDueThisMonthFilterOn
+            )
+            .pipe(
+              tap((boards) => this.boardStore.setBoards(boards)),
+              withLatestFrom(this.filteredTickets$),
+              tap(([_, filteredTickets]) => {
+                if (useFilteredTickets && filteredTickets) {
+                  this.getLaneMaxPagesFromTickets(filteredTickets);
+                } else {
+                  this.getLaneMaxPagesFromTickets(currentBoard.tickets);
+                }
+              })
+            );
         })
       );
-  }
+    }
+  );
 
   readonly setIsDueTodayFilter = this.effect(
     (setIsDueTodayFilter$: Observable<void>) => {
@@ -648,7 +672,7 @@ export class SwimlaneStore extends ComponentStore<SwimlaneStoreState> {
           this.isDueThisWeekFilterOn$,
           this.isDueThisMonthFilterOn$
         ),
-        switchMap(
+        tap(
           ([
             ,
             searchTerm,
@@ -662,13 +686,15 @@ export class SwimlaneStore extends ComponentStore<SwimlaneStoreState> {
             if (!isDueTodayFilterOn) {
               this.setIsDueTodayFilterOn(true);
             }
-            return this.resetPaginationAndFetchBoards(
+
+            this.resetPaginationAndFetchBoards({
               searchTerm,
               currentBoard,
               isDueTodayFilterOn,
               isDueThisWeekFilterOn,
-              isDueThisMonthFilterOn
-            );
+              isDueThisMonthFilterOn,
+              useFilteredTickets: true,
+            });
           }
         )
       );
@@ -685,7 +711,7 @@ export class SwimlaneStore extends ComponentStore<SwimlaneStoreState> {
           this.isDueThisWeekFilterOn$,
           this.isDueThisMonthFilterOn$
         ),
-        switchMap(
+        tap(
           ([
             ,
             searchTerm,
@@ -699,13 +725,15 @@ export class SwimlaneStore extends ComponentStore<SwimlaneStoreState> {
             if (!isDueThisWeekFilterOn) {
               this.setIsDueThisWeekFilterOn(true);
             }
-            return this.resetPaginationAndFetchBoards(
+
+            this.resetPaginationAndFetchBoards({
               searchTerm,
               currentBoard,
               isDueTodayFilterOn,
               isDueThisWeekFilterOn,
-              isDueThisMonthFilterOn
-            );
+              isDueThisMonthFilterOn,
+              useFilteredTickets: true,
+            });
           }
         )
       )
@@ -721,7 +749,7 @@ export class SwimlaneStore extends ComponentStore<SwimlaneStoreState> {
           this.isDueThisWeekFilterOn$,
           this.isDueThisMonthFilterOn$
         ),
-        switchMap(
+        tap(
           ([
             ,
             searchTerm,
@@ -735,13 +763,15 @@ export class SwimlaneStore extends ComponentStore<SwimlaneStoreState> {
             if (!isDueThisMonthFilterOn) {
               this.setIsDueThisMonthFilterOn(true);
             }
-            return this.resetPaginationAndFetchBoards(
+
+            this.resetPaginationAndFetchBoards({
               searchTerm,
               currentBoard,
               isDueTodayFilterOn,
               isDueThisWeekFilterOn,
-              isDueThisMonthFilterOn
-            );
+              isDueThisMonthFilterOn,
+              useFilteredTickets: true,
+            });
           }
         )
       )
@@ -929,30 +959,11 @@ export class SwimlaneStore extends ComponentStore<SwimlaneStoreState> {
                 lanePageNumber
               )
               .pipe(
-                withLatestFrom(
-                  this.boardStore.searchTerm$,
-                  this.boardStore.currentBoard$,
-                  this.isDueTodayFilterOn$,
-                  this.isDueThisWeekFilterOn$,
-                  this.isDueThisMonthFilterOn$
-                ),
-                tap(
-                  ([
-                    ,
-                    searchTerm,
-                    currentBoard,
-                    isDueTodayFilterOn,
-                    isDueThisWeekFilterOn,
-                    isDueThisMonthFilterOn,
-                  ]) =>
-                    this.resetPaginationAndFetchBoards(
-                      searchTerm,
-                      currentBoard,
-                      isDueTodayFilterOn,
-                      isDueThisWeekFilterOn,
-                      isDueThisMonthFilterOn
-                    )
-                ),
+                tap(() => {
+                  this.resetPagination();
+                  this.getBoardsPaginatedWithFiltersInit();
+                  this.getLaneMaxPagesUpdateInit();
+                }),
                 catchError((error) => {
                   console.log('err dropUpdateTicketSwimlane', error);
                   return throwError(error);

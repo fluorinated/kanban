@@ -24,6 +24,7 @@ export class BoardComponent implements OnInit {
   isDueTodayFilterOn$: Observable<boolean>;
   isDueThisWeekFilterOn$: Observable<boolean>;
   isDueThisMonthFilterOn$: Observable<boolean>;
+  isAnyFilterOn$: Observable<boolean>;
   currentTicket$: Observable<Ticket>;
   isEditingCurrentBoardTitle$: Observable<boolean>;
   currentBoardCollapsedLanes$: Observable<string[]>;
@@ -45,6 +46,7 @@ export class BoardComponent implements OnInit {
     this.isDueTodayFilterOn$ = this.swimlaneStore.isDueTodayFilterOn$;
     this.isDueThisWeekFilterOn$ = this.swimlaneStore.isDueThisWeekFilterOn$;
     this.isDueThisMonthFilterOn$ = this.swimlaneStore.isDueThisMonthFilterOn$;
+    this.isAnyFilterOn$ = this.swimlaneStore.isAnyFilterOn$;
     this.currentTicket$ = this.boardStore.currentTicket$;
     this.isEditingCurrentBoardTitle$ =
       this.boardStore.isEditingCurrentBoardTitle$;

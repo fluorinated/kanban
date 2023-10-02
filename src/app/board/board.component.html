@@ -1,14 +1,17 @@
 <app-delete-modal></app-delete-modal>
 <div class="container">
   <div class="top-row">
-    <div class="collapse-search-filters">
-      <app-button (buttonClicked)="openBoards()">
-        <app-icon icon="faAngleRight" color="neutral-2"></app-icon>
-      </app-button>
-      <app-search placeholder="search"></app-search>
-      <app-button (buttonClicked)="openFilters()">
-        <app-icon icon="faFilter" color="neutral-2"></app-icon>
-      </app-button>
+    <div class="btns-with-indicator">
+      <div class="collapse-search-filters">
+        <app-button (buttonClicked)="openBoards()">
+          <app-icon icon="faAngleRight" color="neutral-2"></app-icon>
+        </app-button>
+        <app-search placeholder="search"></app-search>
+        <app-button (buttonClicked)="openFilters()">
+          <app-icon icon="faFilter" color="neutral-2"></app-icon>
+        </app-button>
+      </div>
+      <div *ngIf="isAnyFilterOn$ | async" class="any-filter-on-indicator"></div>
     </div>
 
     <div class="board-title-new-board-btn">

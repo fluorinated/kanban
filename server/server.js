@@ -446,18 +446,32 @@ app.post('/updateTicketSwimlane', async function (req, res) {
       if (
         ticket.index >= newIndexInSwimlane &&
         ticket.swimlaneTitle === newSwimlaneTitle &&
+        newSwimlaneTitle !== previousSwimlaneTitle &&
         ticket.ticketNumber !== draggedTicketObject.ticketNumber
       ) {
         ticket.index = ticket.index + 1;
+      } else if (
+        ticket.index >= newIndexInSwimlane &&
+        ticket.swimlaneTitle === newSwimlaneTitle &&
+        newSwimlaneTitle === previousSwimlaneTitle &&
+        ticket.ticketNumber !== draggedTicketObject.ticketNumber
+      ) {
+        if (ticket.index < previousIndex) {
+          ticket.index = ticket.index + 1;
+        }
       }
       if (
+        ticket.index > newIndexInSwimlane &&
+        ticket.swimlaneTitle === newSwimlaneTitle &&
+        ticket.ticketNumber !== draggedTicketObject.ticketNumber
+      ) {
+        return;
+      } else if (
         ticket.index >= previousIndex &&
         ticket.swimlaneTitle === previousSwimlaneTitle &&
         ticket.ticketNumber !== draggedTicketObject.ticketNumber
       ) {
-        if (ticket.index !== 0) {
-          ticket.index = ticket.index - 1;
-        }
+        ticket.index = ticket.index - 1;
       }
     });
 
