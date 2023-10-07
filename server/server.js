@@ -1,4 +1,5 @@
 var express = require('express');
+var moment = require('moment');
 const cors = require('cors');
 const app = express();
 const { v4: uuidv4 } = require('uuid');
@@ -24,13 +25,6 @@ const client = new MongoClient(uri, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
 });
-const SWIMLANE_TITLES = [
-  'backlog',
-  'rdy 2 start',
-  'in progress',
-  'blocked',
-  'done',
-];
 
 client.connect((err) => {
   if (err) {
@@ -112,24 +106,45 @@ app.get('/getBoardsPaginated', async (req, res) => {
   }
 });
 
-dueThisWeekTickets = (filteredTickets) => {
+getTodayTickets = (filteredTickets, isDue) => {
+  const date = moment();
+
+  let currentDay = String(date.date()).padStart(2, '0');
+  let currentMonth = String(date.month() + 1).padStart(2, '0');
+  let currentYear = date.year();
+
+  // DD-MM-YYYY
+  let currentDate = `${currentDay}-${currentMonth}-${currentYear}`;
+  filteredTickets = filteredTickets.filter((ticket) => {
+    let ticketDueDate = moment(isDue ? ticket.dueDate : ticket.createdDate);
+    let ticketCurrentDay = String(ticketDueDate.date()).padStart(2, '0');
+    let ticketCurrentMonth = String(ticketDueDate.month() + 1).padStart(2, '0');
+    let ticketCurrentYear = ticketDueDate.year();
+    let ticketCurrentDate = `${ticketCurrentDay}-${ticketCurrentMonth}-${ticketCurrentYear}`;
+
+    return currentDate === ticketCurrentDate;
+  });
+  return filteredTickets;
+};
+
+getThisWeekTickets = (filteredTickets, isDue) => {
   var startOfWeek = moment().startOf('week');
   var endOfWeek = moment().endOf('week');
 
   filteredTickets = filteredTickets.filter((ticket) => {
-    let ticketDueDate = new Date(ticket.dueDate);
+    let ticketDueDate = moment(isDue ? ticket.dueDate : ticket.createdDate);
     return moment(ticketDueDate).isBetween(startOfWeek, endOfWeek, null, '[]');
   });
 
   return filteredTickets;
 };
 
-dueThisMonthTickets = (filteredTickets) => {
+getThisMonthTickets = (filteredTickets, isDue) => {
   var startOfMonth = moment().startOf('month');
   var endOfMonth = moment().endOf('month');
 
   filteredTickets = filteredTickets.filter((ticket) => {
-    let ticketDueDate = new Date(ticket.dueDate);
+    let ticketDueDate = moment(isDue ? ticket.dueDate : ticket.createdDate);
     return moment(ticketDueDate).isBetween(
       startOfMonth,
       endOfMonth,
@@ -141,35 +156,13 @@ dueThisMonthTickets = (filteredTickets) => {
   return filteredTickets;
 };
 
-dueTodayTickets = (filteredTickets) => {
-  const date = new Date();
-
-  let currentDay = String(date.getDate()).padStart(2, '0');
-  let currentMonth = String(date.getMonth() + 1).padStart(2, '0');
-  let currentYear = date.getFullYear();
-
-  // DD-MM-YYYY
-  let currentDate = `${currentDay}-${currentMonth}-${currentYear}`;
-  filteredTickets = filteredTickets.filter((ticket) => {
-    let ticketDueDate = new Date(ticket.dueDate);
-    let ticketCurrentDay = String(ticketDueDate.getDate()).padStart(2, '0');
-    let ticketCurrentMonth = String(ticketDueDate.getMonth() + 1).padStart(
-      2,
-      '0'
-    );
-    let ticketCurrentYear = ticketDueDate.getFullYear();
-    let ticketCurrentDate = `${ticketCurrentDay}-${ticketCurrentMonth}-${ticketCurrentYear}`;
-
-    return currentDate === ticketCurrentDate;
-  });
-  return filteredTickets;
-};
-
 const getBoardsPaginatedWithFilters = async (req) => {
   const searchTerm = req.query.searchTerm;
-  const isDueTodayFilterOn = req.query.isDueTodayFilterOn === true;
-  const isDueThisWeekFilterOn = req.query.isDueThisWeek === true;
-  const isDueThisMonthFilterOn = req.query.isDueThisMonth === true;
+  const isDueCreatedTodayFilterOn =
+    req.query.isDueCreatedTodayFilterOn === true;
+  const isDueCreatedThisWeekFilterOn = req.query.isDueCreatedThisWeek === true;
+  const isDueCreatedThisMonthFilterOn =
+    req.query.isDueCreatedThisMonth === true;
   const paginatedBoards = await getBoards(req);
 
   const filteredBoards = paginatedBoards.map((board) => {
@@ -188,19 +181,35 @@ const getBoardsPaginatedWithFilters = async (req) => {
           ticket.tags.some((tag) => board.activeTags.includes(tag));
 
         const isDueToday =
-          isDueTodayFilterOn && dueTodayTickets([ticket]).length > 0;
+          isDueCreatedTodayFilterOn &&
+          getTodayTickets([ticket], true).length > 0;
         const isDueThisWeek =
-          isDueThisWeekFilterOn && dueThisWeekTickets([ticket]).length > 0;
+          isDueCreatedThisWeekFilterOn &&
+          dueThisWeekTickets([ticket], true).length > 0;
         const isDueThisMonth =
-          isDueThisMonthFilterOn && dueThisMonthTickets([ticket]).length > 0;
+          isDueCreatedThisMonthFilterOn &&
+          dueThisMonthTickets([ticket], true).length > 0;
+
+        const isCreatedToday =
+          isDueCreatedTodayFilterOn &&
+          createdTodayTickets([ticket], false).length > 0;
+        const isCreatedThisWeek =
+          isDueCreatedThisWeekFilterOn &&
+          createdThisWeekTickets([ticket], false).length > 0;
+        const isCreatedThisMonth =
+          isDueCreatedThisMonthFilterOn &&
+          createdThisMonthTickets([ticket], false).length > 0;
 
         return (
           (ticket.description.includes(searchTerm) ||
             ticket.title.includes(searchTerm)) &&
           hasMatchingTags &&
-          (!isDueTodayFilterOn || isDueToday) &&
-          (!isDueThisWeekFilterOn || isDueThisWeek) &&
-          (!isDueThisMonthFilterOn || isDueThisMonth)
+          (!isDueCreatedTodayFilterOn || isDueToday) &&
+          (!isDueCreatedThisWeekFilterOn || isDueThisWeek) &&
+          (!isDueCreatedThisMonthFilterOn || isDueThisMonth) &&
+          (!isDueCreatedTodayFilterOn || isCreatedToday) &&
+          (!isDueCreatedThisWeekFilterOn || isCreatedThisWeek) &&
+          (!isDueCreatedThisMonthFilterOn || isCreatedThisMonth)
         );
       });
 
@@ -720,24 +729,6 @@ app.post('/updateTicket', async function (req, res) {
   }
 });
 
-const getFormattedDate = (date) => {
-  const daysOfWeek = [
-    'Sunday',
-    'Monday',
-    'Tuesday',
-    'Wednesday',
-    'Thursday',
-    'Friday',
-    'Saturday',
-  ];
-  const dayOfWeek = daysOfWeek[date.getDay()];
-  const day = date.getDate();
-  const month = date.toLocaleString('default', { month: 'long' });
-  const year = date.getFullYear();
-
-  return `${dayOfWeek}, ${month} ${day}, ${year}`.toLowerCase();
-};
-
 app.post('/addTicketToCurrentBoard', async function (req, res) {
   try {
     const boards = await getBoards();
@@ -765,8 +756,11 @@ app.post('/addTicketToCurrentBoard', async function (req, res) {
       ticketNumber: `MD-${highestTicketNumber + 1}`,
       description: 'ticket description',
       tags: [],
-      dueDate: getFormattedDate(new Date()),
-      createdDate: getFormattedDate(new Date()),
+      dueDate: moment().format('dddd, MMMM D, YYYY').toString().toLowerCase(),
+      createdDate: moment()
+        .format('dddd, MMMM D, YYYY')
+        .toString()
+        .toLowerCase(),
       swimlaneTitle: req.body.swimlaneTitle,
       index: 0,
     };

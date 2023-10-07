@@ -42,23 +42,20 @@ export const filterTicketsByMatchingActiveTags = (
   return currentBoardTickets;
 };
 
-export const dueTodayTickets = (filteredTickets: Ticket[]) => {
-  const date = new Date();
+export const getTodayTickets = (filteredTickets: Ticket[], isDue: boolean) => {
+  const date = moment();
 
-  let currentDay = String(date.getDate()).padStart(2, '0');
-  let currentMonth = String(date.getMonth() + 1).padStart(2, '0');
-  let currentYear = date.getFullYear();
+  let currentDay = String(date.date()).padStart(2, '0');
+  let currentMonth = String(date.month() + 1).padStart(2, '0');
+  let currentYear = date.year();
 
   // DD-MM-YYYY
   let currentDate = `${currentDay}-${currentMonth}-${currentYear}`;
   filteredTickets = filteredTickets.filter((ticket) => {
-    let ticketDueDate = new Date(ticket.dueDate);
-    let ticketCurrentDay = String(ticketDueDate.getDate()).padStart(2, '0');
-    let ticketCurrentMonth = String(ticketDueDate.getMonth() + 1).padStart(
-      2,
-      '0'
-    );
-    let ticketCurrentYear = ticketDueDate.getFullYear();
+    let ticketDueDate = moment(isDue ? ticket.dueDate : ticket.createdDate);
+    let ticketCurrentDay = String(ticketDueDate.date()).padStart(2, '0');
+    let ticketCurrentMonth = String(ticketDueDate.month() + 1).padStart(2, '0');
+    let ticketCurrentYear = ticketDueDate.year();
     let ticketCurrentDate = `${ticketCurrentDay}-${ticketCurrentMonth}-${ticketCurrentYear}`;
 
     return currentDate === ticketCurrentDate;
@@ -66,24 +63,30 @@ export const dueTodayTickets = (filteredTickets: Ticket[]) => {
   return filteredTickets;
 };
 
-export const dueThisWeekTickets = (filteredTickets: Ticket[]) => {
+export const getThisWeekTickets = (
+  filteredTickets: Ticket[],
+  isDue: boolean
+) => {
   var startOfWeek = moment().startOf('week');
   var endOfWeek = moment().endOf('week');
 
   filteredTickets = filteredTickets.filter((ticket) => {
-    let ticketDueDate = new Date(ticket.dueDate);
+    let ticketDueDate = moment(isDue ? ticket.dueDate : ticket.createdDate);
     return moment(ticketDueDate).isBetween(startOfWeek, endOfWeek, null, '[]');
   });
 
   return filteredTickets;
 };
 
-export const dueThisMonthTickets = (filteredTickets: Ticket[]) => {
+export const getThisMonthTickets = (
+  filteredTickets: Ticket[],
+  isDue: boolean
+) => {
   var startOfMonth = moment().startOf('month');
   var endOfMonth = moment().endOf('month');
 
   filteredTickets = filteredTickets.filter((ticket) => {
-    let ticketDueDate = new Date(ticket.dueDate);
+    let ticketDueDate = moment(isDue ? ticket.dueDate : ticket.createdDate);
     return moment(ticketDueDate).isBetween(
       startOfMonth,
       endOfMonth,

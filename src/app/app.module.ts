@@ -33,6 +33,7 @@ import { DeleteModalComponent } from './delete-modal/delete-modal.component';
 import { PaginatorComponent } from './paginator/paginator.component';
 import { SwimlaneStore } from './swimlane/store/swimlane-store.service';
 import { SwimlaneService } from './swimlane/swimlane.service';
+import { ToggleComponent } from './toggle/toggle.component';
 @NgModule({
   imports: [
     CommonModule,
@@ -66,6 +67,7 @@ import { SwimlaneService } from './swimlane/swimlane.service';
     FiltersListComponent,
     DeleteModalComponent,
     PaginatorComponent,
+    ToggleComponent,
   ],
   providers: [
     BoardService,

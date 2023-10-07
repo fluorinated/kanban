@@ -27,14 +27,14 @@
   overflow: hidden;
   text-overflow: ellipsis;
   padding-left: 0.25rem;
-  padding-top: 1rem;
+  padding-top: 0.5rem;
   font-size: 1rem;
 }
 
 .ticket-number {
   background-color: var(--neutral-3-50);
   color: var(--neutral-2);
-  width: fit-content;
+  width: max-content;
   border-radius: 0.25rem;
   padding: 0.125rem;
   margin: 6rem 1rem 1rem 0.25rem;
@@ -44,4 +44,19 @@
 
 .tags {
   margin-left: 0.25rem;
+}
+
+@media only screen and (max-width: 640px) {
+  .ticket-number {
+    font-size: 10px;
+    margin: 4.25rem 0 1rem 0.25rem;
+  }
+  .title {
+    font-size: 12px;
+    padding-top: 0.25rem;
+  }
+  .mini-card {
+    width: 13rem;
+    height: 6rem;
+  }
 }

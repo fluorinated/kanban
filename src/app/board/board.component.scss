@@ -16,24 +16,16 @@
 
 .collapse-search-filters {
   display: flex;
-  flex-direction: row;
-  width: 19rem;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.btns-with-indicator {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
 }
 
 .any-filter-on-indicator {
   background-color: var(--pink-1);
-  height: 25px;
-  width: 25px;
+  height: 16px;
+  width: 16px;
   border-radius: 50%;
-  margin-left: 1rem;
+  margin-left: 18.5rem;
+  position: absolute;
+  margin-top: -3.25rem;
 }
 
 .board-title-new-board-btn {
@@ -67,9 +59,8 @@
 
 .due-date-button-filters {
   display: flex;
-  width: 22rem;
+  width: 17rem;
   justify-content: space-between;
-  padding-bottom: 1rem;
   color: var(--neutral-2);
   cursor: pointer;
 }
@@ -79,10 +70,64 @@
   border-radius: 0.25rem;
 }
 
+.due-filters-with-toggle {
+  display: flex;
+  align-items: center;
+  padding-bottom: 1rem;
+}
+
+.due-today-filter {
+  margin-left: 1rem;
+}
+
 .delete-board {
   margin-left: 1rem;
 }
 
 .filter-active {
   background-color: var(--neutral-3);
+}
+
+.search {
+  margin-right: 1rem;
+}
+.toggle-boards {
+  margin-right: 1rem;
+}
+
+@media only screen and (max-width: 640px) {
+  .container {
+    padding: 0.5rem;
+  }
+  .board-title {
+    font-size: 16px;
+  }
+  .top-row {
+    align-items: normal;
+    flex-direction: column;
+  }
+  .board-title-new-board-btn {
+    margin-top: 1rem;
+  }
+  .current-board-title {
+    justify-content: flex-start;
+  }
+  .due-date-button-filters {
+    font-size: 12px;
+    width: 13rem;
+    margin-left: 0.5rem;
+  }
+  .due-date-button-filter {
+    margin-left: 0.25rem;
+  }
+  .toggle-due-created {
+    margin-left: 0.25rem;
+  }
+  .open {
+    top: 0rem;
+    z-index: 1;
+  }
+  .right.open {
+    right: 0rem;
+  }
 }

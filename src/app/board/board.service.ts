@@ -31,12 +31,12 @@ export class BoardService {
   getBoardsPaginatedWithFilters(
     searchTerm: string,
     boardId: string,
-    isDueTodayFilterOn: boolean,
-    isDueThisWeekFilterOn: boolean,
-    isDueThisMonthFilterOn: boolean
+    isDueCreatedTodayFilterOn: boolean,
+    isDueCreatedThisWeekFilterOn: boolean,
+    isDueCreatedThisMonthFilterOn: boolean
   ): Observable<Board[]> {
     return this.http.get<Board[]>(
-      `${baseUrl}/getBoardsPaginatedWithFilters?searchTerm=${searchTerm}&boardId=${boardId}&isDueTodayFilterOn=${isDueTodayFilterOn}&isDueThisWeekFilterOn=${isDueThisWeekFilterOn}&isDueThisMonthFilterOn=${isDueThisMonthFilterOn}`
+      `${baseUrl}/getBoardsPaginatedWithFilters?searchTerm=${searchTerm}&boardId=${boardId}&isDueCreatedTodayFilterOn=${isDueCreatedTodayFilterOn}&isDueCreatedThisWeekFilterOn=${isDueCreatedThisWeekFilterOn}&isDueCreatedThisMonthFilterOn=${isDueCreatedThisMonthFilterOn}`
     );
   }
 

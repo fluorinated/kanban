@@ -21,13 +21,16 @@ export class BoardComponent implements OnInit {
   isTicketOpen$: Observable<boolean>;
   isBoardsListOpen$: Observable<boolean>;
   isFiltersListOpen$: Observable<boolean>;
-  isDueTodayFilterOn$: Observable<boolean>;
-  isDueThisWeekFilterOn$: Observable<boolean>;
-  isDueThisMonthFilterOn$: Observable<boolean>;
+  isDueFilterOn$: Observable<boolean>;
+  isDueCreatedTodayFilterOn$: Observable<boolean>;
+  isDueCreatedThisWeekFilterOn$: Observable<boolean>;
+  isDueCreatedThisMonthFilterOn$: Observable<boolean>;
   isAnyFilterOn$: Observable<boolean>;
   currentTicket$: Observable<Ticket>;
   isEditingCurrentBoardTitle$: Observable<boolean>;
   currentBoardCollapsedLanes$: Observable<string[]>;
+
+  isDueSliderOn: boolean = true;
 
   constructor(
     private boardStore: BoardStore,
@@ -43,15 +46,19 @@ export class BoardComponent implements OnInit {
     this.isTicketOpen$ = this.boardStore.isTicketOpen$;
     this.isBoardsListOpen$ = this.boardStore.isBoardsListOpen$;
     this.isFiltersListOpen$ = this.boardStore.isFiltersListOpen$;
-    this.isDueTodayFilterOn$ = this.swimlaneStore.isDueTodayFilterOn$;
-    this.isDueThisWeekFilterOn$ = this.swimlaneStore.isDueThisWeekFilterOn$;
-    this.isDueThisMonthFilterOn$ = this.swimlaneStore.isDueThisMonthFilterOn$;
+    this.isDueCreatedTodayFilterOn$ =
+      this.swimlaneStore.isDueCreatedTodayFilterOn$;
+    this.isDueCreatedThisWeekFilterOn$ =
+      this.swimlaneStore.isDueCreatedThisWeekFilterOn$;
+    this.isDueCreatedThisMonthFilterOn$ =
+      this.swimlaneStore.isDueCreatedThisMonthFilterOn$;
     this.isAnyFilterOn$ = this.swimlaneStore.isAnyFilterOn$;
     this.currentTicket$ = this.boardStore.currentTicket$;
     this.isEditingCurrentBoardTitle$ =
       this.boardStore.isEditingCurrentBoardTitle$;
     this.currentBoardCollapsedLanes$ =
       this.boardStore.currentBoardCollapsedLanes$;
+    this.isDueFilterOn$ = this.swimlaneStore.isDueFilterOn$;
   }
 
   changeCurrentBoard(board: Board): void {
@@ -106,16 +113,16 @@ export class BoardComponent implements OnInit {
     this.boardStore.setItemToDelete($event);
   }
 
-  setIsDueTodayFilterOn(): void {
-    this.swimlaneStore.setIsDueTodayFilter();
+  setIsDueCreatedTodayFilterOn(): void {
+    this.swimlaneStore.setIsDueCreatedTodayFilter();
   }
 
-  setIsDueThisWeekFilterOn(): void {
-    this.swimlaneStore.setIsDueThisWeekFilter();
+  setIsDueCreatedThisWeekFilterOn(): void {
+    this.swimlaneStore.setIsDueCreatedThisWeekFilter();
   }
 
-  setIsDueThisMonthFilterOn(): void {
-    this.swimlaneStore.setIsDueThisMonthFilter();
+  setIsDueCreatedThisMonthFilterOn(): void {
+    this.swimlaneStore.setIsDueCreatedThisMonthFilter();
   }
 
   handleDeleteCurrentBoard(): void {
