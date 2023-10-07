@@ -16,20 +16,7 @@
 }
 
 body {
-  background-color: var(--neutral-4);
-}
-
-html,
-body {
   margin: 0;
-  padding: 0;
   font-family: 'Inter', sans-serif;
-}
-
-* {
-  box-sizing: border-box;
-}
-
-a {
-  text-decoration: none;
+  background-color: var(--neutral-4);
 }
