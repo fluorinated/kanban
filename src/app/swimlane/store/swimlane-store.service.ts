@@ -336,6 +336,7 @@ export class SwimlaneStore extends ComponentStore<SwimlaneStoreState> {
               this.boardStore.setBoards(boardsArray);
               this.turnOffMainFilters();
               this.getLaneMaxPagesUpdateInit();
+              this.boardStore.setIsBoardsListOpen(false);
               return [];
             }),
             catchError((error) => {
