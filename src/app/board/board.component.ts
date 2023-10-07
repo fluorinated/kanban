@@ -63,6 +63,7 @@ export class BoardComponent implements OnInit {
 
   changeCurrentBoard(board: Board): void {
     this.swimlaneStore.changeCurrentBoardUpdatePagination(board);
+    this.closeBoards();
   }
 
   ngOnInit(): void {
