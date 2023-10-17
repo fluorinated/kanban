@@ -1,8 +1,16 @@
 <ng-container [formGroup]="form" *ngIf="!isTextarea">
+  <app-icon
+    *ngIf="isSearch"
+    class="search-icon"
+    icon="faSearch"
+    color="neutral-2"
+    size="medium"
+  ></app-icon>
   <input
     #input
     class="input"
     type="text"
+    [ngClass]="isSearch ? 'search-input' : ''"
     [placeholder]="placeholder"
     [value]="value"
     formControlName="control"

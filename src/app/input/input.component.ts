@@ -24,6 +24,7 @@ export class InputComponent implements OnInit, OnChanges {
   @Input() isTextarea: boolean;
   @Input() showTextareaMarginTop: boolean;
   @Input() h2: boolean = false;
+  @Input() isSearch: boolean = false;
   @Output() onKeyUp: EventEmitter<string> = new EventEmitter<string>();
   @Output() onBlur: EventEmitter<string> = new EventEmitter<string>();
   @Output() optionClicked: EventEmitter<string> = new EventEmitter<string>();
