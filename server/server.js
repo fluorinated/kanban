@@ -201,15 +201,18 @@ const getBoardsPaginatedWithFilters = async (req) => {
           createdThisMonthTickets([ticket], false).length > 0;
 
         return (
-          (ticket.description.includes(searchTerm) ||
-            ticket.title.includes(searchTerm)) &&
-          hasMatchingTags &&
-          (!isDueCreatedTodayFilterOn || isDueToday) &&
-          (!isDueCreatedThisWeekFilterOn || isDueThisWeek) &&
-          (!isDueCreatedThisMonthFilterOn || isDueThisMonth) &&
-          (!isDueCreatedTodayFilterOn || isCreatedToday) &&
-          (!isDueCreatedThisWeekFilterOn || isCreatedThisWeek) &&
-          (!isDueCreatedThisMonthFilterOn || isCreatedThisMonth)
+          (ticket?.ticketNumber)
+            .toLowerCase()
+            .includes(searchTerm.toLowerCase()) ||
+          ((ticket.description.includes(searchTerm.toLowerCase()) ||
+            ticket.title.includes(searchTerm.toLowerCase())) &&
+            hasMatchingTags &&
+            (!isDueCreatedTodayFilterOn || isDueToday) &&
+            (!isDueCreatedThisWeekFilterOn || isDueThisWeek) &&
+            (!isDueCreatedThisMonthFilterOn || isDueThisMonth) &&
+            (!isDueCreatedTodayFilterOn || isCreatedToday) &&
+            (!isDueCreatedThisWeekFilterOn || isCreatedThisWeek) &&
+            (!isDueCreatedThisMonthFilterOn || isCreatedThisMonth))
         );
       });
 
