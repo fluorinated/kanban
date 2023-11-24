@@ -54,7 +54,7 @@ export const getTodayTickets = (filteredTickets: Ticket[], isDue: boolean) => {
   filteredTickets = filteredTickets.filter((ticket) => {
     let ticketDueDate = moment(
       isDue ? ticket.dueDate : ticket.createdDate,
-      'dddd, MMMM D YYYY'
+      'dddd, MMMM D, YYYY'
     );
     let ticketCurrentDay = String(ticketDueDate.date()).padStart(2, '0');
     let ticketCurrentMonth = String(ticketDueDate.month() + 1).padStart(2, '0');
@@ -76,9 +76,9 @@ export const getThisWeekTickets = (
   filteredTickets = filteredTickets.filter((ticket) => {
     let ticketDueDate = moment(
       isDue ? ticket.dueDate : ticket.createdDate,
-      'dddd, MMMM D YYYY'
+      'dddd, MMMM D, YYYY'
     );
-    return moment(ticketDueDate, 'dddd, MMMM D YYYY').isBetween(
+    return moment(ticketDueDate, 'dddd, MMMM D, YYYY').isBetween(
       startOfWeek,
       endOfWeek,
       null,
@@ -99,9 +99,9 @@ export const getThisMonthTickets = (
   filteredTickets = filteredTickets.filter((ticket) => {
     let ticketDueDate = moment(
       isDue ? ticket.dueDate : ticket.createdDate,
-      'dddd, MMMM D YYYY'
+      'dddd, MMMM D, YYYY'
     );
-    return moment(ticketDueDate, 'dddd, MMMM D YYYY').isBetween(
+    return moment(ticketDueDate, 'dddd, MMMM D, YYYY').isBetween(
       startOfMonth,
       endOfMonth,
       null,

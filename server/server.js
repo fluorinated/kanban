@@ -201,11 +201,11 @@ const getBoardsPaginatedWithFilters = async (req) => {
           createdThisMonthTickets([ticket], false).length > 0;
 
         return (
-          (ticket?.ticketNumber)
+          ticket.ticketNumber
             .toLowerCase()
             .includes(searchTerm.toLowerCase()) ||
-          ((ticket.description.includes(searchTerm.toLowerCase()) ||
-            ticket.title.includes(searchTerm.toLowerCase())) &&
+          ticket.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          (ticket.title.toLowerCase().includes(searchTerm.toLowerCase()) &&
             hasMatchingTags &&
             (!isDueCreatedTodayFilterOn || isDueToday) &&
             (!isDueCreatedThisWeekFilterOn || isDueThisWeek) &&

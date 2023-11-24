@@ -4,6 +4,7 @@ import { ComponentStore } from '@ngrx/component-store';
 import { EMPTY, Observable, forkJoin, of, throwError } from 'rxjs';
 import {
   catchError,
+  debounceTime,
   filter,
   map,
   mergeMap,
@@ -519,7 +520,7 @@ export class SwimlaneStore extends ComponentStore<SwimlaneStoreState> {
   readonly setSearchTermUpdatePagination = this.effect(
     (setSearchTermUpdatePagination$: Observable<string>) => {
       return setSearchTermUpdatePagination$.pipe(
-        tap((value) => this.boardStore.setSearchTerm(value)),
+        debounceTime(300),
         withLatestFrom(
           this.boardStore.currentBoard$,
           this.isDueCreatedTodayFilterOn$,
@@ -533,7 +534,8 @@ export class SwimlaneStore extends ComponentStore<SwimlaneStoreState> {
             isDueCreatedTodayFilterOn,
             isDueCreatedThisWeekFilterOn,
             isDueCreatedThisMonthFilterOn,
-          ]) =>
+          ]) => {
+            this.boardStore.setSearchTerm(searchTerm);
             this.resetPaginationAndFetchBoards({
               searchTerm,
               currentBoard,
@@ -541,7 +543,8 @@ export class SwimlaneStore extends ComponentStore<SwimlaneStoreState> {
               isDueCreatedThisWeekFilterOn,
               isDueCreatedThisMonthFilterOn,
               useFilteredTickets: true,
-            })
+            });
+          }
         )
       );
     }
